@@ -1,0 +1,9 @@
+### Maven ###
+target/
+pom.xml.*
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr

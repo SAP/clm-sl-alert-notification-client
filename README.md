@@ -6,14 +6,19 @@
 [![Slack](https://img.shields.io/badge/Slack-%23Alert%20Notification-fa1153.svg)](https://sap-cp.slack.com/messages/CAKC5DE72)
 [![Documentation](https://img.shields.io/badge/Documentation-@SAP%20Help%20Portal-ff9900.svg)](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/b90ed0f3a9604f8e844c73a78d5fad45.html)
 [![Blog](https://img.shields.io/badge/Blog-@SAP%20Community-03cdff.svg)](https://blogs.sap.com/tag/sap-cloud-platform-alert-notification/)
-[![Video](https://img.shields.io/badge/Video-@SAP%20Videos-8c02db.svg)](https://TO_DO)
+[![Video](https://img.shields.io/badge/Video-@SAP%20Videos-8c02db.svg)](https://video.sap.com/embedplaylist/secure/embed/playlistId/1_qo955uqi/v2/0/uiConfId/29075341)
 
 ### 1. Introduction
-Alert Notification provides means for posting real-time crucial events right from the application and then receiving those 
-events on whatever channel is preferred - e-mail, Slack, custom webhook, or even events can be stored in 
-Alert Notification storage and pulled from it later. The client library provides the utilities to post events and to pull 
-the stored ones. Something more, Alert Notification also stores the events that have failed for some reason to be delivered - 
-they can be retrieved via the library, as well.
+SAP Cloud Platform Alert Notification is part of the DevOps portfolio of the SAP Cloud Platform. The service is specialized in instant delivery of events coming straight from the core platform services, e.g. 
+database or application monitoring tools. This way you're always the first one notified whenever an issue with your dependency occurs. Additionally, Alert Notification provides means for posting real-time 
+crucial events directly from your application. All those events altogether - either your custom events, or the platform ones, could be received on whatever channel is preferred - e-mail, Slack, custom webhook. 
+Furthermore, events can be even stored in Alert Notification storage and pulled from it later. 
+
+
+This library focuses on two major aspects: 
+1. Posting of custom events from your application;
+2. Pulling of already stored events - either custom, or platform events, and on the other hand, either stored by request, or stored because the requested action has failed for some reason.   
+
 
 In this tutorial, we'll take a deep dive at the library's capabilities.
 
@@ -252,3 +257,15 @@ the following configuration:
 Once the event from step 5) is posted, there will be one stored event immediately accessible on the Matched Events API. Another 
 event will be stored as an undelivered event after the webhook [retry policy](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/da4fd4e6d0f74bd6b0939145d0e6b8f1.html)
 expires. Then it will be available on the Undelivered Events endpoint.
+
+
+### 9. Have an issue?
+Please, let us know by filing a [new issue](https://github.com/sap-staging/clm-sl-alert-notification-client/issues/new). 
+
+### 10. Contributing
+We're always open for improvements! If you think the library could be better, please, open an issue and propose your solution as a pull request. We will contact you for discussion as soon as possible.
+
+### 11. License
+This project is run under the licensing terms of Apache License 2.0. The paper could be found in the [LICENSE](https://github.com/sap-staging/clm-sl-alert-notification-client/blob/master/LICENSE) file 
+in the top-level directory. 
+

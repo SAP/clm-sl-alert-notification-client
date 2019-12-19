@@ -20,8 +20,18 @@ This library focuses on two major aspects:
 
 In this tutorial, we'll take a deep dive at the library's capabilities.
 
-### 2. Usage
-We're working on release into the Central Repository. Till then, the library could be checked out and locally built by means of Apache Maven.
+### 2. The Maven Dependency
+As usual, to get started using a new library, we first need to add either the binary itself or just a dependency for it:
+
+```xml 
+<dependency>
+    <groupId>com.sap.cloud</groupId>
+    <artifactId>alert-notification-client</artifactId>
+    <version>${latest.version}</version>
+</dependency>
+```
+
+Latest version & more dependency declaration examples see on [SAP Cloud Platform Alert Notification@MVNrepository](https://mvnrepository.com/artifact/com.sap.cloud.ans/clm-sl-alert-notification-client).
 
 ### 3. Setting Up the Alert Notification Client
 As a prerequisite of this step is already being an Alert Notification customer and also having credentials for API interactions. If not,

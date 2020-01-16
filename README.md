@@ -25,8 +25,8 @@ As usual, to get started using a new library, we first need to add either the bi
 
 ```xml 
 <dependency>
-    <groupId>com.sap.cloud</groupId>
-    <artifactId>alert-notification-client</artifactId>
+    <groupId>com.sap.cloud.ans</groupId>
+    <artifactId>clm-sl-alert-notification-client</artifactId>
     <version>${latest.version}</version>
 </dependency>
 ```

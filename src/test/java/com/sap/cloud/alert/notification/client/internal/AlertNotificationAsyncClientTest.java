@@ -3,6 +3,10 @@ package com.sap.cloud.alert.notification.client.internal;
 import com.sap.cloud.alert.notification.client.IAlertNotificationClient;
 import com.sap.cloud.alert.notification.client.ICustomerResourceEventBuffer;
 import com.sap.cloud.alert.notification.client.QueryParameter;
+import com.sap.cloud.alert.notification.client.builder.AlertNotificationAsyncClientBuilder;
+import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
+import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
+import com.sap.cloud.alert.notification.client.model.AffectedCustomerResource;
 import com.sap.cloud.alert.notification.client.model.CustomerResourceEvent;
 import com.sap.cloud.alert.notification.client.model.PagedResponse;
 import com.sap.cloud.alert.notification.client.util.SynchronousExecutorService;
@@ -10,15 +14,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.IntStream;
 
 import static com.sap.cloud.alert.notification.client.QueryParameter.CORRELATION_ID;
+import static com.sap.cloud.alert.notification.client.model.EventCategory.NOTIFICATION;
+import static com.sap.cloud.alert.notification.client.model.EventSeverity.INFO;
+import static com.sap.cloud.alert.notification.client.model.PredefinedEventTag.SOURCE_EVENT_ID;
+import static java.lang.Integer.valueOf;
+import static java.util.Arrays.stream;
 import static java.util.Collections.singletonMap;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.groupingBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class AlertNotificationAsyncClientTest {
@@ -68,6 +80,13 @@ public class AlertNotificationAsyncClientTest {
     @Test
     public void whenGetExecutorServiceIsCalled_thenCorrectResultIsReturned() {
         assertEquals(testExecutorService, classUnderTest.getExecutorService());
+    }
+
+    @Test
+    public void whenGetOrderedEventExecutorServicesIsCalled_thenCorrectResultIsReturned() {
+        assertEquals(0, classUnderTest.getOrderedEventExecutorServices().size());
+        assertEquals(3, new AlertNotificationAsyncClient(testExecutorService, testEventBuffer, testAlertNotificationClient, 3)
+                .getOrderedEventExecutorServices().size());
     }
 
     @Test
@@ -133,5 +152,110 @@ public class AlertNotificationAsyncClientTest {
         classUnderTest.shutdown();
 
         verify(testExecutorService).shutdownNow();
+    }
+
+    @Test
+    public void givenThatOrderedEventSendersCountIsGreaterThan0_whenSendingOrderedEvents_thenEventOrderIsPreserved() throws Exception {
+        final CountDownLatch deliver = new CountDownLatch(100);
+        final ArrayBlockingQueue<CustomerResourceEvent> deliveredEvents = new ArrayBlockingQueue<>(100, true);
+
+        IAlertNotificationClient alertNotificationClient = new IAlertNotificationClient() {
+
+            @Override
+            public CustomerResourceEvent sendEvent(CustomerResourceEvent event) throws ClientRequestException, ServerResponseException {
+                deliveredEvents.offer(event);
+                deliver.countDown();
+                return event;
+            }
+
+            @Override
+            public PagedResponse getMatchedEvents(Map<QueryParameter, String> queryParameters)
+                    throws ClientRequestException, ServerResponseException {
+                return null;
+            }
+
+            @Override
+            public PagedResponse getMatchedEvent(String eventId, Map<QueryParameter, String> queryParameters)
+                    throws ClientRequestException, ServerResponseException {
+                return null;
+            }
+
+            @Override
+            public PagedResponse getUndeliveredEvents(Map<QueryParameter, String> queryParameters)
+                    throws ClientRequestException, ServerResponseException {
+                return null;
+            }
+
+            @Override
+            public PagedResponse getUndeliveredEvent(String eventId, Map<QueryParameter, String> queryParameters)
+                    throws ClientRequestException, ServerResponseException {
+                return null;
+            }
+        };
+
+        AlertNotificationAsyncClient alertNotificationAsyncClient = new AlertNotificationAsyncClientBuilder(alertNotificationClient)
+                .withOrderedEventSendersCount(5).build();
+
+        CustomerResourceEvent template = new CustomerResourceEvent(null, "TEST_TYPE", null, INFO, NOTIFICATION, 1000, "TEST_SUBJECT",
+                "TEST_BODY", null, new AffectedCustomerResource("TEST_NAME", "TEST_RESOURCE_TYPE", null, null));
+
+        ExecutorService executor = newFixedThreadPool(6);
+        executor.execute(new EventSender(alertNotificationAsyncClient, template, "F98F6A0CF03D4D24B2A4CD65A58996F9", 10));
+        executor.execute(new EventSender(alertNotificationAsyncClient, template, "E79A19A110AB4D5E89CD8B9E734207CB", 10));
+        executor.execute(new EventSender(alertNotificationAsyncClient, template, "68F049A227E04F86B318F1C10B5FEBBC", 10));
+        executor.execute(new EventSender(alertNotificationAsyncClient, template, "3C3027A0EC574AD985712FA909DC881D", 10));
+        executor.execute(new EventSender(alertNotificationAsyncClient, template, null, 30)); //not to be ordered
+        executor.execute(new EventSender(alertNotificationAsyncClient, template, "", 30)); //not to be ordered
+
+        boolean deliveredInTime = deliver.await(5, SECONDS);
+        executor.shutdownNow();
+        alertNotificationAsyncClient.shutdown();
+
+        assertEquals(true, deliveredInTime);
+        assertEquals(100, deliveredEvents.size());
+
+        Map<String, List<CustomerResourceEvent>> groupedBySourceEventId = stream(deliveredEvents.toArray(new CustomerResourceEvent[100]))
+                .collect(groupingBy(event -> event.getId().substring(0, event.getId().indexOf(':'))));
+        groupedBySourceEventId.entrySet().stream().forEach(entry -> {
+            if ("null".equals(entry.getKey()) || "".equals(entry.getKey())) {
+                //not ordered events -> all 30 delivered regardless of order
+                assertEquals(30, entry.getValue().size());
+            } else {
+                //ordered events -> all 10 delivered in the order they were sent
+                IntStream.range(0, 10).forEach(index -> assertEquals(index + 1, entry.getValue().get(index).getPriority().intValue()));
+            }
+        });
+    }
+
+    private static class EventSender implements Runnable {
+
+        Map<String, String> tags = new HashMap<>();
+        AlertNotificationAsyncClient alertNotificationAsyncClient;
+        CustomerResourceEvent template;
+        String sourceEventId;
+        int eventsCount;
+
+        EventSender(AlertNotificationAsyncClient alertNotificationAsyncClient, CustomerResourceEvent templateEvent, String sourceEventId,
+                int eventsCount) {
+            this.alertNotificationAsyncClient = alertNotificationAsyncClient;
+            this.template = templateEvent;
+            this.sourceEventId = sourceEventId;
+            this.eventsCount = eventsCount;
+            if (sourceEventId != null) {
+                tags.put(SOURCE_EVENT_ID, sourceEventId);
+            }
+        }
+
+        @Override
+        public void run() {
+            //request sending of eventsCount events one by one with increasing priority, starting from 1 and increased by 1
+            IntStream.range(0, eventsCount).forEach(index -> alertNotificationAsyncClient.sendEvent(buildEvent(index)));
+        }
+
+        private CustomerResourceEvent buildEvent(int index) {
+            return new CustomerResourceEvent(sourceEventId + ":" + index, template.getEventType(), System.currentTimeMillis(),
+                    template.getSeverity(), template.getCategory(), valueOf(index + 1), template.getSubject(), template.getBody(), tags,
+                    template.getResource());
+        }
     }
 }

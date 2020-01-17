@@ -15,9 +15,10 @@ import static org.mockito.Mockito.mock;
 
 public class AlertNotificationAsyncClientBuilderTest {
 
-    public static final int TEST_MIN_THREADS_COUNT = 1;
-    public static final int TEST_MAX_THREADS_COUNT = 2;
-    public static final Duration TEST_IDLE_THREADS_LIFESPAN = Duration.ofSeconds(1L);
+    private static final int TEST_ORDERED_EVENT_SENDERS_COUNT = 2;
+    private static final int TEST_MIN_THREADS_COUNT = 1;
+    private static final int TEST_MAX_THREADS_COUNT = 2;
+    private static final Duration TEST_IDLE_THREADS_LIFESPAN = Duration.ofSeconds(1L);
 
     private ICustomerResourceEventBuffer testEventBuffer;
     private AlertNotificationAsyncClientBuilder classUnderTest;
@@ -36,10 +37,20 @@ public class AlertNotificationAsyncClientBuilderTest {
                 .withEventBuffer(testEventBuffer)
                 .withThreadsCount(TEST_MIN_THREADS_COUNT, TEST_MAX_THREADS_COUNT)
                 .withIdleThreadsLifespan(TEST_IDLE_THREADS_LIFESPAN)
+                .withOrderedEventSendersCount(TEST_ORDERED_EVENT_SENDERS_COUNT)
                 .build();
 
         assertEquals(testEventBuffer, createdClient.getEventBuffer());
         assertEquals(testAlertNotificationClient, createdClient.getAlertNotificationClient());
+        assertEquals(TEST_ORDERED_EVENT_SENDERS_COUNT, createdClient.getOrderedEventExecutorServices().size());
+    }
+
+    @Test
+    public void givenNoOptionalParametersSupplied_whenBuildIsCalled_thenCorrectClientIsCreated() {
+        AlertNotificationAsyncClient createdClient = classUnderTest.build();
+
+        assertEquals(testAlertNotificationClient, createdClient.getAlertNotificationClient());
+        assertEquals(0, createdClient.getOrderedEventExecutorServices().size());
     }
 
     @Test
@@ -49,6 +60,16 @@ public class AlertNotificationAsyncClientBuilderTest {
                     .withEventBuffer(testEventBuffer)
                     .withThreadsCount(TEST_MAX_THREADS_COUNT, TEST_MIN_THREADS_COUNT)
                     .withIdleThreadsLifespan(TEST_IDLE_THREADS_LIFESPAN)
+                    .build();
+        });
+    }
+
+    @Test
+    public void givenThatInvalidOrderedEventsSendersCountIsGiven_whenBuildIsCalled_thenExceptionIsThrown() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            classUnderTest
+                    .withEventBuffer(testEventBuffer)
+                    .withOrderedEventSendersCount(-1)
                     .build();
         });
     }

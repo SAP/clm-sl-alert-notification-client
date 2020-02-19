@@ -110,7 +110,7 @@ Alert Notification event is always related to some resource - application or ser
 AffectedCustomerResource resource = new AffectedCustomerResource(
         "my-java-application",  // resource name
         "java-app",             // resource type
-        "v9192c8cba",           // identifier of the particular instanca of the resource
+        "v9192c8cba",           // identifier of the particular instance of the resource
         Collections.emptyMap()  // additional information in form of key-value pairs
 );
 ``` 

@@ -16,11 +16,13 @@ import static java.util.Objects.requireNonNull;
 
 public class AlertNotificationAsyncClientBuilder {
 
+    public static final int DEFAULT_ORDERED_EVENT_SENDERS_COUNT = 0;
     public static final int DEFAULT_MIN_THREADS_COUNT = 10;
     public static final int DEFAULT_MAX_THREADS_COUNT = 20;
     public static final int DEFAULT_EVENT_BUFFER_CAPACITY = 100;
     public static final long DEFAULT_IDLE_THREADS_LIFESPAN_SECONDS = 30L;
 
+    private int orderedEventSendersCount = DEFAULT_ORDERED_EVENT_SENDERS_COUNT;
     private int minThreadsCount;
     private int maxThreadsCount;
     private long idleThreadsLifespanInSeconds;
@@ -42,6 +44,12 @@ public class AlertNotificationAsyncClientBuilder {
         return this;
     }
 
+    public AlertNotificationAsyncClientBuilder withOrderedEventSendersCount(int orderedEventSendersCount) {
+        this.orderedEventSendersCount = orderedEventSendersCount;
+
+        return this;
+    }
+
     public AlertNotificationAsyncClientBuilder withIdleThreadsLifespan(Duration duration) {
         this.idleThreadsLifespanInSeconds = duration.getSeconds();
 
@@ -55,9 +63,10 @@ public class AlertNotificationAsyncClientBuilder {
     }
 
     public AlertNotificationAsyncClient build() {
-        assertValidThreadCountRange(minThreadsCount, maxThreadsCount);
+        assertValidThreadCountRange(minThreadsCount, maxThreadsCount, orderedEventSendersCount);
 
-        return new AlertNotificationAsyncClient(createExecutorService(), requireNonNull(eventBuffer), requireNonNull(alertNotificationClient));
+        return new AlertNotificationAsyncClient(createExecutorService(), requireNonNull(eventBuffer), requireNonNull(alertNotificationClient),
+                orderedEventSendersCount);
     }
 
     private ExecutorService createExecutorService() {
@@ -72,8 +81,8 @@ public class AlertNotificationAsyncClientBuilder {
                 });
     }
 
-    private static void assertValidThreadCountRange(int minThreadsCount, int maxThreadsCount) {
-        if (minThreadsCount < 1 || minThreadsCount > maxThreadsCount) {
+    private static void assertValidThreadCountRange(int minThreadsCount, int maxThreadsCount, int orderedEventSendersCount) {
+        if (minThreadsCount < 1 || minThreadsCount > maxThreadsCount || orderedEventSendersCount < 0) {
             throw new IllegalArgumentException();
         }
     }

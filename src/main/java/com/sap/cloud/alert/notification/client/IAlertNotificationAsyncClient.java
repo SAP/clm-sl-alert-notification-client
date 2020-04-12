@@ -5,7 +5,7 @@ import com.sap.cloud.alert.notification.client.model.CustomerResourceEvent;
 import com.sap.cloud.alert.notification.client.model.PagedResponse;
 
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public interface IAlertNotificationAsyncClient {
 
@@ -16,7 +16,7 @@ public interface IAlertNotificationAsyncClient {
      * @return the posted event enhanced with an unique ID that could be used for tracing
      * @throws BufferOverflowException if the event cannot be accepted for execution due to full buffer capacity
      */
-    Future<CustomerResourceEvent> sendEvent(CustomerResourceEvent event) throws BufferOverflowException;
+    CompletableFuture<CustomerResourceEvent> sendEvent(CustomerResourceEvent event) throws BufferOverflowException;
 
     /**
      * Gets events that are matched by client's subscription.
@@ -25,7 +25,7 @@ public interface IAlertNotificationAsyncClient {
      * @return found results in pages
      * @throws BufferOverflowException if the event cannot be accepted for execution due to full buffer capacity
      */
-    Future<PagedResponse> getMatchedEvents(Map<QueryParameter, String> queryParameters) throws BufferOverflowException;
+    CompletableFuture<PagedResponse> getMatchedEvents(Map<QueryParameter, String> queryParameters) throws BufferOverflowException;
 
     /**
      * Gets event that is matched by client's subscription.
@@ -35,7 +35,7 @@ public interface IAlertNotificationAsyncClient {
      * @return found results in pages
      * @throws BufferOverflowException if the event cannot be accepted for execution due to full buffer capacity
      */
-    Future<PagedResponse> getMatchedEvent(String eventId, Map<QueryParameter, String> queryParameters) throws BufferOverflowException;
+    CompletableFuture<PagedResponse> getMatchedEvent(String eventId, Map<QueryParameter, String> queryParameters) throws BufferOverflowException;
 
     /**
      * Gets events undelivered to some targets.
@@ -44,7 +44,7 @@ public interface IAlertNotificationAsyncClient {
      * @return found results in pages
      * @throws BufferOverflowException if the event cannot be accepted for execution due to full buffer capacity
      */
-    Future<PagedResponse> getUndeliveredEvents(Map<QueryParameter, String> queryParameters) throws BufferOverflowException;
+    CompletableFuture<PagedResponse> getUndeliveredEvents(Map<QueryParameter, String> queryParameters) throws BufferOverflowException;
 
     /**
      * Gets event undelivered to some targets.
@@ -54,7 +54,7 @@ public interface IAlertNotificationAsyncClient {
      * @return found results in pages
      * @throws BufferOverflowException if the event cannot be accepted for execution due to full buffer capacity
      */
-    Future<PagedResponse> getUndeliveredEvent(String eventId, Map<QueryParameter, String> queryParameters)
+    CompletableFuture<PagedResponse> getUndeliveredEvent(String eventId, Map<QueryParameter, String> queryParameters)
             throws BufferOverflowException;
 
     void shutdown();

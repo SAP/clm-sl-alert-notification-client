@@ -2,7 +2,6 @@ package com.sap.cloud.alert.notification.client.internal;
 
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
 import com.sap.cloud.alert.notification.client.model.configuration.*;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
@@ -22,23 +21,28 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import static com.sap.cloud.alert.notification.client.TestUtils.*;
 import static com.sap.cloud.alert.notification.client.internal.AlertNotificationClientUtils.APPLICATION_JSON;
 import static com.sap.cloud.alert.notification.client.internal.AlertNotificationClientUtils.EMPTY;
-import static com.sap.cloud.alert.notification.client.model.configuration.ConfigurationQueryParameter.*;
+import static com.sap.cloud.alert.notification.client.model.configuration.ConfigurationQueryParameter.PAGE;
+import static com.sap.cloud.alert.notification.client.model.configuration.ConfigurationQueryParameter.PAGE_SIZE;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.*;
+import static org.apache.http.util.TextUtils.isBlank;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.platform.commons.util.StringUtils.isNotBlank;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -48,13 +52,12 @@ public class AlertNotificationConfigurationClientTest {
     private static final String TEST_PAGE_QUERY = "3";
     private static final String TEST_PAGE_SIZE_QUERY = "50";
     private static final String TEST_STATUS_LINE = "TEST_STATUS_LINE";
-    private static final RetryPolicy TEST_RETRY_POLICY = new RetryPolicy().withMaxRetries(0);
     private static final String TEST_AUTHORIZATION_HEADER = "Basic TEST_AUTHORIZATION_HEADER";
     private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion("HTTP", 1, 1);
 
     private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_FALLBACK_TIME,
             TEST_FALLBACK_ACTION, TEST_PROPERTIES);
-    private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS,
+    private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS,
             TEST_CONDITIONS);
     private static final ConfigurationErrorResponse CONFIGURATION_ERROR_RESPONSE = new ConfigurationErrorResponse(SC_INTERNAL_SERVER_ERROR,
             EMPTY);
@@ -73,7 +76,7 @@ public class AlertNotificationConfigurationClientTest {
     private static final String SUBSCRIPTIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/subscription", TEST_SERVICE_REGION.getPlatform().getKey());
 
     private HttpClient mockedHttpClient;
-    private AlertNotificationConfigClient classUnderTest;
+    private AlertNotificationConfigurationClient classUnderTest;
     private ArgumentCaptor<HttpUriRequest> requestCaptor;
     private IAuthorizationHeader mockedAuthorizationHeader;
     private Map<ConfigurationQueryParameter, String> requestParameters;
@@ -82,7 +85,7 @@ public class AlertNotificationConfigurationClientTest {
     public void setUp() {
         mockedHttpClient = mock(HttpClient.class);
         mockedAuthorizationHeader = mock(IAuthorizationHeader.class);
-        classUnderTest = new AlertNotificationConfigClient( //
+        classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
                 TEST_RETRY_POLICY, //
                 TEST_SERVICE_REGION, //
@@ -450,9 +453,20 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     private static void assertCommonHttpRequestProperties(HttpUriRequest found, HttpUriRequest expected) {
-        assertEquals(expected.getURI(), found.getURI());
+        assertURI(expected.getURI(), found.getURI());
         assertEquals(expected.getMethod(), found.getMethod());
         assertEquals(TEST_AUTHORIZATION_HEADER, found.getFirstHeader(AUTHORIZATION).getValue());
+    }
+
+    private static void assertURI(URI found, URI expected) {
+        assertEquals(expected.getScheme().toLowerCase(), found.getScheme().toLowerCase());
+        assertEquals(expected.getHost(), found.getHost());
+        assertEquals(expected.getPort(), found.getPort());
+        assertEquals(expected.getPath(), found.getPath());
+        assertEquals(isBlank(expected.getQuery()), isBlank(found.getQuery()));
+        if (isNotBlank(found.getQuery())) {
+            assertEquals(new HashSet<>(asList(expected.getQuery().split("&"))), new HashSet<>(asList(found.getQuery().split("&"))));
+        }
     }
 
     private static URI toRequestURI(URI uri, String path) throws URISyntaxException {
@@ -460,7 +474,7 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     private static URI toRequestURI(URI uri, String path, Map<ConfigurationQueryParameter, String> parameters) throws URISyntaxException {
-        return buildUri(uri, path, toConfigurationQueryParameters(parameters));
+        return buildUri(uri, path, toConfigurationQueryParameterPairs(parameters));
     }
 
     private static URI toRequestURI(URI uri, String path, String entityName) throws URISyntaxException {
@@ -511,9 +525,12 @@ public class AlertNotificationConfigurationClientTest {
         return request;
     }
 
-    private static List<NameValuePair> toConfigurationQueryParameters(Map<ConfigurationQueryParameter, String> queryFilters) {
-        return queryFilters.entrySet().stream().filter(entry -> QUERY_VIABLE_PARAMETERS.contains(entry.getKey()))
-                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue())).collect(toList());
+    private static List<NameValuePair> toConfigurationQueryParameterPairs(Map<ConfigurationQueryParameter, String> queryFilters) {
+        return queryFilters
+                .entrySet()
+                .stream()
+                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
+                .collect(toList());
     }
 
     private static URI buildUri(URI uri, String path, List<NameValuePair> parameters) throws URISyntaxException {

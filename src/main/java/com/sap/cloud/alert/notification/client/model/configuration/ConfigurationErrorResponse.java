@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@ToString
+@ToString(doNotUseGetters = true)
 @JsonPropertyOrder(alphabetic = true)
 @EqualsAndHashCode(doNotUseGetters = true)
 public class ConfigurationErrorResponse {

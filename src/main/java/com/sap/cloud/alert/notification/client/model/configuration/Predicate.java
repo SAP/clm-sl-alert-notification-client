@@ -11,7 +11,10 @@ public enum Predicate {
     EQUALS, 
     NOT_EQUALS, 
     ANY, 
-    NO_VALUE, 
+    NO_VALUE,
+    LESS_THAN,
+    GREATER_THAN,
+    NUMBER_EQUALS,
     ;
 
 }

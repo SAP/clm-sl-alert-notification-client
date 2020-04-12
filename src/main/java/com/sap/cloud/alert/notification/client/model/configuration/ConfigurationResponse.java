@@ -13,7 +13,7 @@ import java.util.List;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
-@ToString
+@ToString(doNotUseGetters = true)
 @JsonPropertyOrder(alphabetic = true)
 @EqualsAndHashCode(doNotUseGetters = true)
 public final class ConfigurationResponse<T> implements Serializable {

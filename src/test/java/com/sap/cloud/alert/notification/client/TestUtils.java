@@ -3,8 +3,8 @@ package com.sap.cloud.alert.notification.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sap.cloud.alert.notification.client.internal.SimpleRetryPolicy;
 import com.sap.cloud.alert.notification.client.model.configuration.*;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.http.client.HttpClient;
 import org.mockito.Mockito;
 
@@ -22,6 +22,7 @@ import static java.util.Collections.singletonMap;
 public class TestUtils {
 
     public static final Integer TEST_PAGE = 3;
+    public static final Long TEST_TIMESTAMP = 1L;
     public static final String TEST_ID = "TEST_ID";
     public static final State TEST_STATE = ENABLED;
     public static final Long TEST_TOTAL_PAGES = 12L;
@@ -39,11 +40,11 @@ public class TestUtils {
     public static final String TEST_PASSWORD = "TEST_PASSWORD";
     public static final String TEST_PROPERTY_KEY = "eventType";
     public static final String TEST_DESCRIPTION = "TEST_DESCRIPTION";
-    public static final RetryPolicy TEST_RETRY_POLICY = new RetryPolicy();
     public static final Set<String> TEST_LABELS = singleton("TEST_LABEL");
     public static final String TEST_PROPERTY_VALUE = "TEST_PROPERTY_VALUE";
     public static final Set<String> TEST_ACTIONS = singleton("TEST_ACTION");
     public static final String TEST_FALLBACK_ACTION = "TEST_FALLBACK_ACTION";
+    public static final IRetryPolicy TEST_RETRY_POLICY = new SimpleRetryPolicy();
     public static final Set<String> TEST_CONDITIONS = singleton("TEST_CONDITION");
     public static final HttpClient TEST_HTTP_CLIENT = Mockito.mock(HttpClient.class);
     public static final URI TEST_OAUTH_SERVICE_URI = URI.create("https://nowhere.near.a.real.oauth.uri.sap.com");

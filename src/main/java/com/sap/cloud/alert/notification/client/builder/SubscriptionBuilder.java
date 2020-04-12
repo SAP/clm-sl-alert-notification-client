@@ -17,6 +17,7 @@ public final class SubscriptionBuilder {
 
     private String name;
     private State state = DEFAULT_STATE;
+    private Long snoozeTimestamp;
     private String description;
     private Set<String> labels = new HashSet<>();
     private Set<String> actions = new HashSet<>();
@@ -29,6 +30,11 @@ public final class SubscriptionBuilder {
 
     public SubscriptionBuilder withState(State state) {
         this.state = state;
+        return this;
+    }
+
+    public SubscriptionBuilder withSnoozeTimestamp(Long snoozeTimestamp) {
+        this.snoozeTimestamp = snoozeTimestamp;
         return this;
     }
 
@@ -83,6 +89,7 @@ public final class SubscriptionBuilder {
         return new Subscription(
                 requireNonNull(name),
                 requireNonNull(state),
+                snoozeTimestamp,
                 description,
                 labels,
                 actions,

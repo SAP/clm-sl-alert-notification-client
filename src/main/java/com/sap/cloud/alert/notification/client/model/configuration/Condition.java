@@ -13,7 +13,7 @@ import java.util.Set;
 import static java.util.Collections.unmodifiableSet;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
-@ToString
+@ToString(doNotUseGetters = true)
 @EqualsAndHashCode(doNotUseGetters = true)
 public class Condition implements Serializable {
 

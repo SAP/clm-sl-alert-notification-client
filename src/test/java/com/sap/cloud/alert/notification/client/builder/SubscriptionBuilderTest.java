@@ -23,6 +23,7 @@ public class SubscriptionBuilderTest {
         Subscription testSubscription = classUnderTest //
                 .withName(TEST_NAME) //
                 .withState(TEST_STATE) //
+                .withSnoozeTimestamp(TEST_TIMESTAMP) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
                 .withActions(TEST_ACTIONS) //
@@ -32,6 +33,7 @@ public class SubscriptionBuilderTest {
         Subscription expectedSubscription = new Subscription( //
                 TEST_NAME, //
                 TEST_STATE, //
+                TEST_TIMESTAMP, //
                 TEST_DESCRIPTION, //
                 TEST_LABELS, //
                 TEST_ACTIONS, //
@@ -45,6 +47,7 @@ public class SubscriptionBuilderTest {
     public void givenThatNoStateIsSpecified_whenBuildIsCalled_thenCorrectSubscriptionIsReturned() {
         Subscription testSubscription = classUnderTest //
                 .withName(TEST_NAME) //
+                .withSnoozeTimestamp(TEST_TIMESTAMP) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
                 .withActions(TEST_ACTIONS) //
@@ -54,6 +57,7 @@ public class SubscriptionBuilderTest {
         Subscription expectedSubscription = new Subscription( //
                 TEST_NAME, //
                 ENABLED, //
+                TEST_TIMESTAMP, //
                 TEST_DESCRIPTION, //
                 TEST_LABELS, //
                 TEST_ACTIONS, //
@@ -68,6 +72,7 @@ public class SubscriptionBuilderTest {
         assertThrows(NullPointerException.class, () -> classUnderTest //
                 .withName(null) //
                 .withState(TEST_STATE) //
+                .withSnoozeTimestamp(TEST_TIMESTAMP) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
                 .withActions(TEST_ACTIONS) //
@@ -81,6 +86,7 @@ public class SubscriptionBuilderTest {
         assertThrows(NullPointerException.class, () -> classUnderTest //
                 .withName(TEST_NAME) //
                 .withState(null) //
+                .withSnoozeTimestamp(TEST_TIMESTAMP) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
                 .withActions(TEST_ACTIONS) //

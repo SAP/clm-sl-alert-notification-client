@@ -8,7 +8,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
-@ToString
+@ToString(doNotUseGetters = true)
 @JsonPropertyOrder(alphabetic = true)
 @EqualsAndHashCode(doNotUseGetters = true)
 public final class PagingMetadata implements Serializable {

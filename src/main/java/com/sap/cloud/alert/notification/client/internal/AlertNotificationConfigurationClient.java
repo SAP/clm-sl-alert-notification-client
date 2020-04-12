@@ -1,11 +1,10 @@
 package com.sap.cloud.alert.notification.client.internal;
 
-import com.sap.cloud.alert.notification.client.IAlertNotificationConfigClient;
+import com.sap.cloud.alert.notification.client.IAlertNotificationConfigurationClient;
+import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
 import com.sap.cloud.alert.notification.client.model.configuration.*;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -16,33 +15,29 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import static com.sap.cloud.alert.notification.client.internal.AlertNotificationClientUtils.*;
-import static com.sap.cloud.alert.notification.client.model.configuration.ConfigurationQueryParameter.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
 import static org.apache.http.HttpHeaders.*;
 import static org.apache.http.HttpStatus.*;
 
-public final class AlertNotificationConfigClient implements IAlertNotificationConfigClient {
+public final class AlertNotificationConfigurationClient implements IAlertNotificationConfigurationClient {
 
     private final HttpClient httpClient;
-    private final RetryPolicy retryPolicy;
+    private final IRetryPolicy retryPolicy;
     private final ServiceRegion serviceRegion;
     private final IAuthorizationHeader authorizationHeader;
     private final URI actionBaseUri;
     private final URI conditionBaseUri;
     private final URI subscriptionBaseUri;
 
-    public AlertNotificationConfigClient(
+    public AlertNotificationConfigurationClient(
             HttpClient httpClient,
-            RetryPolicy retryPolicy,
+            IRetryPolicy retryPolicy,
             ServiceRegion serviceRegion,
             IAuthorizationHeader authorizationHeader
     ) {
@@ -50,17 +45,17 @@ public final class AlertNotificationConfigClient implements IAlertNotificationCo
         this.retryPolicy = requireNonNull(retryPolicy);
         this.serviceRegion = requireNonNull(serviceRegion);
         this.authorizationHeader = authorizationHeader;
-        this.actionBaseUri = buildActionUri(serviceRegion, emptyMap());
-        this.conditionBaseUri = buildConditionUri(serviceRegion, emptyMap());
-        this.subscriptionBaseUri = buildSubscriptionUri(serviceRegion, emptyMap());
+        this.actionBaseUri = buildActionsUri(serviceRegion, emptyMap());
+        this.conditionBaseUri = buildConditionsUri(serviceRegion, emptyMap());
+        this.subscriptionBaseUri = buildSubscriptionsUri(serviceRegion, emptyMap());
     }
 
     public HttpClient getHttpClient() {
         return httpClient;
     }
 
-    public RetryPolicy getRetryPolicy() {
-        return retryPolicy.copy();
+    public IRetryPolicy getRetryPolicy() {
+        return retryPolicy;
     }
 
     public ServiceRegion getServiceRegion() {
@@ -73,94 +68,93 @@ public final class AlertNotificationConfigClient implements IAlertNotificationCo
 
     @Override
     public ConfigurationResponse<Condition> getConditions(Map<ConfigurationQueryParameter, String> queryParameters) {
-        URI getConditionsUri = buildConditionUri(serviceRegion, extractQueryViableParameters(queryParameters));
-        return fromJsonString(failsafeExecute(() -> executeHttpGet(getConditionsUri)), CONDITION_CONFIGURATION_TYPE);
+        URI getConditionsUri = buildConditionsUri(serviceRegion, queryParameters);
+        return fromJsonString(executeWithRetry(() -> executeHttpGet(getConditionsUri)), CONDITION_CONFIGURATION_TYPE);
     }
 
     @Override
     public Condition createCondition(Condition condition) {
-        return fromJsonString(failsafeExecute(() -> executeHttpPost(conditionBaseUri, toJsonString(condition))), CONDITION_TYPE);
+        return fromJsonString(executeWithRetry(() -> executeHttpPost(conditionBaseUri, toJsonString(condition))), CONDITION_TYPE);
     }
 
     @Override
     public Condition getCondition(String conditionName) {
-        URI getConditionUri = buildConditionUri(serviceRegion, singletonMap(CONDITION_NAME, conditionName));
-        return fromJsonString(failsafeExecute(() -> executeHttpGet(getConditionUri)), CONDITION_TYPE);
+        URI getConditionUri = buildConditionUri(serviceRegion, conditionName);
+        return fromJsonString(executeWithRetry(() -> executeHttpGet(getConditionUri)), CONDITION_TYPE);
     }
 
     @Override
     public Condition updateCondition(Condition condition) {
-        URI updateConditionUri = buildConditionUri(serviceRegion, singletonMap(CONDITION_NAME, condition.getName()));
-        return fromJsonString(failsafeExecute(() -> executeHttpPut(updateConditionUri, toJsonString(condition))), CONDITION_TYPE);
+        URI updateConditionUri = buildConditionUri(serviceRegion, condition.getName());
+        return fromJsonString(executeWithRetry(() -> executeHttpPut(updateConditionUri, toJsonString(condition))), CONDITION_TYPE);
     }
 
     @Override
     public void deleteCondition(String conditionName) {
-        URI deleteConditionUri = buildConditionUri(serviceRegion, singletonMap(CONDITION_NAME, conditionName));
-        failsafeExecute(() -> executeHttpDelete(deleteConditionUri));
+        URI deleteConditionUri = buildConditionUri(serviceRegion, conditionName);
+        executeWithRetry(() -> executeHttpDelete(deleteConditionUri));
     }
 
     @Override
     public ConfigurationResponse<Action> getActions(Map<ConfigurationQueryParameter, String> queryParameters) {
-        URI getActionsUri = buildActionUri(serviceRegion, extractQueryViableParameters(queryParameters));
-        return fromJsonString(failsafeExecute(() -> executeHttpGet(getActionsUri)), ACTION_CONFIGURATION_TYPE);
+        URI getActionsUri = buildActionsUri(serviceRegion, queryParameters);
+        return fromJsonString(executeWithRetry(() -> executeHttpGet(getActionsUri)), ACTION_CONFIGURATION_TYPE);
     }
 
     @Override
     public Action createAction(Action action) {
-        return fromJsonString(failsafeExecute(() -> executeHttpPost(actionBaseUri, toJsonString(action))), ACTION_TYPE);
+        return fromJsonString(executeWithRetry(() -> executeHttpPost(actionBaseUri, toJsonString(action))), ACTION_TYPE);
     }
 
     @Override
     public Action getAction(String actionName) {
-        URI getActionUri = buildActionUri(serviceRegion, singletonMap(ACTION_NAME, actionName));
-        return fromJsonString(failsafeExecute(() -> executeHttpGet(getActionUri)), ACTION_TYPE);
+        URI getActionUri = buildActionUri(serviceRegion, actionName);
+        return fromJsonString(executeWithRetry(() -> executeHttpGet(getActionUri)), ACTION_TYPE);
     }
 
     @Override
     public Action updateAction(Action action) {
-        URI updateActionUri = buildActionUri(serviceRegion, singletonMap(ACTION_NAME, action.getName()));
-        return fromJsonString(failsafeExecute(() -> executeHttpPut(updateActionUri, toJsonString(action))), ACTION_TYPE);
+        URI updateActionUri = buildActionUri(serviceRegion, action.getName());
+        return fromJsonString(executeWithRetry(() -> executeHttpPut(updateActionUri, toJsonString(action))), ACTION_TYPE);
     }
 
     @Override
     public void deleteAction(String actionName) {
-        URI deleteActionUri = buildActionUri(serviceRegion, singletonMap(ACTION_NAME, actionName));
-        failsafeExecute(() -> executeHttpDelete(deleteActionUri));
+        URI deleteActionUri = buildActionUri(serviceRegion, actionName);
+        executeWithRetry(() -> executeHttpDelete(deleteActionUri));
     }
 
     @Override
     public ConfigurationResponse<Subscription> getSubscriptions(Map<ConfigurationQueryParameter, String> queryParameters) {
-        URI getSubscriptionsUri = buildSubscriptionUri(serviceRegion, extractQueryViableParameters(queryParameters));
-        return fromJsonString(failsafeExecute(() -> executeHttpGet(getSubscriptionsUri)), SUBSCRIPTION_CONFIGURATION_TYPE);
+        URI getSubscriptionsUri = buildSubscriptionsUri(serviceRegion, queryParameters);
+        return fromJsonString(executeWithRetry(() -> executeHttpGet(getSubscriptionsUri)), SUBSCRIPTION_CONFIGURATION_TYPE);
     }
 
     @Override
     public Subscription createSubscription(Subscription subscription) {
-        return fromJsonString(failsafeExecute(() -> executeHttpPost(subscriptionBaseUri, toJsonString(subscription))), SUBSCRIPTION_TYPE);
+        return fromJsonString(executeWithRetry(() -> executeHttpPost(subscriptionBaseUri, toJsonString(subscription))), SUBSCRIPTION_TYPE);
     }
 
     @Override
     public Subscription getSubscription(String subscriptionName) {
-        URI getSubscriptionUri = buildSubscriptionUri(serviceRegion, singletonMap(SUBSCRIPTION_NAME, subscriptionName));
-        return fromJsonString(failsafeExecute(() -> executeHttpGet(getSubscriptionUri)), SUBSCRIPTION_TYPE);
+        URI getSubscriptionUri = buildSubscriptionUri(serviceRegion, subscriptionName);
+        return fromJsonString(executeWithRetry(() -> executeHttpGet(getSubscriptionUri)), SUBSCRIPTION_TYPE);
     }
 
     @Override
     public Subscription updateSubscription(Subscription subscription) {
-        URI updateSubscriptionUri = buildSubscriptionUri(serviceRegion,
-                singletonMap(SUBSCRIPTION_NAME, subscription.getName()));
-        return fromJsonString(failsafeExecute(() -> executeHttpPut(updateSubscriptionUri, toJsonString(subscription))), SUBSCRIPTION_TYPE);
+        URI updateSubscriptionUri = buildSubscriptionUri(serviceRegion, subscription.getName());
+        return fromJsonString(executeWithRetry(() -> executeHttpPut(updateSubscriptionUri, toJsonString(subscription))), SUBSCRIPTION_TYPE);
     }
 
     @Override
     public void deleteSubscription(String subscriptionName) {
-        URI deleteSubscriptionUri = buildSubscriptionUri(serviceRegion, singletonMap(SUBSCRIPTION_NAME, subscriptionName));
-        failsafeExecute(() -> executeHttpDelete(deleteSubscriptionUri));
+        URI deleteSubscriptionUri = buildSubscriptionUri(serviceRegion, subscriptionName);
+        executeWithRetry(() -> executeHttpDelete(deleteSubscriptionUri));
     }
 
-    private String failsafeExecute(Callable<String> callable) {
-        return Failsafe.with(retryPolicy).get(callable);
+    private String executeWithRetry(Supplier<String> supplier) {
+       return retryPolicy.executeWithRetry(supplier);
     }
 
     private String executeHttpPost(URI serviceUri, String payload) {
@@ -241,9 +235,4 @@ public final class AlertNotificationConfigClient implements IAlertNotificationCo
         return new StringEntity(payload, UTF_8.name());
     }
 
-    private Map<ConfigurationQueryParameter, String> extractQueryViableParameters(Map<ConfigurationQueryParameter, String> parameters) {
-        return QUERY_VIABLE_PARAMETERS.stream()
-                .filter(parameters::containsKey)
-                .collect(toMap(identity(), parameters::get));
-    }
 }

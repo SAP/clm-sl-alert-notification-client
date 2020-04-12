@@ -13,7 +13,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
-@ToString
+@ToString(exclude = "properties", doNotUseGetters = true)
 @EqualsAndHashCode(doNotUseGetters = true, exclude = { "timeCreated", "lastModified" })
 public class Action implements Serializable {
 

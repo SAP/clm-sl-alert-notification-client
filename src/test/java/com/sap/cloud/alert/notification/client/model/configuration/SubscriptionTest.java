@@ -14,6 +14,7 @@ public class SubscriptionTest {
             + format("\"id\":\"%s\",", TEST_ID)
             + format("\"name\":\"%s\",", TEST_NAME)
             + format("\"state\":\"%s\",", TEST_STATE.name())
+            + format("\"snoozeTimestamp\":%d,", TEST_TIMESTAMP)
             + format("\"description\":\"%s\",", TEST_DESCRIPTION)
             + format("\"labels\":%s,", toJsonString(TEST_LABELS))
             + format("\"actions\":%s,", toJsonString(TEST_ACTIONS))
@@ -30,6 +31,7 @@ public class SubscriptionTest {
                 TEST_ID,
                 TEST_NAME,
                 TEST_STATE,
+                TEST_TIMESTAMP,
                 TEST_DESCRIPTION,
                 TEST_LABELS,
                 TEST_ACTIONS,
@@ -62,6 +64,11 @@ public class SubscriptionTest {
     @Test
     public void whenGetStateIsCalled_thenCorrectValueIsReturned() {
         assertEquals(TEST_STATE, classUnderTest.getState());
+    }
+
+    @Test
+    public void whenGetSnoozeTimestampIsCalled_thenCorrectValueIsReturned(){
+        assertEquals(TEST_TIMESTAMP, classUnderTest.getSnoozeTimestamp());
     }
 
     @Test
@@ -100,6 +107,7 @@ public class SubscriptionTest {
                 TEST_ID, //
                 TEST_NAME, //
                 TEST_STATE, //
+                TEST_TIMESTAMP, //
                 TEST_DESCRIPTION, //
                 null, //
                 TEST_ACTIONS, //
@@ -117,6 +125,7 @@ public class SubscriptionTest {
                 TEST_ID, //
                 TEST_NAME, //
                 TEST_STATE, //
+                TEST_TIMESTAMP, //
                 TEST_DESCRIPTION, //
                 TEST_LABELS, //
                 null, //
@@ -134,6 +143,7 @@ public class SubscriptionTest {
                 TEST_ID, //
                 TEST_NAME, //
                 TEST_STATE, //
+                TEST_TIMESTAMP, //
                 TEST_DESCRIPTION, //
                 TEST_LABELS, //
                 TEST_ACTIONS, //

@@ -23,11 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static com.sap.cloud.alert.notification.client.model.configuration.ConfigurationQueryParameter.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.IterableUtils.chainedIterable;
@@ -149,40 +147,29 @@ class AlertNotificationClientUtils {
         );
     }
 
-    static URI buildActionUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> query) {
-        String actionName = query.get(ACTION_NAME);
-        List<String> queryParameters = isNull(actionName) ? emptyList() : singletonList(actionName);
-
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, ACTIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters),
-                toConfigurationQueryParameters(query)
-        );
+    static URI buildActionUri(ServiceRegion serviceRegion, String actionName) {
+        return buildEntityUri(serviceRegion, ACTIONS_CONFIGURATION_PATH_SEGMENTS, actionName);
     }
 
-    static URI buildConditionUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> query) {
-        String conditionName = query.get(CONDITION_NAME);
-        List<String> queryParameters = isNull(conditionName) ? emptyList() : singletonList(conditionName);
-
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, CONDITIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters),
-                toConfigurationQueryParameters(query)
-        );
+    static URI buildActionsUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> queryParameters) {
+        return buildEntitiesUri(serviceRegion, ACTIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters);
     }
 
-
-    static URI buildSubscriptionUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> query) {
-        String subscriptionName = query.get(SUBSCRIPTION_NAME);
-        List<String> queryParameters = isNull(subscriptionName) ? emptyList() : singletonList(subscriptionName);
-
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters),
-                toConfigurationQueryParameters(query)
-        );
+    static URI buildConditionUri(ServiceRegion serviceRegion, String conditionName) {
+        return buildEntityUri(serviceRegion, CONDITIONS_CONFIGURATION_PATH_SEGMENTS, conditionName);
     }
 
+    static URI buildConditionsUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> queryParameters) {
+        return buildEntitiesUri(serviceRegion, CONDITIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters);
+    }
+
+    static URI buildSubscriptionUri(ServiceRegion serviceRegion, String subscriptionName) {
+        return buildEntityUri(serviceRegion, SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS, subscriptionName);
+    }
+
+    static URI buildSubscriptionsUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> queryParameters) {
+        return buildEntitiesUri(serviceRegion, SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters);
+    }
 
     private static List<String> toPathSegments(ServiceRegion serviceRegion, List<String> defaultSegments, List<String> customSegments) {
         return toList(chainedIterable(asList(serviceRegion.getPlatform().getKey()), defaultSegments, customSegments));
@@ -196,15 +183,30 @@ class AlertNotificationClientUtils {
         }
     }
 
+    private static URI buildEntityUri(ServiceRegion serviceRegion, List<String> defaultPathSegments, String entityName) {
+        return buildURI(
+                serviceRegion.getServiceURI(),
+                toPathSegments(serviceRegion, defaultPathSegments, singletonList(entityName)),
+                emptyList()
+        );
+    }
+
+    private static URI buildEntitiesUri(ServiceRegion serviceRegion, List<String> defaultPathSegments, Map<ConfigurationQueryParameter, String> queryParameters) {
+        return buildURI(
+                serviceRegion.getServiceURI(),
+                toPathSegments(serviceRegion, defaultPathSegments, emptyList()),
+                toConfigurationQueryParameterPairs(queryParameters)
+        );
+    }
+
     private static List<NameValuePair> toQueryParameters(Map<QueryParameter, String> queryFilters) {
         return queryFilters.entrySet().stream()
                 .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
                 .collect(toList());
     }
 
-    private static List<NameValuePair> toConfigurationQueryParameters(Map<ConfigurationQueryParameter, String> queryFilters) {
-        return queryFilters.entrySet().stream()
-                .filter(entry -> QUERY_VIABLE_PARAMETERS.contains(entry.getKey()))
+    private static List<NameValuePair> toConfigurationQueryParameterPairs(Map<ConfigurationQueryParameter, String> requestParameters) {
+        return requestParameters.entrySet().stream()
                 .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
                 .collect(toList());
     }

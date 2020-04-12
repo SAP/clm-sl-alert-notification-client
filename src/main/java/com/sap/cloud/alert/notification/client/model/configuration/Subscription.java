@@ -13,7 +13,7 @@ import java.util.Set;
 import static java.util.Collections.unmodifiableSet;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
-@ToString
+@ToString(doNotUseGetters = true)
 @EqualsAndHashCode(doNotUseGetters = true, exclude = { "timeCreated", "lastModified" })
 public class Subscription implements Serializable {
 
@@ -22,6 +22,7 @@ public class Subscription implements Serializable {
     private final String id;
     private final String name;
     private final State state;
+    private final Long snoozeTimestamp;
     private final String description;
     private final Set<String> labels;
     private final Set<String> actions;
@@ -34,7 +35,8 @@ public class Subscription implements Serializable {
     public Subscription( 
             @JsonProperty("id") String id, 
             @JsonProperty("name") String name, 
-            @JsonProperty("state") State state, 
+            @JsonProperty("state") State state,
+            @JsonProperty("snoozeTimestamp") Long snoozeTimestamp, //
             @JsonProperty("description") String description, 
             @JsonProperty("labels") Collection<String> labels, 
             @JsonProperty("actions") Collection<String> actions, 
@@ -45,6 +47,7 @@ public class Subscription implements Serializable {
         this.id = id;
         this.name = name;
         this.state = state;
+        this.snoozeTimestamp = snoozeTimestamp;
         this.description = description;
         this.labels = unmodifiableSet(new HashSet<>(emptyIfNull(labels)));
         this.actions = unmodifiableSet(new HashSet<>(emptyIfNull(actions)));
@@ -55,13 +58,14 @@ public class Subscription implements Serializable {
 
     public Subscription( 
             String name, 
-            State state, 
-            String description, 
+            State state,
+            Long snoozeTimestamp,
+            String description,
             Collection<String> labels, 
             Collection<String> actions, 
             Collection<String> conditions 
     ) {
-        this(null, name, state, description, labels, actions, conditions, null, null);
+        this(null, name, state, snoozeTimestamp, description, labels, actions, conditions, null, null);
     }
 
     @JsonProperty("id")
@@ -77,6 +81,11 @@ public class Subscription implements Serializable {
     @JsonProperty("state")
     public State getState() {
         return state;
+    }
+
+    @JsonProperty("snoozeTimestamp")
+    public Long getSnoozeTimestamp(){
+        return snoozeTimestamp;
     }
 
     @JsonProperty("description")

@@ -35,7 +35,7 @@ As usual, to get started using a new library, we first need to add either the bi
 Latest version & more dependency declaration examples see on [SAP Cloud Platform Alert Notification @MVNrepository](https://mvnrepository.com/artifact/com.sap.cloud.ans/clm-sl-alert-notification-client).
 
 ### 3. Setting Up the Alert Notification Client
-As a prerequisite of this step, you must be already an Alert Notification customer and you need credentials for API interactions. If not,
+As a prerequisite of this step, you must already be an Alert Notification customer and you need credentials for API interactions. If not,
 follow [The service enablement guide](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/812b6e3ed8934648ad15780cd51721ef.html) 
 and then [Credential Management](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/80fe24f86bde4e3aac2903ac05511835.html).
  
@@ -71,7 +71,7 @@ IAuthorizationHeader authorizationHeader = new BasicAuthorizationHeader("<<CLIEN
 ⚠️ **NOTE: <<CLIEND_ID>> and <<CLIENT_SECRET>> must be replaced by actual values received on credentials creation.**
 
 
-Now, we are ready to construct AlertNotificationClient:
+Now, we are ready to construct the AlertNotificationClient:
 
 ```java 
 IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
@@ -260,14 +260,63 @@ Once the event from step 5) is posted, there will be one stored event immediatel
 event will be stored as an undelivered event after the webhook [retry policy](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/086361cb02fb467993acd6f9515607d4.html)
 expires. Then it will be available on the Undelivered Events endpoint.
 
+### 9. Setting Up a Test Environment using the Alert Notification Configuration Client
+The configuration can also be managed through the Alert Notification Configuration client. It can be used to create, read, update and delete actions, conditions and subscriptions. 
+The required parameters to construct the configuration client are the same as those described in step 3) for the Alert Notification Client. 
+```java 
+IAlertNotificationConfigurationClient configurationClient = new AlertNotificationConfigurationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
+``` 
+Using the configuration client we can create the configuration programmatically:
+```json
+configurationClient.createCondition(
+    new ConditionBuilder()
+        .withName("type-TestEvent")
+        .withPropertyKey("eventType")
+        .withPredicate(Predicate.EQUALS)
+        .withPropertyValue("TestEvent")
+        .withDescription("Catches events which type equals 'TestEvent'.")
+        .build()
+);
 
-### 9. Have an issue?
+configurationClient.createAction(
+    new ActionBuilder() 
+        .withName("store-action")
+        .withState(State.ENABLED)
+        .withType("STORE")
+        .withDescription("This action stores the event in Alert Notification storage. Thus, it can be retrieved via Matched Events API later.")
+        .build()
+);
+
+configurationClient.createAction(
+    new ActionBuilder()
+        .withName("unavailable-webhook")
+        .withState(State.ENABLED)
+        .withType("WEB_HOOK")
+        .withDescription("This action is used for demonstration of the Undelivered Events API. It attempts to send an event to an unavailable webhook service.")
+        .withProperty("destination","https://httpstat.us/503")
+        .withProperty("sslTrustAll","false")
+        .build()
+);
+
+configurationClient.createSubscription(
+    new SubscriptionBuilder() 
+        .withName("TestEvent-store-and-webhook") 
+        .withState(State.ENABLED) 
+        .withDescription("All events with type \"TestEvent\" are stored and posted to an unavailable webhook.") 
+        .withAction("store-action") 
+        .withAction("unavailable-webhook") 
+        .withCondition("type-TestEvent") 
+        .build()
+);
+```
+
+### 10. Have an issue?
 Please, let us know by filing a [new issue](https://github.com/sap-staging/clm-sl-alert-notification-client/issues/new). 
 
-### 10. Contributing
+### 11. Contributing
 We're always open for improvements! If you think the library could be better, please, open an issue and propose your solution as a pull request. We will contact you for discussion as soon as possible.
 
-### 11. License
+### 12. License
 This project is run under the licensing terms of Apache License 2.0. The paper could be found in the [LICENSE](https://github.com/sap-staging/clm-sl-alert-notification-client/blob/master/LICENSE) file 
 in the top-level directory. 
 

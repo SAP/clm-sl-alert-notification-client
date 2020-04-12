@@ -9,12 +9,7 @@ import static org.apache.commons.collections4.SetUtils.unmodifiableSet;
 public enum ConfigurationQueryParameter {
 
     PAGE("page"),
-    PAGE_SIZE("pageSize"),
-    ACTION_NAME("actionName"),
-    CONDITION_NAME("conditionName"),
-    SUBSCRIPTION_NAME("subscriptionName");
-
-    public static final Set<ConfigurationQueryParameter> QUERY_VIABLE_PARAMETERS = unmodifiableSet(of(PAGE, PAGE_SIZE).collect(toSet()));
+    PAGE_SIZE("pageSize");
 
     private final String key;
 

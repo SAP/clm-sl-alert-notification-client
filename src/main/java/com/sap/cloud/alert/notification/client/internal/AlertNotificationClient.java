@@ -1,7 +1,5 @@
 package com.sap.cloud.alert.notification.client.internal;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.alert.notification.client.IAlertNotificationClient;
 import com.sap.cloud.alert.notification.client.QueryParameter;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
@@ -17,21 +15,18 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static com.sap.cloud.alert.notification.client.internal.AlertNotificationClientUtils.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.apache.http.HttpHeaders.*;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class AlertNotificationClient implements IAlertNotificationClient {
-
-    protected static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     private final HttpClient httpClient;
     private final RetryPolicy retryPolicy;
@@ -108,7 +103,7 @@ public class AlertNotificationClient implements IAlertNotificationClient {
 
     protected HttpUriRequest createGetRequest(URI uri) {
         HttpGet request = new HttpGet(uri);
-        request.setHeader(ACCEPT, APPLICATION_JSON.toString());
+        request.setHeader(ACCEPT, APPLICATION_JSON);
         request.setHeader(AUTHORIZATION, authorizationHeader.getValue());
 
         return request;
@@ -117,18 +112,14 @@ public class AlertNotificationClient implements IAlertNotificationClient {
     protected HttpUriRequest createPostRequest(URI serviceUri, CustomerResourceEvent event) {
         HttpPost request = new HttpPost(serviceUri);
         request.setEntity(toEntity(event));
-        request.setHeader(CONTENT_TYPE, APPLICATION_JSON.toString());
+        request.setHeader(CONTENT_TYPE, APPLICATION_JSON);
         request.setHeader(AUTHORIZATION, authorizationHeader.getValue());
 
         return request;
     }
 
     private HttpEntity toEntity(CustomerResourceEvent event) {
-        try {
-            return new StringEntity(JSON_OBJECT_MAPPER.writeValueAsString(event), StandardCharsets.UTF_8.name());
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
+        return new StringEntity(toJsonString(event), UTF_8.name());
     }
 
     private <T> T executeRequestWithRetry(HttpUriRequest request, Class<T> responseClass) {
@@ -142,7 +133,7 @@ public class AlertNotificationClient implements IAlertNotificationClient {
 
             assertSuccessfulResponse(response);
 
-            return JSON_OBJECT_MAPPER.readValue(response.getEntity().getContent(), responseClass);
+            return fromJsonString(EntityUtils.toString(response.getEntity(), UTF_8.name()), responseClass);
         } catch (IOException exception) {
             throw new ClientRequestException(exception);
         } finally {

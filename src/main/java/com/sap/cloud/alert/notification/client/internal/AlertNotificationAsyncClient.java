@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import static com.sap.cloud.alert.notification.client.model.PredefinedEventTag.SOURCE_EVENT_ID;
@@ -72,31 +72,45 @@ public class AlertNotificationAsyncClient implements IAlertNotificationAsyncClie
     }
 
     @Override
-    public Future<CustomerResourceEvent> sendEvent(CustomerResourceEvent event) {
+    public CompletableFuture<CustomerResourceEvent> sendEvent(CustomerResourceEvent event) {
         UUID eventUUID = eventBuffer.write(event);
 
-        return getEventSenderExecutor(event.getTags().get(SOURCE_EVENT_ID))
-                .submit(() -> alertNotificationClient.sendEvent(eventBuffer.read(eventUUID)));
+        return CompletableFuture.supplyAsync( //
+                () -> alertNotificationClient.sendEvent(eventBuffer.read(eventUUID)), //
+                getEventSenderExecutor(event.getTags().get(SOURCE_EVENT_ID)) //
+        );
     }
 
     @Override
-    public Future<PagedResponse> getMatchedEvents(Map<QueryParameter, String> queryParameters) {
-        return executorService.submit(() -> alertNotificationClient.getMatchedEvents(queryParameters));
+    public CompletableFuture<PagedResponse> getMatchedEvents(Map<QueryParameter, String> queryParameters) {
+        return CompletableFuture.supplyAsync( //
+                () -> alertNotificationClient.getMatchedEvents(queryParameters), //
+                executorService //
+        );
     }
 
     @Override
-    public Future<PagedResponse> getMatchedEvent(String eventId, Map<QueryParameter, String> queryParameters) {
-        return executorService.submit(() -> alertNotificationClient.getMatchedEvent(eventId, queryParameters));
+    public CompletableFuture<PagedResponse> getMatchedEvent(String eventId, Map<QueryParameter, String> queryParameters) {
+        return CompletableFuture.supplyAsync( //
+                () -> alertNotificationClient.getMatchedEvent(eventId, queryParameters), //
+                executorService //
+        );
     }
 
     @Override
-    public Future<PagedResponse> getUndeliveredEvents(Map<QueryParameter, String> queryParameters) {
-        return executorService.submit(() -> alertNotificationClient.getUndeliveredEvents(queryParameters));
+    public CompletableFuture<PagedResponse> getUndeliveredEvents(Map<QueryParameter, String> queryParameters) {
+        return CompletableFuture.supplyAsync( //
+                () -> alertNotificationClient.getUndeliveredEvents(queryParameters), //
+                executorService //
+        );
     }
 
     @Override
-    public Future<PagedResponse> getUndeliveredEvent(String eventId, Map<QueryParameter, String> queryParameters) {
-        return executorService.submit(() -> alertNotificationClient.getUndeliveredEvent(eventId, queryParameters));
+    public CompletableFuture<PagedResponse> getUndeliveredEvent(String eventId, Map<QueryParameter, String> queryParameters) {
+        return CompletableFuture.supplyAsync( //
+                () -> alertNotificationClient.getUndeliveredEvent(eventId, queryParameters), //
+                executorService //
+        );
     }
 
     @Override

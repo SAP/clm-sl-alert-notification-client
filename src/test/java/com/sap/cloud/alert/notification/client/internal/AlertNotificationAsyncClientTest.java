@@ -12,9 +12,10 @@ import com.sap.cloud.alert.notification.client.model.PagedResponse;
 import com.sap.cloud.alert.notification.client.util.SynchronousExecutorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +38,6 @@ public class AlertNotificationAsyncClientTest {
 
     private static final String TEST_EVENT_ID = "TEST_EVENT_ID";
     private static final Map<QueryParameter, String> TEST_QUERY_PARAMETERS = singletonMap(CORRELATION_ID, "test_correlation_id");
-
 
     private PagedResponse testPagedResponse;
     private ExecutorService testExecutorService;
@@ -100,51 +100,63 @@ public class AlertNotificationAsyncClientTest {
     }
 
     @Test
-    public void whenSendEventIsCalled_thenEventIsScheduledForSending() throws Exception {
+    public void whenSendEventIsCalled_thenEventIsScheduledForSending() {
         doReturn(testResourceEvent).when(testAlertNotificationClient).sendEvent(testResourceEvent);
 
-        assertSame(testResourceEvent, classUnderTest.sendEvent(testResourceEvent).get());
-
-        InOrder executionOrder = inOrder(testEventBuffer, testAlertNotificationClient);
-        executionOrder.verify(testEventBuffer).write(testResourceEvent);
-        executionOrder.verify(testEventBuffer).read(any(UUID.class));
-        executionOrder.verify(testAlertNotificationClient).sendEvent(testResourceEvent);
+        classUnderTest.sendEvent(testResourceEvent) //
+                .whenComplete((event, exception) -> {
+                    assertNull(exception);
+                    assertSame(testResourceEvent, event);
+                    verify(testAlertNotificationClient).sendEvent(testResourceEvent);
+                });
     }
 
     @Test
-    public void whenGetMatchedEventsIsCalled_thenCorrectRequestIsScheduledForSending() throws Exception {
+    public void whenGetMatchedEventsIsCalled_thenCorrectRequestIsScheduledForSending() {
         doReturn(testPagedResponse).when(testAlertNotificationClient).getMatchedEvents(TEST_QUERY_PARAMETERS);
 
-        assertSame(testPagedResponse, classUnderTest.getMatchedEvents(TEST_QUERY_PARAMETERS).get());
-
-        verify(testAlertNotificationClient).getMatchedEvents(TEST_QUERY_PARAMETERS);
+        classUnderTest.getMatchedEvents(TEST_QUERY_PARAMETERS) //
+                .whenComplete((pagedResponse, exception) -> {
+                    assertNull(exception);
+                    assertSame(testPagedResponse, pagedResponse);
+                    verify(testAlertNotificationClient).getMatchedEvents(TEST_QUERY_PARAMETERS);
+                });
     }
 
     @Test
     public void whenGetMatchedEventIsCalled_thenCorrectRequestIsScheduledForSending() throws Exception {
         doReturn(testPagedResponse).when(testAlertNotificationClient).getMatchedEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
 
-        assertSame(testPagedResponse, classUnderTest.getMatchedEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS).get());
-
-        verify(testAlertNotificationClient).getMatchedEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
+        classUnderTest.getMatchedEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS) //
+                .whenComplete((pagedResponse, exception) -> {
+                    assertNull(exception);
+                    assertSame(testPagedResponse, pagedResponse);
+                    verify(testAlertNotificationClient).getMatchedEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
+                });
     }
 
     @Test
     public void whenGetUndeliveredEventsIsCalled_thenCorrectRequestIsScheduledForSending() throws Exception {
         doReturn(testPagedResponse).when(testAlertNotificationClient).getUndeliveredEvents(TEST_QUERY_PARAMETERS);
 
-        assertSame(testPagedResponse, classUnderTest.getUndeliveredEvents(TEST_QUERY_PARAMETERS).get());
-
-        verify(testAlertNotificationClient).getUndeliveredEvents(TEST_QUERY_PARAMETERS);
+        classUnderTest.getUndeliveredEvents(TEST_QUERY_PARAMETERS) //
+                .whenComplete((pagedResponse, exception) -> {
+                    assertNull(exception);
+                    assertSame(testPagedResponse, pagedResponse);
+                    verify(testAlertNotificationClient).getUndeliveredEvents(TEST_QUERY_PARAMETERS);
+                });
     }
 
     @Test
     public void whenGetUndeliveredEventIsCalled_thenCorrectRequestIsScheduledForSending() throws Exception {
         doReturn(testPagedResponse).when(testAlertNotificationClient).getUndeliveredEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
 
-        assertSame(testPagedResponse, classUnderTest.getUndeliveredEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS).get());
-
-        verify(testAlertNotificationClient).getUndeliveredEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
+        classUnderTest.getUndeliveredEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS) //
+                .whenComplete((pagedResponse, exception) -> {
+                    assertNull(exception);
+                    assertSame(testPagedResponse, pagedResponse);
+                    verify(testAlertNotificationClient).getUndeliveredEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
+                });
     }
 
     @Test

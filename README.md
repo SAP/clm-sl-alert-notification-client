@@ -33,7 +33,7 @@ As usual, to get started using a new library, we first need to add either the bi
 
 Latest version & more dependency declaration examples see on [SAP Cloud Platform Alert Notification@MVNrepository](https://mvnrepository.com/artifact/com.sap.cloud.ans/clm-sl-alert-notification-client).
 
-### 3. Setting Up the Alert Notification Client
+### 3. Setting Up the Alert Notification Client and Configuration Client
 As a prerequisite of this step is already being an Alert Notification customer and also having credentials for API interactions. If not,
 follow [The service enablement guide](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/812b6e3ed8934648ad15780cd51721ef.html) 
 and then [Acquiring API access credentials](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/80fe24f86bde4e3aac2903ac05511835.html).
@@ -70,9 +70,10 @@ IAuthorizationHeader authorizationHeader = new BasicAuthorizationHeader("<<CLIEN
 ⚠️ **NOTE: <<CLIEND_ID>> and <<CLIENT_SECRET>> must be replaced by actual values received on credentials creation.**
 
 
-Now, we are ready to construct AlertNotificationClient:
+Now, we are ready to construct the AlertNotificationConfigurationClient and AlertNotificationClient:
 
 ```java 
+IAlertNotificationConfigClient configurationClient = new AlertNotificationConfigClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
 IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
 ```
 
@@ -98,7 +99,75 @@ Now, we're ready to construct the async client itself using the Alert Notificati
 IAlertNotificationAsyncClient asyncClient = new AlertNotificationAsyncClient(executorService, buffer, client);
 ```
 
-### 5. Post an Event on Alert Notification
+### 5. Manage Actions/Conditions/Subscriptions
+Using the AlertNotificationConfigClient built in step 3) we can fully manage our configuration of actions, conditions and subscriptions.
+#### Create
+```java
+configurationClient.createAction(
+    new ActionBuilder()
+        .withName("<<NAME>>")
+        .withState(State.ENABLED)
+        .withType("<<ACTION_TYPE>>")
+        .withLabel("<<TEST_LABEL>>")
+        .withDescription("<<DESCRIPTION>>")
+        .withProperties(<<MAP_OF_PROPERTIES>>)
+        .withFallbackTime(<<FALLBACK_TIME>>)
+        .withFallbackAction("<<FALLBACK_ACTION_NAME>>")
+        .build();
+);
+
+configurationClient.createCondition(
+    new ConditionBuilder()
+        .withName("<<NAME>>")
+        .withLabels(<<SET_OF_LABELS>>)
+        .withDescription("<<DESCRIPTION>>")
+        .withPropertyKey("<<PROPERTY_KEY>>")
+        .withPredicate(Predicate.CONTAINS)
+        .withPropertyValue("<<PROPERTY_VALUE>>")
+        .build();
+);
+
+configurationClient.createSubscription(
+    new SubscriptionBuilder()
+        .withName("<<NAME>>")
+        .withState(State.ENABLED)
+        .withDescription("<<DESCRIPTION>>")
+        .withLabels(<<SET_OF_LABELS>>)
+        .withActions(<<SET_OF_ACTIONS>>)
+        .withConditions(<<SET_OF_CONDITIONS>>)
+        .build();
+);
+```
+
+#### Get
+```java
+configurationClient.getAction("<<ACTION_NAME>>");
+configurationClient.getCondition("<<CONDITION_NAME>>");
+configurationClient.getSubscription("<<SUBSCRIPTION_NAME>>");
+```
+
+#### Update
+```java
+configurationClient.updateAction(<<ACTION>>);
+configurationClient.updateCondition(<<CONDITION>>);
+configurationClient.updateSubscription(<<SUBSCRIPTION>>);
+```
+
+#### Delete
+```java
+configurationClient.deleteAction("<<ACTION_NAME>>");
+configurationClient.deleteCondition("<<CONDITION_NAME>>");
+configurationClient.deleteSubscription("<<SUBSCRIPTION_NAME>>");
+```
+
+#### Get All
+```java
+configurationClient.getActions(<<QUERY_PROPERTIES_MAP>>);
+configurationClient.getConditions(<<QUERY_PROPERTIES_MAP>>);
+configurationClient.getSubscriptions(<<QUERY_PROPERTIES_MAP>>);
+```
+
+### 6. Post an Event on Alert Notification
 Once we have the Alert Notification client, we are ready to send events. Along the tutorial, we will use the AlertNotificationClient built in 
 step 3). However, it can be replaced with the async client we've created in step 4) as well.
 
@@ -136,7 +205,7 @@ Now, we are ready to send the event:
 client.sendEvent(event);
 ```
 
-### 6. Get Stored Events from Alert Notification
+### 7. Get Stored Events from Alert Notification
 All events defined for storage in your Alert Notification instance can be pulled by means of the library:
 
 ```java 
@@ -169,7 +238,7 @@ client.getMatchedEvent("<<EVENT_ID>>", Collections.emptyMap());
 
 ⚠️ **NOTE: The <<EVENT_ID>> placeholder must be replaced with the _**id**_ property returned on post to Alert Notification.**
 
-### 7. Get Undelivered Events from Alert Notification
+### 8. Get Undelivered Events from Alert Notification
 Any event that is matched by at least one subscription and some of the related actions has failed upon execution _(e.g. Webhook is 
 unavailable)_ can be retrieved.
 
@@ -201,10 +270,11 @@ We can also check the failure deliveries and their reasons for one particular ev
 client.getUndeliveredEvent("<<EVENT_ID>>", Collections.singletonMap(QueryParameter.INCLUDE, "FAILURE_REASON"));
 ```
 
-### 8. Setting Up a Test Environment
+### 9. Setting Up a Test Environment
 Do you want to test yourself all of those examples? Get started by [importing](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/771da5b383ee4722afc4eb1f58aa4648.html)
-the following configuration:
+or using the AlertNotificationConfigClient to create the following configuration:
 
+#### Import
 ```json
 {
     "conditions": [
@@ -254,18 +324,62 @@ the following configuration:
 }
 ```
 
+#### Creation through the Alert Notification Configuration Client
+```json
+
+configurationClient.createCondition(
+    new ConditionBuilder()
+        .withName("type-TestEvent")
+        .withPropertyKey("eventType")
+        .withPredicate(Predicate.EQUALS)
+        .withPropertyValue("TestEvent")
+        .withDescription("Catches events which type equals 'TestEvent'.")
+        .build()
+);
+
+configurationClient.createAction(
+    new ActionBuilder() 
+        .withName("store-action")
+        .withState(State.ENABLED)
+        .withType("STORE")
+        .withDescription("This action stores the event in Alert Notification storage. Thus, it can be retrieved via Matched Events API later.")
+        .build()
+);
+
+configurationClient.createAction(
+    new ActionBuilder()
+        .withName("unavailable-webhook")
+        .withState(State.ENABLED)
+        .withType("WEB_HOOK")
+        .withDescription("This action is used for demonstration of the Undelivered Events API. It attempts to send an event to an unavailable webhook service.")
+        .withProperty("destination","https://httpstat.us/503")
+        .withProperty("sslTrustAll","false")
+        .build()
+);
+
+configurationClient.createSubscription(
+    new SubscriptionBuilder() 
+        .withName("TestEvent-store-and-webhook") 
+        .withState(State.ENABLED) 
+        .withDescription("All events with type \"TestEvent\" are stored and posted to an unavailable webhook.") 
+        .withAction("store-action") 
+        .withAction("unavailable-webhook") 
+        .withCondition("type-TestEvent") 
+        .build()
+);
+```
 Once the event from step 5) is posted, there will be one stored event immediately accessible on the Matched Events API. Another 
 event will be stored as an undelivered event after the webhook [retry policy](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/da4fd4e6d0f74bd6b0939145d0e6b8f1.html)
 expires. Then it will be available on the Undelivered Events endpoint.
 
 
-### 9. Have an issue?
+### 10. Have an issue?
 Please, let us know by filing a [new issue](https://github.com/sap-staging/clm-sl-alert-notification-client/issues/new). 
 
-### 10. Contributing
+### 11. Contributing
 We're always open for improvements! If you think the library could be better, please, open an issue and propose your solution as a pull request. We will contact you for discussion as soon as possible.
 
-### 11. License
+### 12. License
 This project is run under the licensing terms of Apache License 2.0. The paper could be found in the [LICENSE](https://github.com/sap-staging/clm-sl-alert-notification-client/blob/master/LICENSE) file 
 in the top-level directory. 
 

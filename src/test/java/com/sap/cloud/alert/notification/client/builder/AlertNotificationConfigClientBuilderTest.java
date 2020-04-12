@@ -1,7 +1,7 @@
 package com.sap.cloud.alert.notification.client.builder;
 
-import com.sap.cloud.alert.notification.client.internal.BasicAuthorizationHeader;
 import com.sap.cloud.alert.notification.client.internal.AlertNotificationConfigClient;
+import com.sap.cloud.alert.notification.client.internal.BasicAuthorizationHeader;
 import com.sap.cloud.alert.notification.client.internal.OAuthAuthorizationHeader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

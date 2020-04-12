@@ -2,8 +2,8 @@ package com.sap.cloud.alert.notification.client.builder;
 
 import com.sap.cloud.alert.notification.client.IAlertNotificationConfigClient;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
-import com.sap.cloud.alert.notification.client.internal.BasicAuthorizationHeader;
 import com.sap.cloud.alert.notification.client.internal.AlertNotificationConfigClient;
+import com.sap.cloud.alert.notification.client.internal.BasicAuthorizationHeader;
 import com.sap.cloud.alert.notification.client.internal.IAuthorizationHeader;
 import com.sap.cloud.alert.notification.client.internal.OAuthAuthorizationHeader;
 import net.jodah.failsafe.RetryPolicy;

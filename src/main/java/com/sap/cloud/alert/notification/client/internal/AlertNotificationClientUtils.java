@@ -1,24 +1,33 @@
 package com.sap.cloud.alert.notification.client.internal;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.alert.notification.client.QueryParameter;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.AuthorizationException;
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
+import com.sap.cloud.alert.notification.client.model.configuration.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.sap.cloud.alert.notification.client.model.configuration.ConfigurationQueryParameter.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.*;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.IterableUtils.chainedIterable;
@@ -27,9 +36,46 @@ import static org.apache.http.HttpStatus.*;
 
 class AlertNotificationClientUtils {
 
-    private static List<String> PRODUCER_PATH_SEGMENTS = unmodifiableList(asList("producer", "v1", "resource-events"));
-    private static List<String> MATCHED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "matched-events"));
-    private static List<String> UNDELIVERED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "undelivered-events"));
+    public static final String EMPTY = "";
+    public static final Class<Action> ACTION_TYPE = Action.class;
+    public static final Class<Condition> CONDITION_TYPE = Condition.class;
+    public static final Class<Subscription> SUBSCRIPTION_TYPE = Subscription.class;
+    public static final String APPLICATION_JSON = ContentType.APPLICATION_JSON.toString();
+    public static final TypeReference<ConfigurationResponse<Action>> ACTION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Action>>(){};
+    public static final TypeReference<ConfigurationResponse<Condition>> CONDITION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Condition>>(){};
+    public static final TypeReference<ConfigurationResponse<Subscription>> SUBSCRIPTION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Subscription>>(){};
+
+    private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(NON_NULL);
+    private static final List<String> PRODUCER_PATH_SEGMENTS = unmodifiableList(asList("producer", "v1", "resource-events"));
+    private static final List<String> MATCHED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "matched-events"));
+    private static final List<String> UNDELIVERED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "undelivered-events"));
+    private static final List<String> ACTIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","action"));
+    private static final List<String> CONDITIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","condition"));
+    private static final List<String> SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS= unmodifiableList(asList("configuration","v1","subscription"));
+
+    static <T> T fromJsonString(String valueAsString, Class<T> clazz) {
+        try {
+            return JSON_OBJECT_MAPPER.readValue(valueAsString, clazz);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static <T> T fromJsonString(String valueAsString, TypeReference<T> typeReference) {
+        try {
+            return JSON_OBJECT_MAPPER.readValue(valueAsString, typeReference);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static <T> String toJsonString(T value) {
+        try {
+            return JSON_OBJECT_MAPPER.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     static void consumeQuietly(HttpResponse response) {
         if (nonNull(response)) {
@@ -46,6 +92,20 @@ class AlertNotificationClientUtils {
             throw asList(SC_FORBIDDEN, SC_UNAUTHORIZED).contains(code) ?
                     new AuthorizationException(reason, code) :
                     new ServerResponseException(reason, code);
+        }
+    }
+
+    static void assertHttpStatus(HttpResponse response, int expected) {
+        if (response.getStatusLine().getStatusCode() != expected) {
+            throw new ServerResponseException(extractMessage(response), response.getStatusLine().getStatusCode());
+        }
+    }
+
+    public static String extractMessage(HttpResponse response) {
+        try {
+            return fromJsonString(EntityUtils.toString(response.getEntity(), UTF_8.name()), ConfigurationErrorResponse.class).getMessage();
+        } catch (Exception e) {
+            return response.getStatusLine().getReasonPhrase();
         }
     }
 
@@ -89,6 +149,41 @@ class AlertNotificationClientUtils {
         );
     }
 
+    static URI buildActionUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> query) {
+        String actionName = query.get(ACTION_NAME);
+        List<String> queryParameters = isNull(actionName) ? emptyList() : singletonList(actionName);
+
+        return buildURI(
+                serviceRegion.getServiceURI(),
+                toPathSegments(serviceRegion, ACTIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters),
+                toConfigurationQueryParameters(query)
+        );
+    }
+
+    static URI buildConditionUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> query) {
+        String conditionName = query.get(CONDITION_NAME);
+        List<String> queryParameters = isNull(conditionName) ? emptyList() : singletonList(conditionName);
+
+        return buildURI(
+                serviceRegion.getServiceURI(),
+                toPathSegments(serviceRegion, CONDITIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters),
+                toConfigurationQueryParameters(query)
+        );
+    }
+
+
+    static URI buildSubscriptionUri(ServiceRegion serviceRegion, Map<ConfigurationQueryParameter, String> query) {
+        String subscriptionName = query.get(SUBSCRIPTION_NAME);
+        List<String> queryParameters = isNull(subscriptionName) ? emptyList() : singletonList(subscriptionName);
+
+        return buildURI(
+                serviceRegion.getServiceURI(),
+                toPathSegments(serviceRegion, SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS, queryParameters),
+                toConfigurationQueryParameters(query)
+        );
+    }
+
+
     private static List<String> toPathSegments(ServiceRegion serviceRegion, List<String> defaultSegments, List<String> customSegments) {
         return toList(chainedIterable(asList(serviceRegion.getPlatform().getKey()), defaultSegments, customSegments));
     }
@@ -103,6 +198,13 @@ class AlertNotificationClientUtils {
 
     private static List<NameValuePair> toQueryParameters(Map<QueryParameter, String> queryFilters) {
         return queryFilters.entrySet().stream()
+                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
+                .collect(toList());
+    }
+
+    private static List<NameValuePair> toConfigurationQueryParameters(Map<ConfigurationQueryParameter, String> queryFilters) {
+        return queryFilters.entrySet().stream()
+                .filter(entry -> QUERY_VIABLE_PARAMETERS.contains(entry.getKey()))
                 .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
                 .collect(toList());
     }

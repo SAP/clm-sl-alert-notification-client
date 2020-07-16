@@ -12,6 +12,8 @@ public class ServiceRegion {
     public static final ServiceRegion BR1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.br10.hana.ondemand.com/");
     public static final ServiceRegion CA1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.ca10.hana.ondemand.com/");
     public static final ServiceRegion CA2 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.ca10.hana.ondemand.com/");
+    public static final ServiceRegion CN1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
+    public static final ServiceRegion RU1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
     public static final ServiceRegion SA1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
     public static final ServiceRegion EU1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
     public static final ServiceRegion EU2 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
@@ -49,6 +51,8 @@ public class ServiceRegion {
     public static final ServiceRegion NEO_TORONTO = CA1;
     public static final ServiceRegion NEO_TORONTO_DR = CA2;
     public static final ServiceRegion NEO_RIYADH = SA1;
+    public static final ServiceRegion NEO_SHANGHAI = CN1;
+    public static final ServiceRegion NEO_MOSCOW = RU1;
     public static final ServiceRegion CF_AWS_SYDNEY = AP10;
     public static final ServiceRegion CF_AWS_SINGAPORE = AP11;
     public static final ServiceRegion CF_AWS_SAO_PAULO = BR10;

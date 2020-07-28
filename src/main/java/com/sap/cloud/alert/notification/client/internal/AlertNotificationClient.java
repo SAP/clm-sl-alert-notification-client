@@ -3,13 +3,12 @@ package com.sap.cloud.alert.notification.client.internal;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.cloud.alert.notification.client.IAlertNotificationClient;
+import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.QueryParameter;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
 import com.sap.cloud.alert.notification.client.model.CustomerResourceEvent;
 import com.sap.cloud.alert.notification.client.model.PagedResponse;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -34,13 +33,13 @@ public class AlertNotificationClient implements IAlertNotificationClient {
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     private final HttpClient httpClient;
-    private final RetryPolicy retryPolicy;
+    private final IRetryPolicy retryPolicy;
     private final ServiceRegion serviceRegion;
     private final IAuthorizationHeader authorizationHeader;
 
     public AlertNotificationClient(
             HttpClient httpClient,
-            RetryPolicy retryPolicy,
+            IRetryPolicy retryPolicy,
             ServiceRegion serviceRegion,
             IAuthorizationHeader authorizationHeader
     ) {
@@ -54,8 +53,8 @@ public class AlertNotificationClient implements IAlertNotificationClient {
         return httpClient;
     }
 
-    public RetryPolicy getRetryPolicy() {
-        return retryPolicy.copy();
+    public IRetryPolicy getRetryPolicy() {
+        return retryPolicy;
     }
 
     public ServiceRegion getServiceRegion() {
@@ -132,7 +131,7 @@ public class AlertNotificationClient implements IAlertNotificationClient {
     }
 
     private <T> T executeRequestWithRetry(HttpUriRequest request, Class<T> responseClass) {
-        return Failsafe.with(retryPolicy).get(() -> executeRequest(request, responseClass));
+        return retryPolicy.executeWithRetry(() -> executeRequest(request, responseClass));
     }
 
     private <T> T executeRequest(HttpUriRequest request, Class<T> responseClass) {

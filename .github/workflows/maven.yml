@@ -6,6 +6,7 @@ name: Build before merge
 on:
   pull_request:
     branches: [ master ]
+    types: [opened, edited, synchronize, ready_for_review, reopened]
 
 jobs:
   build:

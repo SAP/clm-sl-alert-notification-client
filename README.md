@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/11653294/64466233-7cd17480-d119-11e9-8965-e036c1e23c9a.png" alt="CF logo" height="150" align="left"/>
 
 # SAP Cloud Platform Alert Notification Client
->*A Java-based client library to support the usage of SAP Cloud Platform Alert Notification service*  
+>*Java-based client library to support the usage of SAP Cloud Platform Alert Notification service*  
 
 [![Documentation](https://img.shields.io/badge/Service_Documentation-@SAP%20Help%20Portal-ff9900.svg)](https://help.sap.com/viewer/product/ALERT_NOTIFICATION/Cloud/en-US)
 [![Blog](https://img.shields.io/badge/Service--related_Blogs-@SAP%20Community%20Portal-3399ff.svg)](https://blogs.sap.com/tag/sap-cloud-platform-alert-notification/)

@@ -21,7 +21,7 @@ This library focuses on two major aspects:
 
 In this tutorial, we'll take a deep dive at the library's capabilities.
 
-### 2. The Maven Dependency
+### 2. The Dependency
 As usual, to get started using a new library, we first need to add either the binary itself or just a dependency for it:
 
 ```xml 
@@ -32,12 +32,12 @@ As usual, to get started using a new library, we first need to add either the bi
 </dependency>
 ```
 
-Latest version & more dependency declaration examples see on [SAP Cloud Platform Alert Notification@MVNrepository](https://mvnrepository.com/artifact/com.sap.cloud.ans/clm-sl-alert-notification-client).
+Latest version & more dependency declaration examples see on [SAP Cloud Platform Alert Notification @MVNrepository](https://mvnrepository.com/artifact/com.sap.cloud.ans/clm-sl-alert-notification-client).
 
 ### 3. Setting Up the Alert Notification Client
-As a prerequisite of this step is already being an Alert Notification customer and also having credentials for API interactions. If not,
+As a prerequisite of this step, you must be already an Alert Notification customer and you need credentials for API interactions. If not,
 follow [The service enablement guide](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/812b6e3ed8934648ad15780cd51721ef.html) 
-and then [Acquiring API access credentials](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/80fe24f86bde4e3aac2903ac05511835.html).
+and then [Credential Management](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/80fe24f86bde4e3aac2903ac05511835.html).
  
 Let's start by constructing the needed parameters for the Alert Notification client:
 
@@ -47,10 +47,10 @@ Let's start by constructing the needed parameters for the Alert Notification cli
 HttpClient httpClient = HttpClients.createDefault();
 ```
 
-* RetryPolicy - defines the retry policy on a request to Alert Notification: 
+* IRetryPolicy - a simple interface that defines the retry policy on a request to Alert Notification. In our example, let's use the build-in `SimpleRetryPolicy` implementation: 
 
 ```java 
-RetryPolicy retryPolicy = new RetryPolicy().withMaxRetries(3).withBackoff(3, 5, TimeUnit.MINUTES);
+IRetryPolicy retryPolicy = new SimpleRetryPolicy(5, Duration.ofMillis(100));
 ```
 
 * ServiceRegion - defines the region where Alert Notification is instantiated. For ease, all publicly available service regions 
@@ -61,8 +61,8 @@ ServiceRegion serviceRegion = ServiceRegion.EU10;
 ``` 
 
 * IAuthorizationHeader - used to authorize in front of Alert Notification. It could be either BasicAuthorizationHeader or OAuthAuthorizationHeader 
-depending on the type of credentials created in [Acquiring API access credentials](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/80fe24f86bde4e3aac2903ac05511835.html).
-In this tutorial, we'll use basic authorization:
+depending on the type of credentials created in [Credential Management](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/80fe24f86bde4e3aac2903ac05511835.html).
+In this tutorial, we'll use basic authorization mechanism:
 
 ```java 
 IAuthorizationHeader authorizationHeader = new BasicAuthorizationHeader("<<CLIEND_ID>>", "<<CLIENT_SECRET>>");

@@ -1,11 +1,8 @@
 package com.sap.cloud.alert.notification.client.builder;
 
+import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
-import com.sap.cloud.alert.notification.client.internal.AlertNotificationClient;
-import com.sap.cloud.alert.notification.client.internal.BasicAuthorizationHeader;
-import com.sap.cloud.alert.notification.client.internal.IAuthorizationHeader;
-import com.sap.cloud.alert.notification.client.internal.OAuthAuthorizationHeader;
-import net.jodah.failsafe.RetryPolicy;
+import com.sap.cloud.alert.notification.client.internal.*;
 import org.apache.http.client.HttpClient;
 
 import java.net.URI;
@@ -15,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 public class AlertNotificationClientBuilder {
 
     private HttpClient httpClient;
-    private RetryPolicy retryPolicy;
+    private IRetryPolicy retryPolicy;
     private ServiceRegion serviceRegion;
     private IAuthorizationHeader authorizationHeader;
 
@@ -23,11 +20,11 @@ public class AlertNotificationClientBuilder {
         this.serviceRegion = null;
         this.authorizationHeader = null;
         this.httpClient = requireNonNull(httpClient);
-        this.retryPolicy = new RetryPolicy().withMaxRetries(0);
+        this.retryPolicy = new SimpleRetryPolicy();
     }
 
-    public AlertNotificationClientBuilder withRetryPolicy(RetryPolicy retryPolicy) {
-        this.retryPolicy = retryPolicy.copy();
+    public AlertNotificationClientBuilder withRetryPolicy(IRetryPolicy retryPolicy) {
+        this.retryPolicy = retryPolicy;
 
         return this;
     }

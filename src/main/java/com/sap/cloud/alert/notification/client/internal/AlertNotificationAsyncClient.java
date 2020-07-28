@@ -21,8 +21,8 @@ import static com.sap.cloud.alert.notification.client.model.PredefinedEventTag.S
 import static java.lang.Integer.valueOf;
 import static java.lang.Math.abs;
 import static java.util.Collections.unmodifiableCollection;
-import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
+import static org.apache.http.util.TextUtils.isBlank;
 
 public class AlertNotificationAsyncClient implements IAlertNotificationAsyncClient {
 
@@ -32,27 +32,17 @@ public class AlertNotificationAsyncClient implements IAlertNotificationAsyncClie
     private final ICustomerResourceEventBuffer eventBuffer;
     private final IAlertNotificationClient alertNotificationClient;
 
-    public AlertNotificationAsyncClient(
-            ExecutorService executorService,
-            ICustomerResourceEventBuffer eventBuffer,
-            IAlertNotificationClient alertNotificationClient
-    ) {
+    public AlertNotificationAsyncClient(ExecutorService executorService, ICustomerResourceEventBuffer eventBuffer, IAlertNotificationClient alertNotificationClient) {
         this(executorService, eventBuffer, alertNotificationClient, 0);
     }
 
-    public AlertNotificationAsyncClient(
-            ExecutorService executorService,
-            ICustomerResourceEventBuffer eventBuffer,
-            IAlertNotificationClient alertNotificationClient,
-            int orderedEventSendersCount
-    ) {
+    public AlertNotificationAsyncClient(ExecutorService executorService, ICustomerResourceEventBuffer eventBuffer, IAlertNotificationClient alertNotificationClient, int orderedEventSendersCount) {
         this.eventBuffer = requireNonNull(eventBuffer);
         this.executorService = requireNonNull(executorService);
         this.alertNotificationClient = requireNonNull(alertNotificationClient);
         this.orderedEventSendersCount = orderedEventSendersCount;
         this.orderedEventsExecutors = new ConcurrentHashMap<>(orderedEventSendersCount);
-        IntStream.range(0, orderedEventSendersCount).boxed()
-                .forEach(index -> orderedEventsExecutors.put(index, Executors.newSingleThreadExecutor()));
+        IntStream.range(0, orderedEventSendersCount).boxed().forEach(index -> orderedEventsExecutors.put(index, Executors.newSingleThreadExecutor()));
     }
 
     public ExecutorService getExecutorService() {
@@ -119,9 +109,7 @@ public class AlertNotificationAsyncClient implements IAlertNotificationAsyncClie
         orderedEventsExecutors.values().forEach(ExecutorService::shutdownNow);
     }
 
-    private ExecutorService getEventSenderExecutor(String sourceEventId){
-        return orderedEventSendersCount > 0 && nonNull(sourceEventId) && !sourceEventId.isEmpty() ?
-                orderedEventsExecutors.get(valueOf(abs(sourceEventId.hashCode() % orderedEventSendersCount))) :
-                executorService;
+    private ExecutorService getEventSenderExecutor(String sourceEventId) {
+        return orderedEventSendersCount > 0 && !isBlank(sourceEventId) ? orderedEventsExecutors.get(valueOf(abs(sourceEventId.hashCode() % orderedEventSendersCount))) : executorService;
     }
 }

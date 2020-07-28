@@ -2,12 +2,12 @@ package com.sap.cloud.alert.notification.client.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.QueryParameter;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.builder.CustomerResourceEventBuilder;
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
 import com.sap.cloud.alert.notification.client.model.*;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -24,9 +24,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.internal.matchers.Null;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
@@ -48,19 +48,17 @@ public class AlertNotificationClientTest {
     private static final String TEST_PASSWORD = "TEST_PASSWORD";
     private static final String TEST_REASON_PHRASE = "Test Reason";
     private static final ServiceRegion TEST_SERVICE_REGION = ServiceRegion.EU1;
-    private static final RetryPolicy TEST_RETRY_POLICY = new RetryPolicy().withMaxRetries(3);
+    private static final IRetryPolicy TEST_RETRY_POLICY = new SimpleRetryPolicy(3, Duration.ofMillis(100));
     private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     private static final ProtocolVersion TEST_PROTOCOL_VERSION = new ProtocolVersion(TEST_PROTOCOL_NAME, TEST_PROTOCOL_MAJOR_VERSION, TEST_PROTOCOL_MINOR_VERSION);
 
-    private static final CustomerResourceEvent TEST_CUSTOMER_RESOURCE_EVENT = new CustomerResourceEventBuilder()
-            .withBody("TEST_BODY")
+    private static final CustomerResourceEvent TEST_CUSTOMER_RESOURCE_EVENT = new CustomerResourceEventBuilder().withBody("TEST_BODY")
             .withType("TEST_TYPE")
             .withSubject("TEST_SUBJECT")
             .withSeverity(EventSeverity.INFO)
             .withCategory(EventCategory.NOTIFICATION)
             .withAffectedResource(new AffectedCustomerResource("TEST_NAME", "TEST_TYPE", "TEST_INSTANCE", Collections.emptyMap()))
             .build();
-
 
     private HttpClient mockedHttpClient;
     private AlertNotificationClient classUnderTest;
@@ -141,7 +139,7 @@ public class AlertNotificationClientTest {
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.sendEvent(TEST_CUSTOMER_RESOURCE_EVENT));
 
-        verify(mockedHttpClient, times(TEST_RETRY_POLICY.getMaxRetries() + 1)).execute(any(HttpPost.class));
+        verify(mockedHttpClient, times(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries() + 1)).execute(any(HttpPost.class));
     }
 
     @Test
@@ -169,7 +167,7 @@ public class AlertNotificationClientTest {
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getMatchedEvents(testQueryFilters));
 
-        verify(mockedHttpClient, times(TEST_RETRY_POLICY.getMaxRetries() + 1)).execute(any(HttpGet.class));
+        verify(mockedHttpClient, times(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries() + 1)).execute(any(HttpGet.class));
     }
 
     @Test
@@ -197,9 +195,8 @@ public class AlertNotificationClientTest {
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getMatchedEvent(TEST_EVENT_ID, testQueryFilters));
 
-        verify(mockedHttpClient, times(TEST_RETRY_POLICY.getMaxRetries() + 1)).execute(any(HttpGet.class));
+        verify(mockedHttpClient, times(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries() + 1)).execute(any(HttpGet.class));
     }
-
 
     @Test
     public void whenGetUndeliveredEventsIsCalled_thenCorrectRequestIsSent() throws Exception {
@@ -226,7 +223,7 @@ public class AlertNotificationClientTest {
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getUndeliveredEvents(testQueryFilters));
 
-        verify(mockedHttpClient, times(TEST_RETRY_POLICY.getMaxRetries() + 1)).execute(any(HttpGet.class));
+        verify(mockedHttpClient, times(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries() + 1)).execute(any(HttpGet.class));
     }
 
     @Test
@@ -254,7 +251,7 @@ public class AlertNotificationClientTest {
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getUndeliveredEvent(TEST_EVENT_ID, testQueryFilters));
 
-        verify(mockedHttpClient, times(TEST_RETRY_POLICY.getMaxRetries() + 1)).execute(any(HttpGet.class));
+        verify(mockedHttpClient, times(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries() + 1)).execute(any(HttpGet.class));
     }
 
     private HttpResponse createFailedResponse() {

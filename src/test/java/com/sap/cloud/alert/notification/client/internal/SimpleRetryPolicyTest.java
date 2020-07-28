@@ -66,6 +66,7 @@ public class SimpleRetryPolicyTest {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private static Supplier<String> createMockedSupplier(int failures) {
         Supplier<String> testSupplier = mock(Supplier.class);
         OngoingStubbing<String> ongoingStubbing = when(testSupplier.get());

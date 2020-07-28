@@ -1,8 +1,6 @@
 package com.sap.cloud.alert.notification.client.internal;
 
-import com.sap.cloud.alert.notification.client.IAlertNotificationClient;
-import com.sap.cloud.alert.notification.client.ICustomerResourceEventBuffer;
-import com.sap.cloud.alert.notification.client.QueryParameter;
+import com.sap.cloud.alert.notification.client.*;
 import com.sap.cloud.alert.notification.client.builder.AlertNotificationAsyncClientBuilder;
 import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
@@ -10,15 +8,20 @@ import com.sap.cloud.alert.notification.client.model.AffectedCustomerResource;
 import com.sap.cloud.alert.notification.client.model.CustomerResourceEvent;
 import com.sap.cloud.alert.notification.client.model.PagedResponse;
 import com.sap.cloud.alert.notification.client.util.SynchronousExecutorService;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
 import static com.sap.cloud.alert.notification.client.QueryParameter.CORRELATION_ID;
@@ -29,6 +32,7 @@ import static java.lang.Integer.valueOf;
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.groupingBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -164,6 +168,21 @@ public class AlertNotificationAsyncClientTest {
         classUnderTest.shutdown();
 
         verify(testExecutorService).shutdownNow();
+    }
+
+    @Test
+    public void whenShutdownIsCalled_thenExecutorThreadsAreInterruptedProperly() throws Exception {
+        HttpClient httpClient = mock(HttpClient.class);
+        IAlertNotificationClient failingClient = new AlertNotificationClient(httpClient, new SimpleRetryPolicy(5, Duration.ofMillis(100)), ServiceRegion.AE1, mock(IAuthorizationHeader.class));
+        IAlertNotificationAsyncClient asyncClient = new AlertNotificationAsyncClient(newSingleThreadExecutor(), testEventBuffer, failingClient);
+
+        doThrow(IOException.class).when(httpClient).execute(any(HttpUriRequest.class));
+
+        asyncClient.getMatchedEvent(TEST_EVENT_ID, TEST_QUERY_PARAMETERS);
+        asyncClient.shutdown();
+        Thread.sleep(1000);
+
+        verify(httpClient, times(1)).execute(any(HttpUriRequest.class));
     }
 
     @Test

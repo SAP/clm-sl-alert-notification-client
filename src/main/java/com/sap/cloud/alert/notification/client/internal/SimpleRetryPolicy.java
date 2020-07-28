@@ -1,6 +1,7 @@
 package com.sap.cloud.alert.notification.client.internal;
 
 import com.sap.cloud.alert.notification.client.IRetryPolicy;
+import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -42,19 +43,21 @@ public class SimpleRetryPolicy implements IRetryPolicy {
         return supplier.get();
     }
 
-    public static void sleepAtLeast(Duration duration) {
+    private static void sleepAtLeast(Duration duration) {
         long sleepUntil = currentTimeMillis() + duration.toMillis();
+        long currentTime;
 
-        while (currentTimeMillis() < sleepUntil) {
-            trySleep(Duration.ofMillis(sleepUntil - currentTimeMillis()));
+        while ((currentTime = currentTimeMillis()) < sleepUntil) {
+            trySleep(sleepUntil - currentTime);
         }
     }
 
-    private static void trySleep(Duration duration) {
+    private static void trySleep(long durationMillis) {
         try {
-            Thread.sleep(duration.toMillis());
-        } catch (InterruptedException e) {
-            // Nothing to be done, ignore.
+            Thread.sleep(durationMillis);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new ClientRequestException(exception);
         }
     }
 }

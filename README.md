@@ -108,28 +108,29 @@ Before posting an even we first need to construct it.
 Alert Notification event is always related to some resource - application or service:
 
 ```java 
-AffectedCustomerResource resource = new AffectedCustomerResource(
-        "my-java-application",  // resource name
-        "java-app",             // resource type
-        "v9192c8cba",           // identifier of the particular instance of the resource
-        Collections.emptyMap()  // additional information in form of key-value pairs
+AffectedCustomerResource resource = new AffectedCustomerResourceBuilder()
+                .withName("my-java-application")     // resource name
+                .withType("java-app")                // resource type
+                .withInstance("v9192c8cba")          // identifier of the particular instance of the resource
+                .withTags(Collections.emptyMap())    // additional information in form of key-value pairs 
+                .build();
 );
 ``` 
 
 ```java 
-CustomerResourceEvent event = new CustomerResourceEvent(
-        null,                                              // identifier given by Alert Notification on receiving
-        "TestEvent",                                       // type of the event
-        1567659671L,                                       // timestamp - when the event occured
-        EventSeverity.INFO,                                // event severity
-        EventCategory.NOTIFICATION,                        // event category
-        1,                                                 // event priority
-        "First Event Posted on Alert Notification",        // subject
-        "This event has test purpose.",                    // body
-        Collections.singletonMap("app.status", "started"), // additional information in form of key-value pairs
-        resource                                           // the affected resource
+CustomerResourceEvent event = new CustomerResourceEventBuilder()
+                .withType("TestEvent")                                      // type of the event
+                .withCategory(EventCategory.NOTIFICATION)                   // event category
+                .withSeverity(EventSeverity.INFO)                           // event severity
+                .withSubject("First Event Posted on Alert Notification")    // subject
+                .withBody("This event has test purpose.")                   // body
+                .withTags(Collections.singletonMap("my-tag", "test"))       // additional information in form of key-value pairs
+                .withAffectedResource(resource)                             // the affected resource
+                .build();                                      
 );
 ```
+
+>**NOTE**: Further information on the resource & event properties could be found on [SAP API Business Hub](https://api.sap.com/api/cf_producer_api/resource)
 
 Now, we are ready to send the event:
 
@@ -138,7 +139,7 @@ client.sendEvent(event);
 ```
 
 ### 6. Get Stored Events from Alert Notification
-All events defined for storage in your Alert Notification instance can be pulled by means of the library:
+All events [defined for storage](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/f7bac80425124baebbfe0ff1d50b2956.html) in your Alert Notification instance can be pulled by means of the library:
 
 ```java 
 client.getMatchedEvents(Collections.emptyMap());
@@ -256,7 +257,7 @@ the following configuration:
 ```
 
 Once the event from step 5) is posted, there will be one stored event immediately accessible on the Matched Events API. Another 
-event will be stored as an undelivered event after the webhook [retry policy](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/da4fd4e6d0f74bd6b0939145d0e6b8f1.html)
+event will be stored as an undelivered event after the webhook [retry policy](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/086361cb02fb467993acd6f9515607d4.html)
 expires. Then it will be available on the Undelivered Events endpoint.
 
 

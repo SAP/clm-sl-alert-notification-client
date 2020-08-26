@@ -35,6 +35,7 @@ public class ServiceRegion {
     public static final ServiceRegion JP20 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.jp20.hana.ondemand.com/");
     public static final ServiceRegion US10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.us10.hana.ondemand.com/");
     public static final ServiceRegion JP10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.jp10.hana.ondemand.com/");
+    public static final ServiceRegion US30 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.us30.hana.ondemand.com/");
 
     public static final ServiceRegion NEO_ROT = EU1;
     public static final ServiceRegion NEO_FRANKFURT = EU2;
@@ -65,6 +66,7 @@ public class ServiceRegion {
     public static final ServiceRegion CF_AZURE_TOKYO = JP20;
     public static final ServiceRegion CF_AZURE_WA = US20;
     public static final ServiceRegion CF_AZURE_VA = US21;
+    public static final ServiceRegion CF_GCP_IA = US30;
 
     private final Platform platform;
     private final URI serviceURI;

@@ -38,6 +38,7 @@ class AlertNotificationClientUtils {
     public static final Class<Action> ACTION_TYPE = Action.class;
     public static final Class<Condition> CONDITION_TYPE = Condition.class;
     public static final Class<Subscription> SUBSCRIPTION_TYPE = Subscription.class;
+    public static final Class<Configuration> CONFIGURATION_TYPE = Configuration.class;
     public static final String APPLICATION_JSON = ContentType.APPLICATION_JSON.toString();
     public static final TypeReference<ConfigurationResponse<Action>> ACTION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Action>>(){};
     public static final TypeReference<ConfigurationResponse<Condition>> CONDITION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Condition>>(){};
@@ -50,6 +51,7 @@ class AlertNotificationClientUtils {
     private static final List<String> ACTIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","action"));
     private static final List<String> CONDITIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","condition"));
     private static final List<String> SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS= unmodifiableList(asList("configuration","v1","subscription"));
+    private static final List<String> CONFIGURATION_MANAGEMENT_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","configuration"));
 
     static <T> T fromJsonString(String valueAsString, Class<T> clazz) {
         try {
@@ -144,6 +146,14 @@ class AlertNotificationClientUtils {
                 serviceRegion.getServiceURI(),
                 toPathSegments(serviceRegion, UNDELIVERED_EVENTS_PATH_SEGMENTS, asList(eventId)),
                 toQueryParameters(filters)
+        );
+    }
+
+    static URI buildConfigurationManagementUri(ServiceRegion serviceRegion) {
+        return buildURI(
+            serviceRegion.getServiceURI(),
+            toPathSegments(serviceRegion, CONFIGURATION_MANAGEMENT_PATH_SEGMENTS, emptyList()),
+            emptyList()
         );
     }
 

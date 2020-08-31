@@ -1,7 +1,13 @@
 package com.sap.cloud.alert.notification.client.internal;
 
-import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
-import com.sap.cloud.alert.notification.client.model.configuration.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
@@ -17,13 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
+import com.sap.cloud.alert.notification.client.model.configuration.*;
 
 import static com.sap.cloud.alert.notification.client.TestUtils.*;
 import static com.sap.cloud.alert.notification.client.internal.AlertNotificationClientUtils.APPLICATION_JSON;
@@ -55,18 +56,13 @@ public class AlertNotificationConfigurationClientTest {
     private static final String TEST_AUTHORIZATION_HEADER = "Basic TEST_AUTHORIZATION_HEADER";
     private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion("HTTP", 1, 1);
 
-    private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_FALLBACK_TIME,
-            TEST_FALLBACK_ACTION, TEST_PROPERTIES);
-    private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS,
-            TEST_CONDITIONS);
-    private static final ConfigurationErrorResponse CONFIGURATION_ERROR_RESPONSE = new ConfigurationErrorResponse(SC_INTERNAL_SERVER_ERROR,
-            EMPTY);
-    private static final ConfigurationResponse<Action> ACTION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_ACTION),
-            TEST_CONFIGURATION_PAGING_METADATA);
-    private static final ConfigurationResponse<Condition> CONDITION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(
-            singletonList(TEST_CONDITION), TEST_CONFIGURATION_PAGING_METADATA);
-    private static final ConfigurationResponse<Subscription> SUBSCRIPTION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(
-            singletonList(TEST_SUBSCRIPTION), TEST_CONFIGURATION_PAGING_METADATA);
+    private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_FALLBACK_TIME, TEST_FALLBACK_ACTION, TEST_PROPERTIES);
+    private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS, TEST_CONDITIONS);
+    private static final Configuration TEST_CONFIGURATION = new Configuration(singletonList(TEST_ACTION), singletonList(TEST_CONDITION), singletonList(TEST_SUBSCRIPTION));
+    private static final ConfigurationErrorResponse CONFIGURATION_ERROR_RESPONSE = new ConfigurationErrorResponse(SC_INTERNAL_SERVER_ERROR, EMPTY);
+    private static final ConfigurationResponse<Action> ACTION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_ACTION), TEST_CONFIGURATION_PAGING_METADATA);
+    private static final ConfigurationResponse<Condition> CONDITION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_CONDITION), TEST_CONFIGURATION_PAGING_METADATA);
+    private static final ConfigurationResponse<Subscription> SUBSCRIPTION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_SUBSCRIPTION), TEST_CONFIGURATION_PAGING_METADATA);
 
     private static final String ACTION_CONFIGURATION_PATH_TEMPLATE = "/%s/configuration/v1/action/%s";
     private static final String ACTIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/action", TEST_SERVICE_REGION.getPlatform().getKey());
@@ -74,6 +70,7 @@ public class AlertNotificationConfigurationClientTest {
     private static final String CONDITIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/condition", TEST_SERVICE_REGION.getPlatform().getKey());
     private static final String SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE = "/%s/configuration/v1/subscription/%s";
     private static final String SUBSCRIPTIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/subscription", TEST_SERVICE_REGION.getPlatform().getKey());
+    private static final String CONFIGURATION_MANAGEMENT_BASE_PATH = format("/%s/configuration/v1/management", TEST_SERVICE_REGION.getPlatform().getKey());
 
     private HttpClient mockedHttpClient;
     private AlertNotificationConfigurationClient classUnderTest;
@@ -175,8 +172,7 @@ public class AlertNotificationConfigurationClientTest {
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
                 (HttpPut) requestCaptor.getValue(), //
-                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName()),
-                        TEST_CONDITION) //
+                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName()), TEST_CONDITION) //
         );
         assertEquals(TEST_CONDITION, condition);
     }
@@ -287,7 +283,7 @@ public class AlertNotificationConfigurationClientTest {
         assertCorrectRequest( //
                 (HttpPut) requestCaptor.getValue(), //
                 buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, ACTION_CONFIGURATION_PATH_TEMPLATE, TEST_ACTION.getName()), TEST_ACTION)
-                //
+        //
         );
         assertEquals(TEST_ACTION, action);
     }
@@ -397,8 +393,7 @@ public class AlertNotificationConfigurationClientTest {
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
                 (HttpPut) requestCaptor.getValue(), //
-                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName()),
-                        TEST_SUBSCRIPTION) //
+                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName()), TEST_SUBSCRIPTION) //
         );
         assertEquals(TEST_SUBSCRIPTION, subscription);
     }
@@ -421,7 +416,7 @@ public class AlertNotificationConfigurationClientTest {
         assertCorrectRequest( //
                 (HttpDelete) requestCaptor.getValue(), //
                 buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName()))
-                //
+        //
         );
     }
 
@@ -430,6 +425,50 @@ public class AlertNotificationConfigurationClientTest {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.deleteSubscription(TEST_SUBSCRIPTION.getName()));
+    }
+
+    @Test
+    public void whenImportingAll_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPost.class);
+        doReturn(buildResponse(SC_CREATED, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpPost.class));
+
+        Configuration result = classUnderTest.importConfiguration(TEST_CONFIGURATION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectRequest( //
+                (HttpPost) requestCaptor.getValue(), //
+                buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, CONFIGURATION_MANAGEMENT_BASE_PATH), TEST_CONFIGURATION) //
+        );
+        assertEquals(TEST_CONFIGURATION, result);
+    }
+
+    @Test
+    public void givenThatRequestFails_whenImportingAll_thenExceptionIsThrown() throws Exception {
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
+
+        assertThrows(ServerResponseException.class, () -> classUnderTest.importConfiguration(TEST_CONFIGURATION));
+    }
+
+    @Test
+    public void whenExportingAll_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpGet.class));
+
+        Configuration result = classUnderTest.exportConfiguration();
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, CONFIGURATION_MANAGEMENT_BASE_PATH)) //
+        );
+        assertEquals(TEST_CONFIGURATION, result);
+    }
+
+    @Test
+    public void givenThatRequestFails_whenExportingAll_thenExceptionIsThrown() throws Exception {
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+
+        assertThrows(ServerResponseException.class, () -> classUnderTest.exportConfiguration());
     }
 
     private static void assertCorrectRequest(HttpGet found, HttpGet expected) {
@@ -526,22 +565,12 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     private static List<NameValuePair> toConfigurationQueryParameterPairs(Map<ConfigurationQueryParameter, String> queryFilters) {
-        return queryFilters
-                .entrySet()
-                .stream()
-                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
-                .collect(toList());
+        return queryFilters.entrySet().stream().map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue())).collect(toList());
     }
 
     private static URI buildUri(URI uri, String path, List<NameValuePair> parameters) throws URISyntaxException {
-     URIBuilder builder = new URIBuilder()
-                .setScheme(uri.getScheme())
-                .setHost(uri.getHost())
-                .setPort(uri.getPort())
-                .setPath(path);
+        URIBuilder builder = new URIBuilder().setScheme(uri.getScheme()).setHost(uri.getHost()).setPort(uri.getPort()).setPath(path);
 
-     return isNull(parameters)
-             ? builder.build()
-             : builder.setParameters(parameters).build();
+        return isNull(parameters) ? builder.build() : builder.setParameters(parameters).build();
     }
 }

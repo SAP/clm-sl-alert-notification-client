@@ -70,7 +70,7 @@ public class AlertNotificationConfigurationClientTest {
     private static final String CONDITIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/condition", TEST_SERVICE_REGION.getPlatform().getKey());
     private static final String SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE = "/%s/configuration/v1/subscription/%s";
     private static final String SUBSCRIPTIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/subscription", TEST_SERVICE_REGION.getPlatform().getKey());
-    private static final String CONFIGURATION_MANAGEMENT_BASE_PATH = format("/%s/configuration/v1/management", TEST_SERVICE_REGION.getPlatform().getKey());
+    private static final String CONFIGURATION_MANAGEMENT_BASE_PATH = format("/%s/configuration/v1/configuration", TEST_SERVICE_REGION.getPlatform().getKey());
 
     private HttpClient mockedHttpClient;
     private AlertNotificationConfigurationClient classUnderTest;

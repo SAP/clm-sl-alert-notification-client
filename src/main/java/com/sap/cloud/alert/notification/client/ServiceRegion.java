@@ -24,6 +24,7 @@ public class ServiceRegion {
     public static final ServiceRegion US4 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.us10.hana.ondemand.com/");
     public static final ServiceRegion JP1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.jp10.hana.ondemand.com/");
     public static final ServiceRegion EU10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
+    public static final ServiceRegion EU11 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.eu11.hana.ondemand.com/");
     public static final ServiceRegion EU20 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.eu20.hana.ondemand.com/");
     public static final ServiceRegion AP10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.ap10.hana.ondemand.com/");
     public static final ServiceRegion BR10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.br10.hana.ondemand.com/");
@@ -58,6 +59,7 @@ public class ServiceRegion {
     public static final ServiceRegion CF_AWS_SAO_PAULO = BR10;
     public static final ServiceRegion CF_AWS_MONTREAL = CA10;
     public static final ServiceRegion CF_AWS_FRANKFURT = EU10;
+    public static final ServiceRegion CF_AWS_FRANKFURT_2 = EU11;
     public static final ServiceRegion CF_AWS_TOKYO = JP10;
     public static final ServiceRegion CF_AWS_US_EAST = US10;
     public static final ServiceRegion CF_AZURE_SINGAPORE = AP21;

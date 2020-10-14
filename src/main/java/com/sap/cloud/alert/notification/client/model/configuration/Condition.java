@@ -1,6 +1,7 @@
 package com.sap.cloud.alert.notification.client.model.configuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -15,6 +16,7 @@ import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 @ToString(doNotUseGetters = true)
 @EqualsAndHashCode(doNotUseGetters = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Condition implements Serializable {
 
     private static final long serialVersionUID = 1L;

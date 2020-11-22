@@ -1,8 +1,12 @@
 package com.sap.cloud.alert.notification.client;
 
 import java.net.URI;
+import java.util.Map;
 
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Stream.of;
 
 public class ServiceRegion {
 
@@ -35,6 +39,10 @@ public class ServiceRegion {
     public static final ServiceRegion JP20 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.jp20.hana.ondemand.com/");
     public static final ServiceRegion US10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.us10.hana.ondemand.com/");
     public static final ServiceRegion JP10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.jp10.hana.ondemand.com/");
+
+    private static final Map<String, ServiceRegion> HOST_TO_SERVICE_REGION = unmodifiableMap( //
+            of(EU10, EU20, AP10, BR10, CA10, AP11, US20, US21, AP21, JP20, US10, JP10).collect(toMap(region -> region.getServiceURI().getHost(), region -> region)) //
+    );
 
     public static final ServiceRegion NEO_ROT = EU1;
     public static final ServiceRegion NEO_FRANKFURT = EU2;
@@ -81,4 +89,9 @@ public class ServiceRegion {
     public Platform getPlatform() {
         return platform;
     }
+
+    public static ServiceRegion fromUri(URI serviceUri) {
+        return HOST_TO_SERVICE_REGION.get(serviceUri.getHost());
+    }
+
 }

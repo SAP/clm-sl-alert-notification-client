@@ -1,12 +1,16 @@
 package com.sap.cloud.alert.notification.client.builder;
 
+import com.sap.cloud.alert.notification.client.IAlertNotificationConfigurationClient;
 import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.internal.*;
+import com.sap.cloud.alert.notification.client.model.AlertNotificationServiceBinding;
 import org.apache.http.client.HttpClient;
 
 import java.net.URI;
 
+import static com.sap.cloud.alert.notification.client.ServiceRegion.fromUri;
+import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 public class AlertNotificationClientBuilder {
@@ -45,6 +49,18 @@ public class AlertNotificationClientBuilder {
         this.authorizationHeader = new OAuthAuthorizationHeader(clientId, clientSecret, oAuthServiceURI, httpClient);
 
         return this;
+    }
+
+    public AlertNotificationClient buildFromServiceBinding() {
+        return buildFromServiceBinding(new AlertNotificationServiceBinding());
+    }
+
+    public AlertNotificationClient buildFromServiceBinding(AlertNotificationServiceBinding serviceBinding) {
+        AlertNotificationClientBuilder alertNotificationClientBuilder = withServiceRegion(fromUri(serviceBinding.getServiceUri()));
+
+        return isNull(serviceBinding.getOauthUri()) //
+                ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //
+                : alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret(), serviceBinding.getOauthUri()).build();
     }
 
     public AlertNotificationClient build() {

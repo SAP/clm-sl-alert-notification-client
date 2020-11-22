@@ -4,10 +4,13 @@ import com.sap.cloud.alert.notification.client.IAlertNotificationConfigurationCl
 import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.internal.*;
+import com.sap.cloud.alert.notification.client.model.AlertNotificationServiceBinding;
 import org.apache.http.client.HttpClient;
 
 import java.net.URI;
 
+import static com.sap.cloud.alert.notification.client.ServiceRegion.fromUri;
+import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
 public final class AlertNotificationConfigurationClientBuilder {
@@ -50,13 +53,21 @@ public final class AlertNotificationConfigurationClientBuilder {
         return this;
     }
 
+    public IAlertNotificationConfigurationClient buildFromServiceBinding() {
+        return buildFromServiceBinding(new AlertNotificationServiceBinding());
+    }
+
+    public IAlertNotificationConfigurationClient buildFromServiceBinding(AlertNotificationServiceBinding serviceBinding) {
+        AlertNotificationConfigurationClientBuilder alertNotificationClientBuilder = withServiceRegion(fromUri(serviceBinding.getServiceUri()));
+
+        return isNull(serviceBinding.getOauthUri()) //
+                ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //
+                : alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret(), serviceBinding.getOauthUri()).build();
+
+    }
+
     public IAlertNotificationConfigurationClient build() {
-        return new AlertNotificationConfigurationClient(
-                requireNonNull(httpClient),
-                requireNonNull(retryPolicy),
-                requireNonNull(serviceRegion),
-                buildAuthorizationHeader()
-        );
+        return new AlertNotificationConfigurationClient(requireNonNull(httpClient), requireNonNull(retryPolicy), requireNonNull(serviceRegion), buildAuthorizationHeader());
     }
 
     private IAuthorizationHeader buildAuthorizationHeader() {
@@ -64,8 +75,6 @@ public final class AlertNotificationConfigurationClientBuilder {
             return null; // Rely on HttpClient configuration only
         }
 
-        return oAuthServiceUri == null
-                ? new BasicAuthorizationHeader(username, password)
-                : new OAuthAuthorizationHeader(username, password, oAuthServiceUri, httpClient);
+        return oAuthServiceUri == null ? new BasicAuthorizationHeader(username, password) : new OAuthAuthorizationHeader(username, password, oAuthServiceUri, httpClient);
     }
 }

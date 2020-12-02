@@ -9,7 +9,7 @@ import org.apache.http.client.HttpClient;
 
 import java.net.URI;
 
-import static com.sap.cloud.alert.notification.client.ServiceRegion.fromUri;
+import static com.sap.cloud.alert.notification.client.Platform.CF;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
@@ -58,7 +58,7 @@ public final class AlertNotificationConfigurationClientBuilder {
     }
 
     public IAlertNotificationConfigurationClient buildFromServiceBinding(AlertNotificationServiceBinding serviceBinding) {
-        AlertNotificationConfigurationClientBuilder alertNotificationClientBuilder = withServiceRegion(fromUri(serviceBinding.getServiceUri()));
+        AlertNotificationConfigurationClientBuilder alertNotificationClientBuilder = withServiceRegion(new ServiceRegion(CF, serviceBinding.getServiceUri().toString()));
 
         return isNull(serviceBinding.getOauthUri()) //
                 ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //

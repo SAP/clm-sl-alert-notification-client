@@ -1,6 +1,5 @@
 package com.sap.cloud.alert.notification.client.builder;
 
-import com.sap.cloud.alert.notification.client.IAlertNotificationConfigurationClient;
 import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.internal.*;
@@ -9,7 +8,7 @@ import org.apache.http.client.HttpClient;
 
 import java.net.URI;
 
-import static com.sap.cloud.alert.notification.client.ServiceRegion.fromUri;
+import static com.sap.cloud.alert.notification.client.Platform.CF;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
@@ -56,7 +55,7 @@ public class AlertNotificationClientBuilder {
     }
 
     public AlertNotificationClient buildFromServiceBinding(AlertNotificationServiceBinding serviceBinding) {
-        AlertNotificationClientBuilder alertNotificationClientBuilder = withServiceRegion(fromUri(serviceBinding.getServiceUri()));
+        AlertNotificationClientBuilder alertNotificationClientBuilder = withServiceRegion(new ServiceRegion(CF, serviceBinding.getServiceUri().toString()));
 
         return isNull(serviceBinding.getOauthUri()) //
                 ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //

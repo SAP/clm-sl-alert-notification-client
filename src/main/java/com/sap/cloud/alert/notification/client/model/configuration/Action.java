@@ -1,6 +1,7 @@
 package com.sap.cloud.alert.notification.client.model.configuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -13,6 +14,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @ToString(exclude = "properties", doNotUseGetters = true)
 @EqualsAndHashCode(doNotUseGetters = true, exclude = { "timeCreated", "lastModified" })
 public class Action implements Serializable {

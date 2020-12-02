@@ -230,12 +230,14 @@ the following configuration:
         {
             "name": "unavailable-webhook",
             "state": "ENABLED",
+            "type": "WEB_HOOK",
             "labels": [],
             "description": "This action is used for demonstration of the Undelivered Events API. It attempts to send an event to an unavailable webhook service.",
-            "destination": "https://httpstat.us/503",
-            "sslTrustAll": false,
-            "payloadTemplate": "",
-            "type": "WEB_HOOK"
+            "properties": {
+                "destination": "https://httpstat.us/503",
+                "sslTrustAll": false,
+                "payloadTemplate": ""
+            }
         }
     ],
     "subscriptions": [

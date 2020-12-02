@@ -159,6 +159,14 @@ public class AlertNotificationClientUtilsTest {
         assertEquals(expectedURIAsString, buildUndeliveredEventsURI(TEST_SERVICE_REGION, TEST_EVENT_ID, testQueryParameters).toString());
     }
 
+    @Test
+    public void whenBuildConfigurationManagementUri_thenCorrectURIIsBuilt() {
+        String expectedURIAsString = format("%s/%s/configuration/v1/configuration", TEST_SERVICE_URI, TEST_PLATFORM_NAME);
+
+        assertEquals(expectedURIAsString, buildConfigurationManagementUri(TEST_SERVICE_REGION).toString());
+    }
+
+
     private HttpResponse createResponseForCode(int httpStatusCode) {
         return new BasicHttpResponse(new BasicStatusLine(TEST_PROTOCOL_VERSION, httpStatusCode, TEST_REASON_PHRASE));
     }

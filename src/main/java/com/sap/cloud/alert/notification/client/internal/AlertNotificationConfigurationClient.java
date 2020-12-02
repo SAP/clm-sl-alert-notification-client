@@ -153,6 +153,18 @@ public final class AlertNotificationConfigurationClient implements IAlertNotific
         executeWithRetry(() -> executeHttpDelete(deleteSubscriptionUri));
     }
 
+    @Override
+    public Configuration importConfiguration(Configuration newConfiguration) {
+        URI configurationManagementBaseUri = buildConfigurationManagementUri(serviceRegion);
+        return fromJsonString(retryPolicy.executeWithRetry(() -> executeHttpPost(configurationManagementBaseUri, toJsonString(newConfiguration))), CONFIGURATION_TYPE);
+    }
+
+    @Override
+    public Configuration exportConfiguration() {
+        URI configurationManagementBaseUri = buildConfigurationManagementUri(serviceRegion);
+        return fromJsonString(retryPolicy.executeWithRetry(() -> executeHttpGet(configurationManagementBaseUri)), CONFIGURATION_TYPE);
+    }
+
     private String executeWithRetry(Supplier<String> supplier) {
        return retryPolicy.executeWithRetry(supplier);
     }

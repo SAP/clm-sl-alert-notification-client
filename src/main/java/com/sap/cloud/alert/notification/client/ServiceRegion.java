@@ -1,9 +1,12 @@
 package com.sap.cloud.alert.notification.client;
 
+import lombok.EqualsAndHashCode;
+
 import java.net.URI;
 
 import static java.util.Objects.requireNonNull;
 
+@EqualsAndHashCode(doNotUseGetters = true)
 public class ServiceRegion {
 
     public static final ServiceRegion AE1 = new ServiceRegion(Platform.NEO, "https://clm-sl-ans-live-ans-service-api.cfapps.eu10.hana.ondemand.com/");
@@ -83,4 +86,5 @@ public class ServiceRegion {
     public Platform getPlatform() {
         return platform;
     }
+
 }

@@ -10,32 +10,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConditionTest {
 
-    private static final String TEST_CONDITION_AS_JSON_STRING = "{" 
-            + format("\"id\":\"%s\",", TEST_ID) 
-            + format("\"name\":\"%s\",", TEST_NAME) 
-            + format("\"description\":\"%s\",", TEST_DESCRIPTION) 
-            + format("\"propertyKey\":\"%s\",", TEST_PROPERTY_KEY) 
-            + format("\"predicate\":\"%s\",", TEST_PREDICATE.name()) 
-            + format("\"propertyValue\":\"%s\",", TEST_PROPERTY_VALUE) 
-            + format("\"labels\":%s,", toJsonString(TEST_LABELS)) 
-            + format("\"timeCreated\":%d,", TEST_TIME_CREATED) 
-            + format("\"lastModified\":%d", TEST_LAST_MODIFIED) 
+    private static final String TEST_CONDITION_AS_JSON_STRING = "{"
+            + format("\"id\":\"%s\",", TEST_ID)
+            + format("\"name\":\"%s\",", TEST_NAME)
+            + format("\"description\":\"%s\",", TEST_DESCRIPTION)
+            + format("\"propertyKey\":\"%s\",", TEST_PROPERTY_KEY)
+            + format("\"predicate\":\"%s\",", TEST_PREDICATE.name())
+            + format("\"propertyValue\":\"%s\",", TEST_PROPERTY_VALUE)
+            + format("\"mandatory\":%s,", TEST_MANDATORY)
+            + format("\"labels\":%s,", toJsonString(TEST_LABELS))
+            + format("\"timeCreated\":%d,", TEST_TIME_CREATED)
+            + format("\"lastModified\":%d", TEST_LAST_MODIFIED)
             + "}";
 
     private Condition classUnderTest;
 
     @BeforeEach
     public void setUp() {
-        classUnderTest = new Condition( 
-                TEST_ID, 
-                TEST_NAME, 
-                TEST_DESCRIPTION, 
-                TEST_PROPERTY_KEY, 
-                TEST_PREDICATE, 
-                TEST_PROPERTY_VALUE, 
-                TEST_LABELS, 
-                TEST_TIME_CREATED, 
-                TEST_LAST_MODIFIED 
+        classUnderTest = new Condition(
+                TEST_ID,
+                TEST_NAME,
+                TEST_DESCRIPTION,
+                TEST_PROPERTY_KEY,
+                TEST_PREDICATE,
+                TEST_PROPERTY_VALUE,
+                TEST_MANDATORY,
+                TEST_LABELS,
+                TEST_TIME_CREATED,
+                TEST_LAST_MODIFIED
         );
     }
 
@@ -80,6 +82,11 @@ public class ConditionTest {
     }
 
     @Test
+    public void whenGetMandatoryIsCalled_thenCorrectValueIsReturned() {
+        assertEquals(TEST_MANDATORY, classUnderTest.getMandatory());
+    }
+
+    @Test
     public void whenGetLabelsIsCalled_thenCorrectValueIsReturned() {
         assertEquals(TEST_LABELS, classUnderTest.getLabels());
     }
@@ -96,16 +103,17 @@ public class ConditionTest {
 
     @Test
     public void givenThatLabelsAreNull_whenConstructorIsInvoked_thenLabelsAreSetToAnEmptyCollection() {
-        classUnderTest = new Condition( 
-                TEST_ID, 
-                TEST_NAME, 
-                TEST_DESCRIPTION, 
-                TEST_PROPERTY_KEY, 
-                TEST_PREDICATE, 
-                TEST_PROPERTY_VALUE, 
-                null, 
-                TEST_TIME_CREATED, 
-                TEST_LAST_MODIFIED 
+        classUnderTest = new Condition(
+                TEST_ID,
+                TEST_NAME,
+                TEST_DESCRIPTION,
+                TEST_PROPERTY_KEY,
+                TEST_PREDICATE,
+                TEST_PROPERTY_VALUE,
+                TEST_MANDATORY,
+                null,
+                TEST_TIME_CREATED,
+                TEST_LAST_MODIFIED
         );
 
         assertEquals(emptySet(), classUnderTest.getLabels());

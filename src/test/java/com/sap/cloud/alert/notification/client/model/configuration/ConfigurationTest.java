@@ -45,6 +45,7 @@ public class ConfigurationTest {
         + format("\"propertyKey\":\"%s\",", TEST_PROPERTY_KEY) //
         + format("\"predicate\":\"%s\",", TEST_PREDICATE.name()) //
         + format("\"propertyValue\":\"%s\",", TEST_PROPERTY_VALUE) //
+        + format("\"mandatory\":%s,", TEST_MANDATORY) //
         + format("\"labels\":%s,", toJsonString(TEST_LABELS)) //
         + format("\"timeCreated\":%d,", TEST_TIME_CREATED) //
         + format("\"lastModified\":%d", TEST_LAST_MODIFIED) //
@@ -73,7 +74,7 @@ public class ConfigurationTest {
     public void setUp() {
         action = new Action(TEST_ID, TEST_TYPE, TEST_ACTION_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_FALLBACK_TIME, TEST_FALLBACK_ACTION, TEST_PROPERTIES, TEST_TIME_CREATED,
                 TEST_LAST_MODIFIED);
-        condition = new Condition(TEST_ID, TEST_CONDITION_NAME, TEST_DESCRIPTION, TEST_PROPERTY_KEY, TEST_PREDICATE, TEST_PROPERTY_VALUE, TEST_LABELS, TEST_TIME_CREATED, TEST_LAST_MODIFIED);
+        condition = new Condition(TEST_ID, TEST_CONDITION_NAME, TEST_DESCRIPTION, TEST_PROPERTY_KEY, TEST_PREDICATE, TEST_PROPERTY_VALUE, TEST_MANDATORY, TEST_LABELS, TEST_TIME_CREATED, TEST_LAST_MODIFIED);
         subscription = new Subscription(TEST_ID, TEST_SUBSCRIPTION_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS, TEST_CONDITIONS, TEST_TIME_CREATED,
                 TEST_LAST_MODIFIED);
         classUnderTest = new Configuration(singletonList(action), singletonList(condition), singletonList(subscription));

@@ -17,6 +17,7 @@ public final class ConditionBuilder {
     private String propertyKey;
     private Predicate predicate;
     private String propertyValue;
+    private Boolean mandatory;
     private Set<String> labels = new HashSet<>();
 
     public ConditionBuilder withName(String name) {
@@ -44,6 +45,11 @@ public final class ConditionBuilder {
         return this;
     }
 
+    public ConditionBuilder withMandatory(Boolean mandatory){
+        this.mandatory = mandatory;
+        return this;
+    }
+
     public ConditionBuilder withLabel(String label) {
         if (!isBlank(label)) {
             this.labels.add(label);
@@ -65,6 +71,7 @@ public final class ConditionBuilder {
                 requireNonNull(propertyKey),
                 requireNonNull(predicate),
                 propertyValue,
+                mandatory,
                 labels
         );
     }

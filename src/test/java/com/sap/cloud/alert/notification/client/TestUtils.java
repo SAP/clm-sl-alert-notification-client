@@ -29,6 +29,9 @@ public class TestUtils {
     public static final Integer TEST_PAGE_SIZE = 131;
     public static final Integer TEST_FALLBACK_TIME = 2;
     public static final String TEST_NAME = "TEST_NAME";
+    public static final String TEST_ACTION_NAME = "TEST_ACTION_NAME";
+    public static final String TEST_CONDITION_NAME = "TEST_CONDITION_NAME";
+    public static final String TEST_SUBSCRIPTION_NAME = "TEST_SUBSCRIPTION_NAME";
     public static final String TEST_TYPE = "TEST_TYPE";
     public static final Integer TEST_HTTP_ERROR_CODE = 404;
     public static final Predicate TEST_PREDICATE = CONTAINS;

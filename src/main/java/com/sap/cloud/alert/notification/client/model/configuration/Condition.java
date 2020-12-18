@@ -27,6 +27,7 @@ public class Condition implements Serializable {
     private final String propertyKey;
     private final Predicate predicate;
     private final String propertyValue;
+    private final Boolean mandatory;
     private final Set<String> labels;
 
     private final Long timeCreated;
@@ -39,7 +40,8 @@ public class Condition implements Serializable {
             @JsonProperty("description") String description, 
             @JsonProperty("propertyKey") String propertyKey, 
             @JsonProperty("predicate") Predicate predicate, 
-            @JsonProperty("propertyValue") String propertyValue, 
+            @JsonProperty("propertyValue") String propertyValue,
+            @JsonProperty("mandatory") Boolean mandatory,
             @JsonProperty("labels") Collection<String> labels, 
             @JsonProperty("timeCreated") Long timeCreated, 
             @JsonProperty("lastModified") Long lastModified 
@@ -50,6 +52,7 @@ public class Condition implements Serializable {
         this.description = description;
         this.propertyKey = propertyKey;
         this.propertyValue = propertyValue;
+        this.mandatory = mandatory;
         this.labels = unmodifiableSet(new HashSet<>(emptyIfNull(labels)));
         this.timeCreated = timeCreated;
         this.lastModified = lastModified;
@@ -60,10 +63,11 @@ public class Condition implements Serializable {
             String description, 
             String propertyKey, 
             Predicate predicate, 
-            String propertyValue, 
+            String propertyValue,
+            Boolean mandatory,
             Collection<String> labels 
     ) {
-        this(null, name, description, propertyKey, predicate, propertyValue, labels, null, null);
+        this(null, name, description, propertyKey, predicate, propertyValue, mandatory, labels, null, null);
     }
 
     @JsonProperty("id")
@@ -94,6 +98,11 @@ public class Condition implements Serializable {
     @JsonProperty("propertyValue")
     public String getPropertyValue() {
         return propertyValue;
+    }
+
+    @JsonProperty("mandatory")
+    public Boolean getMandatory() {
+        return mandatory;
     }
 
     @JsonProperty("labels")

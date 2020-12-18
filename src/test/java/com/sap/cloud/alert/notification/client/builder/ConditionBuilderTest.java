@@ -25,6 +25,7 @@ public class ConditionBuilderTest {
                 .withPropertyKey(TEST_PROPERTY_KEY) //
                 .withPredicate(TEST_PREDICATE) //
                 .withPropertyValue(TEST_PROPERTY_VALUE) //
+                .withMandatory(TEST_MANDATORY) //
                 .withLabels(TEST_LABELS) //
                 .build();
 
@@ -34,6 +35,7 @@ public class ConditionBuilderTest {
                 TEST_PROPERTY_KEY, //
                 TEST_PREDICATE, //
                 TEST_PROPERTY_VALUE, //
+                TEST_MANDATORY, //
                 TEST_LABELS //
         );
 
@@ -48,6 +50,7 @@ public class ConditionBuilderTest {
                 .withPropertyKey(TEST_PROPERTY_KEY) //
                 .withPredicate(TEST_PREDICATE) //
                 .withPropertyValue(TEST_PROPERTY_VALUE) //
+                .withMandatory(TEST_MANDATORY) //
                 .withLabels(TEST_LABELS) //
                 .build()
         );
@@ -61,6 +64,7 @@ public class ConditionBuilderTest {
                 .withPropertyKey(null) //
                 .withPredicate(TEST_PREDICATE) //
                 .withPropertyValue(TEST_PROPERTY_VALUE) //
+                .withMandatory(TEST_MANDATORY) //
                 .withLabels(TEST_LABELS) //
                 .build()
         );
@@ -74,6 +78,7 @@ public class ConditionBuilderTest {
                 .withPropertyKey(TEST_PROPERTY_KEY) //
                 .withPredicate(null) //
                 .withPropertyValue(TEST_PROPERTY_VALUE) //
+                .withMandatory(TEST_MANDATORY) //
                 .withLabels(TEST_LABELS) //
                 .build()
         );

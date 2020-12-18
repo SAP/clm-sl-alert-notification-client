@@ -276,6 +276,7 @@ configurationClient.createCondition(
         .withPropertyKey("eventType")
         .withPredicate(Predicate.EQUALS)
         .withPropertyValue("TestEvent")
+        .withMandatory(false)
         .withDescription("Catches events which type equals 'TestEvent'.")
         .build()
 );

@@ -16,6 +16,7 @@ import java.util.Set;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static com.sap.cloud.alert.notification.client.model.configuration.Predicate.CONTAINS;
 import static com.sap.cloud.alert.notification.client.model.configuration.State.ENABLED;
+import static java.lang.Boolean.FALSE;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
 
@@ -33,6 +34,7 @@ public class TestUtils {
     public static final String TEST_CONDITION_NAME = "TEST_CONDITION_NAME";
     public static final String TEST_SUBSCRIPTION_NAME = "TEST_SUBSCRIPTION_NAME";
     public static final String TEST_TYPE = "TEST_TYPE";
+    public static final Boolean TEST_MANDATORY = FALSE;
     public static final Integer TEST_HTTP_ERROR_CODE = 404;
     public static final Predicate TEST_PREDICATE = CONTAINS;
     public static final Long TEST_TOTAL_RESULTS_COUNT = 16L;
@@ -52,12 +54,10 @@ public class TestUtils {
     public static final HttpClient TEST_HTTP_CLIENT = Mockito.mock(HttpClient.class);
     public static final URI TEST_OAUTH_SERVICE_URI = URI.create("https://nowhere.near.a.real.oauth.uri.sap.com");
     public static final Map<String, String> TEST_PROPERTIES = singletonMap("TEST_PROPERTY_KEY", "TEST_PROPERTY_VALUE");
-    public static final Condition TEST_CONDITION = new Condition(TEST_NAME, TEST_DESCRIPTION, TEST_PROPERTY_KEY, TEST_PREDICATE,
-            TEST_PROPERTY_VALUE, TEST_LABELS);
-    public static final PagingMetadata TEST_CONFIGURATION_PAGING_METADATA = new PagingMetadata(TEST_PAGE, TEST_PAGE_SIZE, TEST_TOTAL_PAGES,
-            TEST_TOTAL_RESULTS_COUNT);
+    public static final Condition TEST_CONDITION = new Condition(TEST_NAME, TEST_DESCRIPTION, TEST_PROPERTY_KEY, TEST_PREDICATE, TEST_PROPERTY_VALUE, TEST_MANDATORY, TEST_LABELS);
+    public static final PagingMetadata TEST_CONFIGURATION_PAGING_METADATA = new PagingMetadata(TEST_PAGE, TEST_PAGE_SIZE, TEST_TOTAL_PAGES, TEST_TOTAL_RESULTS_COUNT);
     public static final ServiceRegion TEST_SERVICE_REGION = ServiceRegion.EU10;
-    public static final URI TEST_SERVICE_URI =TEST_SERVICE_REGION.getServiceURI();
+    public static final URI TEST_SERVICE_URI = TEST_SERVICE_REGION.getServiceURI();
     private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(NON_NULL);
     public static final TypeReference<ConfigurationResponse<Condition>> CONDITION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Condition>>() {
 

@@ -26,6 +26,7 @@ public class ActionBuilderTest {
                 .withState(TEST_STATE) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
+                .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
                 .withProperties(TEST_PROPERTIES) //
@@ -37,6 +38,7 @@ public class ActionBuilderTest {
                 TEST_STATE, //
                 TEST_DESCRIPTION, //
                 TEST_LABELS, //
+                TEST_DISCARD_AFTER, //
                 TEST_FALLBACK_TIME, //
                 TEST_FALLBACK_ACTION, //
                 TEST_PROPERTIES //
@@ -52,6 +54,7 @@ public class ActionBuilderTest {
                 .withName(TEST_NAME) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
+                .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
                 .withProperties(TEST_PROPERTIES) //
@@ -63,6 +66,7 @@ public class ActionBuilderTest {
                 ENABLED, //
                 TEST_DESCRIPTION, //
                 TEST_LABELS, //
+                TEST_DISCARD_AFTER, //
                 TEST_FALLBACK_TIME, //
                 TEST_FALLBACK_ACTION, //
                 TEST_PROPERTIES //
@@ -79,6 +83,7 @@ public class ActionBuilderTest {
                 .withState(TEST_STATE) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
+                .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
                 .withProperties(TEST_PROPERTIES) //
@@ -94,6 +99,7 @@ public class ActionBuilderTest {
                 .withState(TEST_STATE) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
+                .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
                 .withProperties(TEST_PROPERTIES) //
@@ -109,6 +115,7 @@ public class ActionBuilderTest {
                 .withState(null) //
                 .withDescription(TEST_DESCRIPTION) //
                 .withLabels(TEST_LABELS) //
+                .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
                 .withProperties(TEST_PROPERTIES) //

@@ -27,6 +27,7 @@ public class Action implements Serializable {
     private final State state;
     private final String description;
     private final Set<String> labels;
+    private final Integer discardAfter;
     private final Integer fallbackTime;
     private final String fallbackAction;
     private final Map<String, String> properties;
@@ -41,7 +42,8 @@ public class Action implements Serializable {
             @JsonProperty("name") String name, 
             @JsonProperty("state") State state, 
             @JsonProperty("description") String description, 
-            @JsonProperty("labels") Collection<String> labels, 
+            @JsonProperty("labels") Collection<String> labels,
+            @JsonProperty("discardAfter") Integer discardAfter,
             @JsonProperty("fallbackTime") Integer fallbackTime, 
             @JsonProperty("fallbackAction") String fallbackAction, 
             @JsonProperty("properties") Map<String, String> properties, 
@@ -54,6 +56,7 @@ public class Action implements Serializable {
         this.state = state;
         this.description = description;
         this.labels = unmodifiableSet(new HashSet<>(CollectionUtils.emptyIfNull(labels)));
+        this.discardAfter = discardAfter;
         this.fallbackTime = fallbackTime;
         this.fallbackAction = fallbackAction;
         this.properties = unmodifiableMap(new HashMap<>(emptyIfNull(properties)));
@@ -66,12 +69,13 @@ public class Action implements Serializable {
             String name, 
             State state, 
             String description, 
-            Collection<String> labels, 
+            Collection<String> labels,
+            Integer discardAfter,
             Integer fallbackTime, 
             String fallbackAction, 
             Map<String, String> properties 
     ) {
-        this(null, type, name, state, description, labels, fallbackTime, fallbackAction, properties, null, null);
+        this(null, type, name, state, description, labels, discardAfter, fallbackTime, fallbackAction, properties, null, null);
     }
 
     @JsonProperty("id")
@@ -112,6 +116,11 @@ public class Action implements Serializable {
     @JsonProperty("fallbackAction")
     public String getFallbackAction() {
         return fallbackAction;
+    }
+
+    @JsonProperty("discardAfter")
+    public Integer getDiscardAfter() {
+        return discardAfter;
     }
 
     @JsonProperty("fallbackTime")

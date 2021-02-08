@@ -23,6 +23,7 @@ public final class ActionBuilder {
     private State state = DEFAULT_STATE;
     private String description;
     private Set<String> labels = new HashSet<>();
+    private Integer discardAfter;
     private Integer fallbackTime;
     private String fallbackAction;
     private Map<String, String> properties = new HashMap<>();
@@ -61,6 +62,11 @@ public final class ActionBuilder {
         return this;
     }
 
+    public ActionBuilder withDiscardAfter(Integer discardAfter) {
+        this.discardAfter = discardAfter;
+        return this;
+    }
+
     public ActionBuilder withFallbackTime(Integer fallbackTime) {
         this.fallbackTime = fallbackTime;
         return this;
@@ -92,6 +98,7 @@ public final class ActionBuilder {
                 requireNonNull(state),
                 description,
                 labels,
+                discardAfter,
                 fallbackTime,
                 fallbackAction,
                 properties

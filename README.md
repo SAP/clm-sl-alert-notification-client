@@ -4,8 +4,9 @@
 # SAP Cloud Platform Alert Notification Client
 >*Java-based client library to support the usage of SAP Cloud Platform Alert Notification service*  
 
-[![Documentation](https://img.shields.io/badge/Service_Documentation-@SAP%20Help%20Portal-ff9900.svg)](https://help.sap.com/viewer/product/ALERT_NOTIFICATION/Cloud/en-US)
-[![Blog](https://img.shields.io/badge/Service--related_Blogs-@SAP%20Community%20Portal-3399ff.svg)](https://blogs.sap.com/tag/sap-cloud-platform-alert-notification/)
+[![Documentation](https://img.shields.io/badge/Documentation-@SAP%20Help%20Portal-ff9900.svg)](https://help.sap.com/viewer/product/ALERT_NOTIFICATION/Cloud/en-US)
+[![API](https://img.shields.io/badge/APIs-@SAP%20API%20Business%20Hub-f542da.svg)](https://api.sap.com/package/AlertNotification?section=Artifacts)
+[![Blog](https://img.shields.io/badge/Blogs-@SAP%20Community%20Portal-3399ff.svg)](https://blogs.sap.com/tag/sap-cloud-platform-alert-notification/)
 
 ### 1. Introduction
 SAP Cloud Platform Alert Notification is part of the DevOps portfolio of the SAP Cloud Platform. The service is specialized in instant delivery of events coming straight from the core platform services, e.g. 

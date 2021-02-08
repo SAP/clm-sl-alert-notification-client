@@ -19,7 +19,8 @@ public class ActionTest {
             + format("\"description\":\"%s\",", TEST_DESCRIPTION) 
             + format("\"labels\":%s,", toJsonString(TEST_LABELS))
             + format("\"fallbackTime\":%d,", TEST_FALLBACK_TIME) 
-            + format("\"fallbackAction\":\"%s\",", TEST_FALLBACK_ACTION) 
+            + format("\"discardAfter\":%d,", TEST_DISCARD_AFTER)
+            + format("\"fallbackAction\":\"%s\",", TEST_FALLBACK_ACTION)
             + format("\"properties\":%s,", toJsonString(TEST_PROPERTIES)) 
             + format("\"timeCreated\":%d,", TEST_TIME_CREATED) 
             + format("\"lastModified\":%d", TEST_LAST_MODIFIED) 
@@ -35,7 +36,8 @@ public class ActionTest {
                 TEST_NAME, 
                 TEST_STATE, 
                 TEST_DESCRIPTION, 
-                TEST_LABELS, 
+                TEST_LABELS,
+                TEST_DISCARD_AFTER,
                 TEST_FALLBACK_TIME, 
                 TEST_FALLBACK_ACTION, 
                 TEST_PROPERTIES, 
@@ -85,6 +87,11 @@ public class ActionTest {
     }
 
     @Test
+    public void whenGetDiscardAfterIsCalled_thenCorrectValueIsReturned() {
+        assertEquals(TEST_DISCARD_AFTER, classUnderTest.getDiscardAfter());
+    }
+
+    @Test
     public void whenGetFallbackTimeIsCalled_thenCorrectValueIsReturned() {
         assertEquals(TEST_FALLBACK_TIME, classUnderTest.getFallbackTime());
     }
@@ -117,7 +124,8 @@ public class ActionTest {
                 TEST_NAME, 
                 TEST_STATE, 
                 TEST_DESCRIPTION, 
-                null, 
+                null,
+                TEST_DISCARD_AFTER,
                 TEST_FALLBACK_TIME, 
                 TEST_FALLBACK_ACTION, 
                 TEST_PROPERTIES, 
@@ -136,8 +144,9 @@ public class ActionTest {
                 TEST_NAME, 
                 TEST_STATE, 
                 TEST_DESCRIPTION, 
-                TEST_LABELS, 
-                TEST_FALLBACK_TIME, 
+                TEST_LABELS,
+                TEST_DISCARD_AFTER,
+                TEST_FALLBACK_TIME,
                 TEST_FALLBACK_ACTION, 
                 null, 
                 TEST_TIME_CREATED, 

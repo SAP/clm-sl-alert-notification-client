@@ -28,6 +28,7 @@ public class TestUtils {
     public static final State TEST_STATE = ENABLED;
     public static final Long TEST_TOTAL_PAGES = 12L;
     public static final Integer TEST_PAGE_SIZE = 131;
+    public static final Integer TEST_DISCARD_AFTER = 4;
     public static final Integer TEST_FALLBACK_TIME = 2;
     public static final String TEST_NAME = "TEST_NAME";
     public static final String TEST_ACTION_NAME = "TEST_ACTION_NAME";

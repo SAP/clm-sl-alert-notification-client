@@ -56,7 +56,7 @@ public class AlertNotificationConfigurationClientTest {
     private static final String TEST_AUTHORIZATION_HEADER = "Basic TEST_AUTHORIZATION_HEADER";
     private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion("HTTP", 1, 1);
 
-    private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_FALLBACK_TIME, TEST_FALLBACK_ACTION, TEST_PROPERTIES);
+    private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_DISCARD_AFTER, TEST_FALLBACK_TIME, TEST_FALLBACK_ACTION, TEST_PROPERTIES);
     private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS, TEST_CONDITIONS);
     private static final Configuration TEST_CONFIGURATION = new Configuration(singletonList(TEST_ACTION), singletonList(TEST_CONDITION), singletonList(TEST_SUBSCRIPTION));
     private static final ConfigurationErrorResponse CONFIGURATION_ERROR_RESPONSE = new ConfigurationErrorResponse(SC_INTERNAL_SERVER_ERROR, EMPTY);

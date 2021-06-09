@@ -32,6 +32,9 @@ public class ServiceRegion {
     public static final ServiceRegion BR10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.br10.hana.ondemand.com/");
     public static final ServiceRegion CA10 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.ca10.hana.ondemand.com/");
     public static final ServiceRegion AP11 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.ap11.hana.ondemand.com/");
+    public static final ServiceRegion EU11 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.eu11.hana.ondemand.com/");
+    public static final ServiceRegion AP12 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.ap12.hana.ondemand.com/");
+    public static final ServiceRegion AP20 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.ap20.hana.ondemand.com/");
     public static final ServiceRegion US20 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.us20.hana.ondemand.com/");
     public static final ServiceRegion US21 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.us21.hana.ondemand.com/");
     public static final ServiceRegion AP21 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.ap21.hana.ondemand.com/");
@@ -62,13 +65,16 @@ public class ServiceRegion {
     public static final ServiceRegion CF_AWS_SAO_PAULO = BR10;
     public static final ServiceRegion CF_AWS_MONTREAL = CA10;
     public static final ServiceRegion CF_AWS_FRANKFURT = EU10;
+    public static final ServiceRegion CF_AWS_FRANKFURT_EU_ACCESS = EU11;
     public static final ServiceRegion CF_AWS_TOKYO = JP10;
     public static final ServiceRegion CF_AWS_US_EAST = US10;
+    public static final ServiceRegion CF_AWS_SEOUL = AP12;
     public static final ServiceRegion CF_AZURE_SINGAPORE = AP21;
     public static final ServiceRegion CF_AZURE_NETHERLANDS = EU20;
     public static final ServiceRegion CF_AZURE_TOKYO = JP20;
     public static final ServiceRegion CF_AZURE_WA = US20;
     public static final ServiceRegion CF_AZURE_VA = US21;
+    public static final ServiceRegion CF_AZURE_SYDNEY = AP20;
     public static final ServiceRegion CF_GCP_IA = US30;
 
     private final Platform platform;

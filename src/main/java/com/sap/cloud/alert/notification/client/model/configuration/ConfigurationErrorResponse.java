@@ -11,12 +11,12 @@ import lombok.ToString;
 @EqualsAndHashCode(doNotUseGetters = true)
 public class ConfigurationErrorResponse {
 
-    private final int code;
+    private final Integer code;
     private final String message;
 
     @JsonCreator
     public ConfigurationErrorResponse(
-            @JsonProperty(required = true, value = "code") int code,
+            @JsonProperty(required = true, value = "code") Integer code,
             @JsonProperty(required = true, value = "message") String message
     ) {
         this.code = code;
@@ -24,7 +24,7 @@ public class ConfigurationErrorResponse {
     }
 
     @JsonProperty("code")
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 

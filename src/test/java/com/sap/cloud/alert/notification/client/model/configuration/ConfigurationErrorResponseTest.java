@@ -1,11 +1,13 @@
 package com.sap.cloud.alert.notification.client.model.configuration;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.alert.notification.client.TestUtils.*;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigurationErrorResponseTest {
 
@@ -35,13 +37,21 @@ public class ConfigurationErrorResponseTest {
     }
 
     @Test
-    public void whenGetCodeIsCalled_thenCorrectValueIsReturned() {
+    public void whenGettersAreCalled_thenCorrectResultIsReturned() {
         assertEquals(TEST_HTTP_ERROR_CODE, classUnderTest.getCode());
-    }
-
-    @Test
-    public void whenGetMessageIsCalled_thenCorrectValueIsReturned() {
         assertEquals(TEST_MESSAGE, classUnderTest.getMessage());
     }
 
+    @Test
+    public void verifyThatClassIsCorrectlyAnnotated() throws NoSuchMethodException {
+        assertNotNull(classUnderTest.getClass().getDeclaredMethod("hashCode"));
+        assertNotNull(classUnderTest.getClass().getDeclaredMethod("equals",Object.class));
+        assertEquals(classUnderTest.getClass().getAnnotation(JsonPropertyOrder.class).alphabetic(), true);
+    }
+
+    @Test
+    public void verifyThatGettersAreCorrectlyAnnotated() throws Exception {
+        assertEquals(classUnderTest.getClass().getMethod("getCode").getAnnotation(JsonProperty.class).value(), "code");
+        assertEquals(classUnderTest.getClass().getMethod("getMessage").getAnnotation(JsonProperty.class).value(), "message");
+    }
 }

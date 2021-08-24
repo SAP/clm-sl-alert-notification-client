@@ -59,7 +59,7 @@ public class AlertNotificationConfigurationClientTest {
     private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_DISCARD_AFTER, TEST_FALLBACK_TIME, TEST_FALLBACK_ACTION, TEST_PROPERTIES);
     private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS, TEST_CONDITIONS);
     private static final Configuration TEST_CONFIGURATION = new Configuration(singletonList(TEST_ACTION), singletonList(TEST_CONDITION), singletonList(TEST_SUBSCRIPTION));
-    private static final ConfigurationErrorResponse CONFIGURATION_ERROR_RESPONSE = new ConfigurationErrorResponse(SC_INTERNAL_SERVER_ERROR, EMPTY);
+    private static final AlertNotificationClientUtils.ErrorHttpResponse ERROR_HTTP_RESPONSE = new AlertNotificationClientUtils.ErrorHttpResponse(EMPTY);
     private static final ConfigurationResponse<Action> ACTION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_ACTION), TEST_CONFIGURATION_PAGING_METADATA);
     private static final ConfigurationResponse<Condition> CONDITION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_CONDITION), TEST_CONFIGURATION_PAGING_METADATA);
     private static final ConfigurationResponse<Subscription> SUBSCRIPTION_CONFIGURATION_RESPONSE = new ConfigurationResponse<>(singletonList(TEST_SUBSCRIPTION), TEST_CONFIGURATION_PAGING_METADATA);
@@ -113,7 +113,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenGetConditionsIsCalled_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getConditions(requestParameters));
     }
@@ -135,7 +135,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenCreatingCondition_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.createCondition(TEST_CONDITION));
     }
@@ -157,7 +157,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenGetConditionIsCalled_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getCondition(TEST_CONDITION.getName()));
     }
@@ -179,7 +179,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenUpdatingCondition_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.updateCondition(TEST_CONDITION));
     }
@@ -200,7 +200,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenDeletingCondition_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.deleteCondition(TEST_CONDITION.getName()));
     }
@@ -223,7 +223,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenGetActionsIsCalled_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getActions(requestParameters));
     }
@@ -245,7 +245,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenCreatingAction_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.createAction(TEST_ACTION));
     }
@@ -267,7 +267,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenGetActionIsCalled_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getAction(TEST_ACTION.getName()));
     }
@@ -290,7 +290,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenUpdatingAction_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.updateAction(TEST_ACTION));
     }
@@ -311,7 +311,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenDeletingAction_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.deleteAction(TEST_ACTION.getName()));
     }
@@ -334,7 +334,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenGetSubscriptionsIsCalled_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getSubscriptions(requestParameters));
     }
@@ -356,7 +356,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenCreatingSubscription_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.createSubscription(TEST_SUBSCRIPTION));
     }
@@ -378,7 +378,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenGetSubscriptionIsCalled_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.getSubscription(TEST_SUBSCRIPTION.getName()));
     }
@@ -400,7 +400,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenUpdatingSubscription_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.updateSubscription(TEST_SUBSCRIPTION));
     }
@@ -422,7 +422,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenDeletingSubscription_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.deleteSubscription(TEST_SUBSCRIPTION.getName()));
     }
@@ -444,7 +444,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenImportingAll_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.importConfiguration(TEST_CONFIGURATION));
     }
@@ -466,7 +466,7 @@ public class AlertNotificationConfigurationClientTest {
 
     @Test
     public void givenThatRequestFails_whenExportingAll_thenExceptionIsThrown() throws Exception {
-        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, CONFIGURATION_ERROR_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
         assertThrows(ServerResponseException.class, () -> classUnderTest.exportConfiguration());
     }

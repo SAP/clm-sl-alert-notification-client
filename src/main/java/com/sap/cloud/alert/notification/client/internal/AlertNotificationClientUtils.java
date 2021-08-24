@@ -1,5 +1,8 @@
 package com.sap.cloud.alert.notification.client.internal;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,15 +11,15 @@ import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.AuthorizationException;
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
 import com.sap.cloud.alert.notification.client.model.configuration.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.http.util.TextUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -88,21 +91,21 @@ class AlertNotificationClientUtils {
     }
 
     static void assertSuccessfulResponse(HttpResponse response) {
-        ConfigurationErrorResponse errorResponse = retrieveErrorResponse(response);
-        String message = isBlank(errorResponse.getMessage()) ? response.getStatusLine().getReasonPhrase() : errorResponse.getMessage();
         int code = response.getStatusLine().getStatusCode();
-        Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
-        String xVcapRequestId = nonNull(firstHeader) ? firstHeader.getValue() : EMPTY;
 
         if (code < SC_OK || code >= SC_MULTIPLE_CHOICES) {
+            String errorResponseMessage = extractMessage(response);
+            Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
+            String xVcapRequestId = nonNull(firstHeader) ? firstHeader.getValue() : null;
+
             throw asList(SC_FORBIDDEN, SC_UNAUTHORIZED).contains(code) ?
                     new AuthorizationException( //
-                            message, //
+                            errorResponseMessage, //
                             code, //
                             xVcapRequestId //
                     ) :
                     new ServerResponseException( //
-                            message, //
+                            errorResponseMessage, //
                             code, //
                             xVcapRequestId //
                     );
@@ -110,22 +113,21 @@ class AlertNotificationClientUtils {
     }
 
     static void assertHttpStatus(HttpResponse response, int expected) {
-        Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
         if (response.getStatusLine().getStatusCode() != expected) {
-            ConfigurationErrorResponse errorResponse = retrieveErrorResponse(response);
-            throw  new ServerResponseException(
-                    isBlank(errorResponse.getMessage()) ? response.getStatusLine().getReasonPhrase() : errorResponse.getMessage(),
-                    response.getStatusLine().getStatusCode(),
-                    nonNull(firstHeader) ? firstHeader.getValue() : EMPTY
+            Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
+            throw new ServerResponseException( //
+                    extractMessage(response), //
+                    response.getStatusLine().getStatusCode(), //
+                    nonNull(firstHeader) ? firstHeader.getValue() : null //
             );
         }
     }
 
-    private static ConfigurationErrorResponse retrieveErrorResponse(HttpResponse response) {
+    public static String extractMessage(HttpResponse response) {
         try {
-            return JSON_OBJECT_MAPPER.readValue(response.getEntity().getContent(), ConfigurationErrorResponse.class);
+            return fromJsonString(EntityUtils.toString(response.getEntity(), UTF_8.name()), ErrorHttpResponse.class).getMessage();
         } catch (Exception e) {
-            return new ConfigurationErrorResponse(null, EMPTY);
+            return response.getStatusLine().getReasonPhrase();
         }
     }
 
@@ -239,5 +241,23 @@ class AlertNotificationClientUtils {
         return requestParameters.entrySet().stream()
                 .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
                 .collect(toList());
+    }
+
+    @ToString(doNotUseGetters = true)
+    @EqualsAndHashCode(doNotUseGetters = true)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class ErrorHttpResponse {
+
+        private final String message;
+
+        @JsonCreator
+        public ErrorHttpResponse(@JsonProperty("message") String message) {
+            this.message = message;
+        }
+
+        @JsonProperty("message")
+        public String getMessage() {
+            return message;
+        }
     }
 }

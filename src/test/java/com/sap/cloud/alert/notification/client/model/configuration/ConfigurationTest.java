@@ -106,7 +106,7 @@ public class ConfigurationTest {
 
     @Test
     public void whenSubscriptionIsSerializedToJson_thenCorrectJsonIsBuilt() {
-        assertEquals(TEST_CONFIGURATION_AS_JSON, toJsonString(classUnderTest));
+        assertEqualJsonStrings(TEST_CONFIGURATION_AS_JSON, toJsonString(classUnderTest));
     }
 
     @Test

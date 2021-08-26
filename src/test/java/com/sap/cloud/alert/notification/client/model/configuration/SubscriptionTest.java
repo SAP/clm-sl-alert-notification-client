@@ -43,7 +43,7 @@ public class SubscriptionTest {
 
     @Test
     public void whenSubscriptionIsSerializedToJson_thenCorrectJsonIsBuilt() {
-        assertEquals(TEST_SUBSCRIPTION_AS_JSON_STRING, toJsonString(classUnderTest));
+        assertEqualJsonStrings(TEST_SUBSCRIPTION_AS_JSON_STRING, toJsonString(classUnderTest));
     }
 
     @Test

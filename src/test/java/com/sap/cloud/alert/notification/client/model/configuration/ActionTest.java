@@ -48,7 +48,7 @@ public class ActionTest {
 
     @Test
     public void whenActionIsSerializedToJson_thenCorrectJsonIsBuilt() {
-        assertEquals(TEST_ACTION_AS_JSON_STRING, toJsonString(classUnderTest));
+        assertEqualJsonStrings(TEST_ACTION_AS_JSON_STRING, toJsonString(classUnderTest));
     }
 
     @Test

@@ -199,6 +199,20 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenDifferentSuccessStatusCode_whenDeletingCondition_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpDelete.class);
+        doReturn(buildResponse(SC_OK, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
+
+        classUnderTest.deleteCondition(TEST_CONDITION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectRequest( //
+                (HttpDelete) requestCaptor.getValue(), //
+                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName())) //
+        );
+    }
+
+    @Test
     public void givenThatRequestFails_whenDeletingCondition_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
@@ -299,6 +313,20 @@ public class AlertNotificationConfigurationClientTest {
     public void whenDeletingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpDelete.class);
         doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
+
+        classUnderTest.deleteAction(TEST_ACTION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectRequest( //
+                (HttpDelete) requestCaptor.getValue(), //
+                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, ACTION_CONFIGURATION_PATH_TEMPLATE, TEST_ACTION.getName())) //
+        );
+    }
+
+    @Test
+    public void givenDifferentSuccessStatusCode_whenDeletingAction_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpDelete.class);
+        doReturn(buildResponse(SC_OK, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
         classUnderTest.deleteAction(TEST_ACTION.getName());
 
@@ -415,8 +443,21 @@ public class AlertNotificationConfigurationClientTest {
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
                 (HttpDelete) requestCaptor.getValue(), //
-                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName()))
-        //
+                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName())) //
+        );
+    }
+
+    @Test
+    public void givenDifferentSuccessStatusCode_whenDeletingSubscription_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpDelete.class);
+        doReturn(buildResponse(SC_OK, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
+
+        classUnderTest.deleteSubscription(TEST_SUBSCRIPTION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectRequest( //
+                (HttpDelete) requestCaptor.getValue(), //
+                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName())) //
         );
     }
 

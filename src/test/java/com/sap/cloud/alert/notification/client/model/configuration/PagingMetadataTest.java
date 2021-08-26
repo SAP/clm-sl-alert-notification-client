@@ -24,7 +24,7 @@ public class PagingMetadataTest {
 
     @Test
     public void whenPagingMetadataIsSerializedToJson_thenCorrectJsonIsBuilt() {
-        assertEquals(TEST_PAGING_METADATA_AS_JSON_STRING, toJsonString(classUnderTest));
+        assertEqualJsonStrings(TEST_PAGING_METADATA_AS_JSON_STRING, toJsonString(classUnderTest));
     }
 
     @Test

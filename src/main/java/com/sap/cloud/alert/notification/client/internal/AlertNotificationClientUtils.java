@@ -36,7 +36,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.IterableUtils.chainedIterable;
 import static org.apache.commons.collections4.IterableUtils.toList;
 import static org.apache.http.HttpStatus.*;
-import static org.apache.http.util.TextUtils.isBlank;
 
 class AlertNotificationClientUtils {
 
@@ -55,10 +54,10 @@ class AlertNotificationClientUtils {
     private static final List<String> PRODUCER_PATH_SEGMENTS = unmodifiableList(asList("producer", "v1", "resource-events"));
     private static final List<String> MATCHED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "matched-events"));
     private static final List<String> UNDELIVERED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "undelivered-events"));
-    private static final List<String> ACTIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","action"));
-    private static final List<String> CONDITIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","condition"));
-    private static final List<String> SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS= unmodifiableList(asList("configuration","v1","subscription"));
-    private static final List<String> CONFIGURATION_MANAGEMENT_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","configuration"));
+    private static final List<String> ACTIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration", "v1", "action"));
+    private static final List<String> CONDITIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration", "v1", "condition"));
+    private static final List<String> SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration", "v1", "subscription"));
+    private static final List<String> CONFIGURATION_MANAGEMENT_PATH_SEGMENTS = unmodifiableList(asList("configuration", "v1", "configuration"));
 
     static <T> T fromJsonString(String valueAsString, Class<T> clazz) {
         try {
@@ -98,28 +97,9 @@ class AlertNotificationClientUtils {
             Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
             String xVcapRequestId = nonNull(firstHeader) ? firstHeader.getValue() : null;
 
-            throw asList(SC_FORBIDDEN, SC_UNAUTHORIZED).contains(code) ?
-                    new AuthorizationException( //
-                            errorResponseMessage, //
-                            code, //
-                            xVcapRequestId //
-                    ) :
-                    new ServerResponseException( //
-                            errorResponseMessage, //
-                            code, //
-                            xVcapRequestId //
-                    );
-        }
-    }
-
-    static void assertHttpStatus(HttpResponse response, int expected) {
-        if (response.getStatusLine().getStatusCode() != expected) {
-            Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
-            throw new ServerResponseException( //
-                    extractMessage(response), //
-                    response.getStatusLine().getStatusCode(), //
-                    nonNull(firstHeader) ? firstHeader.getValue() : null //
-            );
+            throw asList(SC_FORBIDDEN, SC_UNAUTHORIZED).contains(code)
+                    ? new AuthorizationException(errorResponseMessage, code, xVcapRequestId)
+                    : new ServerResponseException(errorResponseMessage, code, xVcapRequestId);
         }
     }
 
@@ -132,51 +112,27 @@ class AlertNotificationClientUtils {
     }
 
     static URI buildProducerURI(ServiceRegion serviceRegion) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, PRODUCER_PATH_SEGMENTS, emptyList()),
-                emptyList()
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, PRODUCER_PATH_SEGMENTS, emptyList()), emptyList());
     }
 
     static URI buildMatchedEventsURI(ServiceRegion serviceRegion, Map<QueryParameter, String> filters) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, MATCHED_EVENTS_PATH_SEGMENTS, emptyList()),
-                toQueryParameters(filters)
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, MATCHED_EVENTS_PATH_SEGMENTS, emptyList()), toQueryParameters(filters));
     }
 
     static URI buildMatchedEventsURI(ServiceRegion serviceRegion, String eventId, Map<QueryParameter, String> filters) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, MATCHED_EVENTS_PATH_SEGMENTS, asList(eventId)),
-                toQueryParameters(filters)
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, MATCHED_EVENTS_PATH_SEGMENTS, singletonList(eventId)), toQueryParameters(filters));
     }
 
     static URI buildUndeliveredEventsURI(ServiceRegion serviceRegion, Map<QueryParameter, String> filters) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, UNDELIVERED_EVENTS_PATH_SEGMENTS, emptyList()),
-                toQueryParameters(filters)
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, UNDELIVERED_EVENTS_PATH_SEGMENTS, emptyList()), toQueryParameters(filters));
     }
 
     static URI buildUndeliveredEventsURI(ServiceRegion serviceRegion, String eventId, Map<QueryParameter, String> filters) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, UNDELIVERED_EVENTS_PATH_SEGMENTS, asList(eventId)),
-                toQueryParameters(filters)
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, UNDELIVERED_EVENTS_PATH_SEGMENTS, singletonList(eventId)), toQueryParameters(filters));
     }
 
     static URI buildConfigurationManagementUri(ServiceRegion serviceRegion) {
-        return buildURI(
-            serviceRegion.getServiceURI(),
-            toPathSegments(serviceRegion, CONFIGURATION_MANAGEMENT_PATH_SEGMENTS, emptyList()),
-            emptyList()
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, CONFIGURATION_MANAGEMENT_PATH_SEGMENTS, emptyList()), emptyList());
     }
 
     static URI buildActionUri(ServiceRegion serviceRegion, String actionName) {
@@ -204,7 +160,7 @@ class AlertNotificationClientUtils {
     }
 
     private static List<String> toPathSegments(ServiceRegion serviceRegion, List<String> defaultSegments, List<String> customSegments) {
-        return toList(chainedIterable(asList(serviceRegion.getPlatform().getKey()), defaultSegments, customSegments));
+        return toList(chainedIterable(singletonList(serviceRegion.getPlatform().getKey()), defaultSegments, customSegments));
     }
 
     private static URI buildURI(URI serviceURI, List<String> pathSegments, List<NameValuePair> queryParameters) {
@@ -216,30 +172,22 @@ class AlertNotificationClientUtils {
     }
 
     private static URI buildEntityUri(ServiceRegion serviceRegion, List<String> defaultPathSegments, String entityName) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, defaultPathSegments, singletonList(entityName)),
-                emptyList()
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, defaultPathSegments, singletonList(entityName)), emptyList());
     }
 
     private static URI buildEntitiesUri(ServiceRegion serviceRegion, List<String> defaultPathSegments, Map<ConfigurationQueryParameter, String> queryParameters) {
-        return buildURI(
-                serviceRegion.getServiceURI(),
-                toPathSegments(serviceRegion, defaultPathSegments, emptyList()),
-                toConfigurationQueryParameterPairs(queryParameters)
-        );
+        return buildURI(serviceRegion.getServiceURI(), toPathSegments(serviceRegion, defaultPathSegments, emptyList()), toConfigurationQueryParameterPairs(queryParameters));
     }
 
     private static List<NameValuePair> toQueryParameters(Map<QueryParameter, String> queryFilters) {
-        return queryFilters.entrySet().stream()
-                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
+        return queryFilters.entrySet().stream() //
+                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue())) //
                 .collect(toList());
     }
 
     private static List<NameValuePair> toConfigurationQueryParameterPairs(Map<ConfigurationQueryParameter, String> requestParameters) {
-        return requestParameters.entrySet().stream()
-                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
+        return requestParameters.entrySet().stream() //
+                .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue())) //
                 .collect(toList());
     }
 

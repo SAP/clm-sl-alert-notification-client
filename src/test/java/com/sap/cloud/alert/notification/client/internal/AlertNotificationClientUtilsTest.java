@@ -39,16 +39,6 @@ public class AlertNotificationClientUtilsTest {
     private static final ProtocolVersion TEST_PROTOCOL_VERSION = new ProtocolVersion(TEST_PROTOCOL_NAME, TEST_PROTOCOL_MAJOR_VERSION, TEST_PROTOCOL_MINOR_VERSION);
 
     @Test
-    public void givenExpectedHttpStatusCode_whenAssertHttpStatusIsCalled_thenNoExceptionIsThrown() {
-        assertDoesNotThrow(() -> assertHttpStatus(createResponseForCode(SC_OK), SC_OK));
-    }
-
-    @Test
-    public void givenUnexpectedHttpStatusCode_whenAssertHttpStatusIsCalled_thenNoExceptionIsThrown() {
-        assertThrows(ServerResponseException.class, () -> assertHttpStatus(createResponseForCode(SC_OK), SC_INTERNAL_SERVER_ERROR));
-    }
-
-    @Test
     public void givenThatResponseIsSuccessful_whenAssertSuccessfulResponseIsCalled_thenNoExceptionIsThrown() {
         for (int httpStatus = SC_OK; httpStatus < SC_MULTIPLE_CHOICES; ++httpStatus) {
             HttpResponse successfulResponse = createResponseForCode(httpStatus);

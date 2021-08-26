@@ -24,7 +24,7 @@ public class ConfigurationResponseTest {
 
     @Test
     public void whenConfigurationResponseIsSerializedToJson_thenCorrectJsonIsBuilt() {
-        assertEquals(TEST_CONFIGURATION_RESPONSE_AS_JSON_STRING, toJsonString(classUnderTest));
+        assertEqualJsonStrings(TEST_CONFIGURATION_RESPONSE_AS_JSON_STRING, toJsonString(classUnderTest));
     }
 
     @Test

@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
@@ -23,7 +24,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static org.apache.http.HttpHeaders.*;
-import static org.apache.http.HttpStatus.*;
 
 public final class AlertNotificationConfigurationClient implements IAlertNotificationConfigurationClient {
 
@@ -35,12 +35,7 @@ public final class AlertNotificationConfigurationClient implements IAlertNotific
     private final URI conditionBaseUri;
     private final URI subscriptionBaseUri;
 
-    public AlertNotificationConfigurationClient(
-            HttpClient httpClient,
-            IRetryPolicy retryPolicy,
-            ServiceRegion serviceRegion,
-            IAuthorizationHeader authorizationHeader
-    ) {
+    public AlertNotificationConfigurationClient(HttpClient httpClient, IRetryPolicy retryPolicy, ServiceRegion serviceRegion, IAuthorizationHeader authorizationHeader) {
         this.httpClient = requireNonNull(httpClient);
         this.retryPolicy = requireNonNull(retryPolicy);
         this.serviceRegion = requireNonNull(serviceRegion);
@@ -166,31 +161,31 @@ public final class AlertNotificationConfigurationClient implements IAlertNotific
     }
 
     private String executeWithRetry(Supplier<String> supplier) {
-       return retryPolicy.executeWithRetry(supplier);
+        return retryPolicy.executeWithRetry(supplier);
     }
 
     private String executeHttpPost(URI serviceUri, String payload) {
-        return executeRequest(createPostRequest(serviceUri, payload), SC_CREATED);
+        return executeRequest(createPostRequest(serviceUri, payload));
     }
 
     private String executeHttpGet(URI serviceUri) {
-        return executeRequest(createGetRequest(serviceUri), SC_OK);
+        return executeRequest(createGetRequest(serviceUri));
     }
 
     private String executeHttpPut(URI serviceUri, String payload) {
-        return executeRequest(createPutRequest(serviceUri, payload), SC_OK);
+        return executeRequest(createPutRequest(serviceUri, payload));
     }
 
     private String executeHttpDelete(URI serviceUri) {
-        return executeRequest(createDeleteRequest(serviceUri), SC_NO_CONTENT);
+        return executeRequest(createDeleteRequest(serviceUri));
     }
 
-    private String executeRequest(HttpUriRequest httpRequest, int expectedStatus) {
+    private String executeRequest(HttpUriRequest httpRequest) {
         HttpResponse response = null;
         try {
             response = httpClient.execute(httpRequest);
 
-            assertHttpStatus(response, expectedStatus);
+            assertSuccessfulResponse(response);
 
             return isNull(response.getEntity()) ? EMPTY : EntityUtils.toString(response.getEntity(), UTF_8.name());
         } catch (IOException exception) {

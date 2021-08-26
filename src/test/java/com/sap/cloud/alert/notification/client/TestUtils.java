@@ -19,6 +19,7 @@ import static com.sap.cloud.alert.notification.client.model.configuration.State.
 import static java.lang.Boolean.FALSE;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
 
@@ -83,6 +84,14 @@ public class TestUtils {
     public static <T> String toJsonString(T value) {
         try {
             return JSON_OBJECT_MAPPER.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void assertEqualJsonStrings(String expected, String actual) {
+        try {
+            assertEquals(JSON_OBJECT_MAPPER.readTree(expected), JSON_OBJECT_MAPPER.readTree(actual));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

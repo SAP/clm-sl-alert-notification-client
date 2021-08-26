@@ -43,7 +43,7 @@ public class ConditionTest {
 
     @Test
     public void whenConditionIsSerializedToJson_thenCorrectJsonIsBuilt() {
-        assertEquals(TEST_CONDITION_AS_JSON_STRING, toJsonString(classUnderTest));
+        assertEqualJsonStrings(TEST_CONDITION_AS_JSON_STRING, toJsonString(classUnderTest));
     }
 
     @Test

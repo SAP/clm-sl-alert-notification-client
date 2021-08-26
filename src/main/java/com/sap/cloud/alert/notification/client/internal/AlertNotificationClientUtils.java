@@ -1,5 +1,8 @@
 package com.sap.cloud.alert.notification.client.internal;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,9 +11,11 @@ import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.AuthorizationException;
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
 import com.sap.cloud.alert.notification.client.model.configuration.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicNameValuePair;
@@ -31,6 +36,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.IterableUtils.chainedIterable;
 import static org.apache.commons.collections4.IterableUtils.toList;
 import static org.apache.http.HttpStatus.*;
+import static org.apache.http.util.TextUtils.isBlank;
 
 class AlertNotificationClientUtils {
 
@@ -44,6 +50,7 @@ class AlertNotificationClientUtils {
     public static final TypeReference<ConfigurationResponse<Condition>> CONDITION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Condition>>(){};
     public static final TypeReference<ConfigurationResponse<Subscription>> SUBSCRIPTION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Subscription>>(){};
 
+    private static final String X_VCAP_REQUEST_ID_HEADER = "x-vcap-request-id";
     private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(NON_NULL);
     private static final List<String> PRODUCER_PATH_SEGMENTS = unmodifiableList(asList("producer", "v1", "resource-events"));
     private static final List<String> MATCHED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "matched-events"));
@@ -84,26 +91,41 @@ class AlertNotificationClientUtils {
     }
 
     static void assertSuccessfulResponse(HttpResponse response) {
-        StatusLine statusLine = response.getStatusLine();
-        int code = statusLine.getStatusCode();
-        String reason = statusLine.getReasonPhrase();
+        int code = response.getStatusLine().getStatusCode();
 
         if (code < SC_OK || code >= SC_MULTIPLE_CHOICES) {
+            String errorResponseMessage = extractMessage(response);
+            Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
+            String xVcapRequestId = nonNull(firstHeader) ? firstHeader.getValue() : null;
+
             throw asList(SC_FORBIDDEN, SC_UNAUTHORIZED).contains(code) ?
-                    new AuthorizationException(reason, code) :
-                    new ServerResponseException(reason, code);
+                    new AuthorizationException( //
+                            errorResponseMessage, //
+                            code, //
+                            xVcapRequestId //
+                    ) :
+                    new ServerResponseException( //
+                            errorResponseMessage, //
+                            code, //
+                            xVcapRequestId //
+                    );
         }
     }
 
     static void assertHttpStatus(HttpResponse response, int expected) {
         if (response.getStatusLine().getStatusCode() != expected) {
-            throw new ServerResponseException(extractMessage(response), response.getStatusLine().getStatusCode());
+            Header firstHeader = response.getFirstHeader(X_VCAP_REQUEST_ID_HEADER);
+            throw new ServerResponseException( //
+                    extractMessage(response), //
+                    response.getStatusLine().getStatusCode(), //
+                    nonNull(firstHeader) ? firstHeader.getValue() : null //
+            );
         }
     }
 
     public static String extractMessage(HttpResponse response) {
         try {
-            return fromJsonString(EntityUtils.toString(response.getEntity(), UTF_8.name()), ConfigurationErrorResponse.class).getMessage();
+            return fromJsonString(EntityUtils.toString(response.getEntity(), UTF_8.name()), ErrorHttpResponse.class).getMessage();
         } catch (Exception e) {
             return response.getStatusLine().getReasonPhrase();
         }
@@ -219,5 +241,23 @@ class AlertNotificationClientUtils {
         return requestParameters.entrySet().stream()
                 .map(queryFilter -> new BasicNameValuePair(queryFilter.getKey().getKey(), queryFilter.getValue()))
                 .collect(toList());
+    }
+
+    @ToString(doNotUseGetters = true)
+    @EqualsAndHashCode(doNotUseGetters = true)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class ErrorHttpResponse {
+
+        private final String message;
+
+        @JsonCreator
+        public ErrorHttpResponse(@JsonProperty("message") String message) {
+            this.message = message;
+        }
+
+        @JsonProperty("message")
+        public String getMessage() {
+            return message;
+        }
     }
 }

@@ -7,6 +7,7 @@
 [![Documentation](https://img.shields.io/badge/Documentation-@SAP%20Help%20Portal-ff9900.svg)](https://help.sap.com/viewer/product/ALERT_NOTIFICATION/Cloud/en-US)
 [![API](https://img.shields.io/badge/APIs-@SAP%20API%20Business%20Hub-f542da.svg)](https://api.sap.com/package/AlertNotification?section=Artifacts)
 [![Blog](https://img.shields.io/badge/Blogs-@SAP%20Community%20Portal-3399ff.svg)](https://blogs.sap.com/tag/sap-cloud-platform-alert-notification/)
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/clm-sl-alert-notification-client)](https://api.reuse.software/info/github.com/SAP/clm-sl-alert-notification-client)
 
 ### 1. Introduction
 Alert Notification service is part of the DevOps portfolio of the SAP Business Technology Platform The service is specialized in instant delivery of events coming straight from the core platform services, e.g.
@@ -315,12 +316,10 @@ configurationClient.createSubscription(
 ```
 
 ### 10. Have an issue?
-Please, let us know by filing a [new issue](https://github.com/sap-staging/clm-sl-alert-notification-client/issues/new).
+Please, let us know by filing a [new issue](https://github.com/sap/clm-sl-alert-notification-client/issues/new).
 
 ### 11. Contributing
 We're always open for improvements! If you think the library could be better, please, open an issue and propose your solution as a pull request. We will contact you for discussion as soon as possible.
 
 ### 12. License
-This project is run under the licensing terms of Apache License 2.0. The paper could be found in the [LICENSE](https://github.com/sap-staging/clm-sl-alert-notification-client/blob/master/LICENSE) file
-in the top-level directory.
-
+This project is run under the licensing terms of Apache License 2.0. The paper could be found in the [LICENSE](https://github.com/sap/clm-sl-alert-notification-client/blob/master/LICENSE) file in the top-level directory. Detailed information including third-party components and their licensing/copyright information is available via [the REUSE tool](https://api.reuse.software/info/github.com/SAP/clm-sl-alert-notification-client).

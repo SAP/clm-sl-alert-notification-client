@@ -254,7 +254,6 @@ public class AlertNotificationConfigurationClientTest {
         );
         assertEquals(TEST_CONDITION, condition);
     }
-
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication1_whenCreatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);

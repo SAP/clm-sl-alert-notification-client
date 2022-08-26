@@ -123,7 +123,7 @@ class PemCertificateUtils {
             InputDecryptorProvider decryptionProvider = builder.build(password.toCharArray());
 
             return jcaPEMKeyConverter.getPrivateKey(privateKeyInfo.decryptPrivateKeyInfo(decryptionProvider));
-        }else {
+        } else {
             throw new IllegalArgumentException("Unsupported private key format '" + privateKeyObject.getClass().getSimpleName() + '"');
         }
     }

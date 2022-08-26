@@ -69,7 +69,6 @@ public class AlertNotificationClient extends AbstractClient implements IAlertNot
         this.serviceRegion = requireNonNull(serviceRegion);
     }
 
-
     public HttpClient getHttpClient() {
         return httpClient;
     }

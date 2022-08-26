@@ -14,7 +14,6 @@ import static com.sap.cloud.alert.notification.client.internal.KeyStoreUtils.bui
 public class HttpClientFactory {
 
     private static final String EMPTY_STRING = "";
-
     public HttpClientFactory() {
     }
 
@@ -51,5 +50,4 @@ public class HttpClientFactory {
             throw new ClientRequestException("Failed to create ssl context", e);
         }
     }
-
 }

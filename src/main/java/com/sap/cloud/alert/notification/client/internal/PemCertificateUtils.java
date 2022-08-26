@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static com.sap.cloud.alert.notification.client.internal.KeyStoreUtils.decodeCertificateContent;
 
 class PemCertificateUtils {
+
     static {
         Security.addProvider(new BouncyCastleProvider());
     }

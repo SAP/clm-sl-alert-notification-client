@@ -136,7 +136,7 @@ public class AlertNotificationClientBuilder {
         if(nonNull(destinationCredentialsProvider) && !isCertificateAuthentication) {
             return destinationCredentialsProvider.getAuthorizationHeader();
         }
-
+        
         if (nonNull(certificate) && nonNull(privateKey) && nonNull(oAuthServiceUri)) {
             return new OAuthAuthorizationHeader(certificate, privateKey, oAuthServiceUri, clientId, new HttpClientFactory());
         }

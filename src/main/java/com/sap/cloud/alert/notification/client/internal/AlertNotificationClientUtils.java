@@ -10,6 +10,8 @@ import com.sap.cloud.alert.notification.client.QueryParameter;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.AuthorizationException;
 import com.sap.cloud.alert.notification.client.exceptions.ServerResponseException;
+import com.sap.cloud.alert.notification.client.model.CustomerResourceEvent;
+import com.sap.cloud.alert.notification.client.model.PagedResponse;
 import com.sap.cloud.alert.notification.client.model.configuration.*;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -22,12 +24,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -45,12 +49,15 @@ class AlertNotificationClientUtils {
     public static final Class<Condition> CONDITION_TYPE = Condition.class;
     public static final Class<Subscription> SUBSCRIPTION_TYPE = Subscription.class;
     public static final Class<Configuration> CONFIGURATION_TYPE = Configuration.class;
+    public static final Class<CustomerResourceEvent> CUSTOMER_RESOURCE_EVENT_TYPE = CustomerResourceEvent.class;
+    public static final Class<PagedResponse> PAGED_RESPONSE_TYPE = PagedResponse.class;
+
     public static final String APPLICATION_JSON = ContentType.APPLICATION_JSON.toString();
     public static final TypeReference<ConfigurationResponse<Action>> ACTION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Action>>(){};
     public static final TypeReference<ConfigurationResponse<Condition>> CONDITION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Condition>>(){};
     public static final TypeReference<ConfigurationResponse<Subscription>> SUBSCRIPTION_CONFIGURATION_TYPE = new TypeReference<ConfigurationResponse<Subscription>>(){};
 
-    private static final String X_VCAP_REQUEST_ID_HEADER = "x-vcap-request-id";
+    static final String X_VCAP_REQUEST_ID_HEADER = "x-vcap-request-id";
     private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(NON_NULL);
     private static final List<String> PRODUCER_PATH_SEGMENTS = unmodifiableList(asList("producer", "v1", "resource-events"));
     private static final List<String> MATCHED_EVENTS_PATH_SEGMENTS = unmodifiableList(asList("consumer", "v1", "matched-events"));
@@ -59,6 +66,7 @@ class AlertNotificationClientUtils {
     private static final List<String> CONDITIONS_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","condition"));
     private static final List<String> SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS= unmodifiableList(asList("configuration","v1","subscription"));
     private static final List<String> CONFIGURATION_MANAGEMENT_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","configuration"));
+    private static final List<String> DESTINATION_SERVICE_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("destination-configuration", "v1", "destinations"));
 
     static <T> T fromJsonString(String valueAsString, Class<T> clazz) {
         try {
@@ -129,6 +137,14 @@ class AlertNotificationClientUtils {
         } catch (Exception e) {
             return response.getStatusLine().getReasonPhrase();
         }
+    }
+
+    public static URI buildDestinationServiceURI(URI serviceURI, String destinationName) {
+        return buildURI(
+                serviceURI,
+                toPathSegments(DESTINATION_SERVICE_CONFIGURATION_PATH_SEGMENTS, singletonList(destinationName)),
+                emptyList()
+        );
     }
 
     static URI buildProducerURI(ServiceRegion serviceRegion) {
@@ -205,6 +221,10 @@ class AlertNotificationClientUtils {
 
     private static List<String> toPathSegments(ServiceRegion serviceRegion, List<String> defaultSegments, List<String> customSegments) {
         return toList(chainedIterable(asList(serviceRegion.getPlatform().getKey()), defaultSegments, customSegments));
+    }
+
+    private static List<String> toPathSegments(List<String> defaultSegments, List<String> customSegments){
+        return toList(chainedIterable(defaultSegments, customSegments));
     }
 
     private static URI buildURI(URI serviceURI, List<String> pathSegments, List<NameValuePair> queryParameters) {

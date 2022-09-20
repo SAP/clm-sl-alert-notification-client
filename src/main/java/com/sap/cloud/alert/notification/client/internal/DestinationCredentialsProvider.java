@@ -121,7 +121,6 @@ public class DestinationCredentialsProvider {
             String authenticationType = destinationConfiguration.get(AUTHENTICATION_KEY).asText();
             assertValidAuthenticationType(authenticationType);
 
-
             return new DestinationContext(serviceUri, authenticationType.equals(CERTIFICATE_AUTHENTICATION_TYPE));
         }
     }

@@ -1,6 +1,6 @@
 package com.sap.cloud.alert.notification.client.internal;
 
-public enum KeyStoreType {
+enum KeyStoreType {
 
     JKS("JKS"),
     PKCS12("PKCS12"),

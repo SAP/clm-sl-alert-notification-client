@@ -29,7 +29,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class PemCertificateUtils {
+class PemCertificateUtils {
     static {
         Security.addProvider(new BouncyCastleProvider());
     }

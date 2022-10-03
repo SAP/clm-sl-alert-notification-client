@@ -36,9 +36,11 @@ class PemCertificateUtils {
 
     private static final String BEGIN_CERTIFICATE_DELIMITER = "-----BEGIN CERTIFICATE-----";
     private static final String PRIVATE_KEY = "PRIVATE KEY";
+    private static final String EMPTY_STRING = "";
 
-    public static KeyStore generateKeyStore(String pemCertificate, String keyStorePassword) throws Exception {
-        String[] pemContent = pemCertificate.split(BEGIN_CERTIFICATE_DELIMITER);
+    public static KeyStore generateKeyStore(KeyStoreDetails keyStoreDetails) throws Exception {
+        String[] pemContent = decodeCertificateContent(keyStoreDetails.getKeyStoreContent()).split(BEGIN_CERTIFICATE_DELIMITER);
+        String keyStorePassword = keyStoreDetails.getKeyStorePassword();
 
         Certificate[] certificateChain = Arrays.stream(pemContent) //
                 .filter(entry -> !entry.contains(PRIVATE_KEY)) //
@@ -51,6 +53,24 @@ class PemCertificateUtils {
 
         keyStore.load(null, keyStorePassword.toCharArray());
         keyStore.setKeyEntry(extractCommonName((X509Certificate) certificateChain[0]), createPrivateKey(pemContent[0], keyStorePassword), keyStorePassword.toCharArray(), certificateChain);
+
+        return keyStore;
+    }
+
+    public static KeyStore generateKeyStore(String certificate, String privateKey) throws Exception {
+        String[] certificateContent = certificate.split(BEGIN_CERTIFICATE_DELIMITER);
+
+        Certificate[] certificateChain = Arrays.stream(certificateContent)
+                .skip(1) //
+                .map(entry -> BEGIN_CERTIFICATE_DELIMITER + entry) //
+                .map(PemCertificateUtils::loadCertificate) //
+                .collect(Collectors.toList()) //
+                .toArray(new Certificate[certificateContent.length - 1]);
+
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+
+        keyStore.load(null, EMPTY_STRING.toCharArray());
+        keyStore.setKeyEntry(extractCommonName((X509Certificate) certificateChain[0]), createPrivateKey(privateKey, EMPTY_STRING), EMPTY_STRING.toCharArray(), certificateChain);
 
         return keyStore;
     }

@@ -20,6 +20,8 @@ public final class AlertNotificationConfigurationClientBuilder {
 
     private String clientId;
     private String clientSecret;
+    private String certificate;
+    private String privateKey;
     private URI oAuthServiceUri;
     private HttpClient httpClient;
     private ServiceRegion serviceRegion;
@@ -58,6 +60,14 @@ public final class AlertNotificationConfigurationClientBuilder {
         return this;
     }
 
+    public AlertNotificationConfigurationClientBuilder withAuthentication(String certificate, String privateKey, URI oAuthServiceUri, String username) {
+        this.username = username;
+        this.certificate = certificate;
+        this.privateKey = privateKey;
+        this.oAuthServiceUri = oAuthServiceUri;
+        return this;
+    }
+
     public IAlertNotificationConfigurationClient buildFromServiceBinding() {
         return buildFromServiceBinding(new AlertNotificationServiceBinding());
     }
@@ -67,7 +77,8 @@ public final class AlertNotificationConfigurationClientBuilder {
 
         return isNull(serviceBinding.getOauthUri()) //
                 ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //
-                : alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret(), serviceBinding.getOauthUri()).build();
+                : nonNull(serviceBinding.getClientSecret()) ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret(), serviceBinding.getOauthUri()).build()
+                : alertNotificationClientBuilder.withAuthentication(serviceBinding.getCertificate(), serviceBinding.getPrivateKey(), serviceBinding.getOauthUri(), serviceBinding.getClientId()).build();
 
     }
 
@@ -124,6 +135,11 @@ public final class AlertNotificationConfigurationClientBuilder {
         if(nonNull(destinationCredentialsProvider) && !isCertificateAuthentication) {
             return destinationCredentialsProvider.getAuthorizationHeader();
         }
+
+        if (nonNull(certificate) && nonNull(privateKey) && nonNull(oAuthServiceUri)) {
+            return new OAuthAuthorizationHeader(certificate, privateKey, oAuthServiceUri, username, new HttpClientFactory());
+        }
+
 
         if (isNull(clientId) && isNull(clientSecret)) {
             return null; // Rely on HttpClient configuration only

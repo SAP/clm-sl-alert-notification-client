@@ -17,7 +17,6 @@ import static java.util.Objects.*;
 public final class AlertNotificationConfigurationClientBuilder {
 
     public static final IRetryPolicy DEFAULT_RETRY_POLICY = new SimpleRetryPolicy();
-
     private String clientId;
     private String clientSecret;
     private String certificate;

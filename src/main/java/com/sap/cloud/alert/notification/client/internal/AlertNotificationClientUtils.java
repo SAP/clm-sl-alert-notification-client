@@ -24,14 +24,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -40,11 +37,11 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.IterableUtils.chainedIterable;
 import static org.apache.commons.collections4.IterableUtils.toList;
 import static org.apache.http.HttpStatus.*;
-import static org.apache.http.util.TextUtils.isBlank;
 
 class AlertNotificationClientUtils {
 
     public static final String EMPTY = "";
+    private static final String CLIENT_ID = "client_id";
     public static final Class<Action> ACTION_TYPE = Action.class;
     public static final Class<Condition> CONDITION_TYPE = Condition.class;
     public static final Class<Subscription> SUBSCRIPTION_TYPE = Subscription.class;
@@ -67,6 +64,9 @@ class AlertNotificationClientUtils {
     private static final List<String> SUBSCRIPTIONS_CONFIGURATION_PATH_SEGMENTS= unmodifiableList(asList("configuration","v1","subscription"));
     private static final List<String> CONFIGURATION_MANAGEMENT_PATH_SEGMENTS = unmodifiableList(asList("configuration","v1","configuration"));
     private static final List<String> DESTINATION_SERVICE_CONFIGURATION_PATH_SEGMENTS = unmodifiableList(asList("destination-configuration", "v1", "destinations"));
+    private static final List<String> XSUAA_OAUTH_URI_PATH = unmodifiableList(asList("oauth", "token"));
+    private static final BasicNameValuePair XSUUA_OAUTH_QUERY_PARAMETERS = new BasicNameValuePair("grant_type", "client_credentials");
+
 
     static <T> T fromJsonString(String valueAsString, Class<T> clazz) {
         try {
@@ -144,6 +144,14 @@ class AlertNotificationClientUtils {
                 serviceURI,
                 toPathSegments(DESTINATION_SERVICE_CONFIGURATION_PATH_SEGMENTS, singletonList(destinationName)),
                 emptyList()
+        );
+    }
+
+    static URI buildCertOAuthServiceUri(URI serviceUri, String clientId) {
+        return buildURI( //
+                serviceUri,
+                XSUAA_OAUTH_URI_PATH, //
+                Arrays.asList(XSUUA_OAUTH_QUERY_PARAMETERS, new BasicNameValuePair(CLIENT_ID, clientId))
         );
     }
 

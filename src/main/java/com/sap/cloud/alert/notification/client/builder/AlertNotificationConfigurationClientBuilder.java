@@ -18,8 +18,8 @@ public final class AlertNotificationConfigurationClientBuilder {
 
     public static final IRetryPolicy DEFAULT_RETRY_POLICY = new SimpleRetryPolicy();
 
-    private String username;
-    private String password;
+    private String clientId;
+    private String clientSecret;
     private URI oAuthServiceUri;
     private HttpClient httpClient;
     private ServiceRegion serviceRegion;
@@ -45,15 +45,15 @@ public final class AlertNotificationConfigurationClientBuilder {
         return this;
     }
 
-    public AlertNotificationConfigurationClientBuilder withAuthentication(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public AlertNotificationConfigurationClientBuilder withAuthentication(String clientId, String clientSecret) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         return this;
     }
 
-    public AlertNotificationConfigurationClientBuilder withAuthentication(String username, String password, URI oAuthServiceUri) {
-        this.username = username;
-        this.password = password;
+    public AlertNotificationConfigurationClientBuilder withAuthentication(String clientId, String clientSecret, URI oAuthServiceUri) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         this.oAuthServiceUri = oAuthServiceUri;
         return this;
     }
@@ -125,13 +125,13 @@ public final class AlertNotificationConfigurationClientBuilder {
             return destinationCredentialsProvider.getAuthorizationHeader();
         }
 
-        if (isNull(username) && isNull(password)) {
+        if (isNull(clientId) && isNull(clientSecret)) {
             return null; // Rely on HttpClient configuration only
         }
 
         return isNull(oAuthServiceUri) //
-                ? new BasicAuthorizationHeader(username, password) //
-                : new OAuthAuthorizationHeader(username, password, oAuthServiceUri, httpClient);
+                ? new BasicAuthorizationHeader(clientId, clientSecret) //
+                : new OAuthAuthorizationHeader(clientId, clientSecret, oAuthServiceUri, httpClient);
     }
 
     private void assertValidInvalidationTime() {

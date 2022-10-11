@@ -16,8 +16,8 @@ import static java.util.Objects.*;
 
 public class AlertNotificationClientBuilder {
 
-    private String username;
-    private String password;
+    private String clientId;
+    private String clientSecret;
     private URI oAuthServiceUri;
     private HttpClient httpClient;
     private IRetryPolicy retryPolicy;
@@ -48,14 +48,14 @@ public class AlertNotificationClientBuilder {
     }
 
     public AlertNotificationClientBuilder withAuthentication(String clientId, String clientSecret) {
-        this.username = clientId;
-        this.password = clientSecret;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         return this;
     }
 
     public AlertNotificationClientBuilder withAuthentication(String clientId, String clientSecret, URI oAuthServiceURI) {
-        this.username = clientId;
-        this.password = clientSecret;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         this.oAuthServiceUri = oAuthServiceURI;
         return this;
     }
@@ -126,13 +126,13 @@ public class AlertNotificationClientBuilder {
             return destinationCredentialsProvider.getAuthorizationHeader();
         }
 
-        if (isNull(username) && isNull(password)) {
+        if (isNull(clientId) && isNull(clientSecret)) {
             return null; // Rely on HttpClient configuration only
         }
 
         return isNull(oAuthServiceUri) //
-                ? new BasicAuthorizationHeader(username, password) //
-                : new OAuthAuthorizationHeader(username, password, oAuthServiceUri, httpClient);
+                ? new BasicAuthorizationHeader(clientId, clientSecret) //
+                : new OAuthAuthorizationHeader(clientId, clientSecret, oAuthServiceUri, httpClient);
     }
 
     private void assertValidInvalidationTime() {

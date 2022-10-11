@@ -3,26 +3,31 @@ package com.sap.cloud.alert.notification.client.builder;
 import com.sap.cloud.alert.notification.client.IAlertNotificationConfigurationClient;
 import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
+import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
 import com.sap.cloud.alert.notification.client.internal.*;
 import com.sap.cloud.alert.notification.client.model.AlertNotificationServiceBinding;
+import com.sap.cloud.alert.notification.client.model.DestinationServiceBinding;
 import org.apache.http.client.HttpClient;
 
 import java.net.URI;
 
 import static com.sap.cloud.alert.notification.client.Platform.CF;
-import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
 
 public final class AlertNotificationConfigurationClientBuilder {
 
     public static final IRetryPolicy DEFAULT_RETRY_POLICY = new SimpleRetryPolicy();
 
-    private String username;
-    private String password;
+    private String clientId;
+    private String clientSecret;
     private URI oAuthServiceUri;
     private HttpClient httpClient;
     private ServiceRegion serviceRegion;
     private IRetryPolicy retryPolicy = DEFAULT_RETRY_POLICY;
+    private DestinationCredentialsProvider destinationCredentialsProvider;
+    private boolean isCertificateAuthentication = false;
+    private KeyStoreDetails keyStoreDetails;
+    private Long invalidationTime;
 
     public AlertNotificationConfigurationClientBuilder withHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -40,15 +45,15 @@ public final class AlertNotificationConfigurationClientBuilder {
         return this;
     }
 
-    public AlertNotificationConfigurationClientBuilder withAuthentication(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public AlertNotificationConfigurationClientBuilder withAuthentication(String clientId, String clientSecret) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         return this;
     }
 
-    public AlertNotificationConfigurationClientBuilder withAuthentication(String username, String password, URI oAuthServiceUri) {
-        this.username = username;
-        this.password = password;
+    public AlertNotificationConfigurationClientBuilder withAuthentication(String clientId, String clientSecret, URI oAuthServiceUri) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
         this.oAuthServiceUri = oAuthServiceUri;
         return this;
     }
@@ -66,15 +71,72 @@ public final class AlertNotificationConfigurationClientBuilder {
 
     }
 
+    public IAlertNotificationConfigurationClient buildFromDestinationBinding(DestinationServiceBinding destinationServiceBinding, String destinationName) {
+        this.destinationCredentialsProvider = buildDestinationCredentialsProvider(destinationName, httpClient, destinationServiceBinding);
+
+        DestinationContext destinationContext = destinationCredentialsProvider.getDestinationContext();
+
+        this.serviceRegion = new ServiceRegion(CF, destinationContext.getServiceUri());
+        this.isCertificateAuthentication = destinationContext.isCertificateAuthentication();
+
+        if(isCertificateAuthentication){
+            this.keyStoreDetails = destinationCredentialsProvider.getKeyStoreDetails();
+        }
+
+        return build();
+    }
+
+    public IAlertNotificationConfigurationClient buildFromDestinationBinding(DestinationServiceBinding destinationServiceBinding, String destinationName, Long invalidationTime) {
+        this.invalidationTime = invalidationTime;
+
+        assertValidInvalidationTime();
+        return buildFromDestinationBinding(destinationServiceBinding, destinationName);
+    }
+
+    private DestinationCredentialsProvider buildDestinationCredentialsProvider(String destinationName, HttpClient httpClient, DestinationServiceBinding destinationServiceBinding) {
+        return new DestinationCredentialsProvider( //
+                destinationName, //
+                httpClient, //
+                new OAuthAuthorizationHeader( //
+                        requireNonNull(destinationServiceBinding.getClientId()), //
+                        requireNonNull(destinationServiceBinding.getClientSecret()), //
+                        requireNonNull(destinationServiceBinding.getOauthUri()), //
+                        httpClient), //
+                destinationServiceBinding //
+        );
+    }
+
     public IAlertNotificationConfigurationClient build() {
-        return new AlertNotificationConfigurationClient(requireNonNull(httpClient), requireNonNull(retryPolicy), requireNonNull(serviceRegion), buildAuthorizationHeader());
+        return new AlertNotificationConfigurationClient(
+                requireNonNull(httpClient),
+                requireNonNull(retryPolicy),
+                requireNonNull(serviceRegion),
+                buildAuthorizationHeader(),
+                invalidationTime,
+                keyStoreDetails,
+                destinationCredentialsProvider,
+                new HttpClientFactory(),
+                false
+        );
     }
 
     private IAuthorizationHeader buildAuthorizationHeader() {
-        if (username == null && password == null) {
+        if(nonNull(destinationCredentialsProvider) && !isCertificateAuthentication) {
+            return destinationCredentialsProvider.getAuthorizationHeader();
+        }
+
+        if (isNull(clientId) && isNull(clientSecret)) {
             return null; // Rely on HttpClient configuration only
         }
 
-        return oAuthServiceUri == null ? new BasicAuthorizationHeader(username, password) : new OAuthAuthorizationHeader(username, password, oAuthServiceUri, httpClient);
+        return isNull(oAuthServiceUri) //
+                ? new BasicAuthorizationHeader(clientId, clientSecret) //
+                : new OAuthAuthorizationHeader(clientId, clientSecret, oAuthServiceUri, httpClient);
+    }
+
+    private void assertValidInvalidationTime() {
+        if(nonNull(invalidationTime) && invalidationTime < 0) {
+            throw new ClientRequestException("InvalidationTime cannot be a negative number");
+        }
     }
 }

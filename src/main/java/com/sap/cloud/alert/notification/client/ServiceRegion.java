@@ -46,6 +46,26 @@ public class ServiceRegion {
     public static final ServiceRegion EU30 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.eu30.hana.ondemand.com/");
     public static final ServiceRegion IN30 = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.cfapps.in30.hana.ondemand.com/");
 
+    //mTLS
+    public static final ServiceRegion EU10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.eu10.hana.ondemand.com/");
+    public static final ServiceRegion EU20_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.eu20.hana.ondemand.com/");
+    public static final ServiceRegion AP10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.ap10.hana.ondemand.com/");
+    public static final ServiceRegion BR10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.br10.hana.ondemand.com/");
+    public static final ServiceRegion CA10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.ca10.hana.ondemand.com/");
+    public static final ServiceRegion AP11_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.ap11.hana.ondemand.com/");
+    public static final ServiceRegion EU11_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.eu11.hana.ondemand.com/");
+    public static final ServiceRegion AP12_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.ap12.hana.ondemand.com/");
+    public static final ServiceRegion AP20_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.ap20.hana.ondemand.com/");
+    public static final ServiceRegion US20_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us20.hana.ondemand.com/");
+    public static final ServiceRegion US21_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us21.hana.ondemand.com/");
+    public static final ServiceRegion AP21_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.ap21.hana.ondemand.com/");
+    public static final ServiceRegion JP20_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.jp20.hana.ondemand.com/");
+    public static final ServiceRegion US10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us10.hana.ondemand.com/");
+    public static final ServiceRegion JP10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.jp10.hana.ondemand.com/");
+    public static final ServiceRegion US30_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us30.hana.ondemand.com/");
+    public static final ServiceRegion EU30_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.eu30.hana.ondemand.com/");
+    public static final ServiceRegion IN30_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.in30.hana.ondemand.com/");
+
     public static final ServiceRegion NEO_ROT = EU1;
     public static final ServiceRegion NEO_FRANKFURT = EU2;
     public static final ServiceRegion NEO_AMSTERDAM = EU3;

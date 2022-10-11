@@ -30,11 +30,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.sap.cloud.alert.notification.client.TestUtils.*;
 import static com.sap.cloud.alert.notification.client.internal.AlertNotificationClientUtils.*;
-import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
-import static org.apache.http.HttpStatus.SC_OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.apache.http.HttpStatus.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,6 +50,8 @@ public class AlertNotificationClientTest {
     private static final IRetryPolicy TEST_RETRY_POLICY = new SimpleRetryPolicy(3, Duration.ofMillis(100));
     private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
     private static final ProtocolVersion TEST_PROTOCOL_VERSION = new ProtocolVersion(TEST_PROTOCOL_NAME, TEST_PROTOCOL_MAJOR_VERSION, TEST_PROTOCOL_MINOR_VERSION);
+    private static final KeyStoreDetails TEST_KEYSTORE_DETAILS_PEM = new KeyStoreDetails(KeyStoreType.PEM, TEST_KEYSTORE_PASSWORD, TEST_KEYSTORE_CONTENT_PEM);
+    private static final KeyStoreDetails TEST_KEYSTORE_DETAILS_P12 = new KeyStoreDetails(KeyStoreType.PKCS12, TEST_KEYSTORE_PASSWORD, TEST_KEYSTORE_CONTENT_P12);
 
     private static final CustomerResourceEvent TEST_CUSTOMER_RESOURCE_EVENT = new CustomerResourceEventBuilder().withBody("TEST_BODY")
             .withType("TEST_TYPE")
@@ -60,12 +61,16 @@ public class AlertNotificationClientTest {
             .withAffectedResource(new AffectedCustomerResource("TEST_NAME", "TEST_TYPE", "TEST_INSTANCE", Collections.emptyMap()))
             .build();
 
+    private HttpClientFactory mockedHttpClientFactory;
+    private DestinationCredentialsProvider mockedDestinationCredentialsProvider;
     private HttpClient mockedHttpClient;
     private AlertNotificationClient classUnderTest;
     private IAuthorizationHeader authorizationHeader;
 
     @BeforeEach
     public void setUp() {
+        mockedHttpClientFactory = Mockito.mock(HttpClientFactory.class);
+        mockedDestinationCredentialsProvider = Mockito.mock(DestinationCredentialsProvider.class);
         mockedHttpClient = Mockito.mock(HttpClient.class);
         authorizationHeader = new BasicAuthorizationHeader(TEST_USERNAME, TEST_PASSWORD);
         classUnderTest = new AlertNotificationClient(mockedHttpClient, TEST_RETRY_POLICY, TEST_SERVICE_REGION, authorizationHeader);
@@ -134,6 +139,74 @@ public class AlertNotificationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication1_whenSendEventIsCalled_thenCorrectRequestIsSent() throws Exception {
+        ArgumentCaptor<HttpPost> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
+
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        doReturn(createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT)).when(mockedHttpClient).execute(any(HttpPost.class));
+
+        classUnderTest = new AlertNotificationClient(
+                mockedHttpClient,
+                TEST_RETRY_POLICY,
+                TEST_SERVICE_REGION,
+                null,
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+        Thread.sleep(2000);
+
+        classUnderTest.sendEvent(TEST_CUSTOMER_RESOURCE_EVENT);
+
+        verify(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        verify(mockedHttpClient).execute(httpRequestArgumentCaptor.capture());
+
+        HttpPost sentRequest = httpRequestArgumentCaptor.getValue();
+
+        assertEquals("POST", sentRequest.getMethod());
+        assertEquals(buildProducerURI(TEST_SERVICE_REGION).toString(), sentRequest.getURI().toString());
+        assertEquals(ContentType.APPLICATION_JSON.toString(), sentRequest.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue());
+        assertEquals(JSON_OBJECT_MAPPER.writeValueAsString(TEST_CUSTOMER_RESOURCE_EVENT), IOUtils.toString(sentRequest.getEntity().getContent(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication2_whenSendEventIsCalled_thenCorrectRequestIsSent() throws Exception {
+        ArgumentCaptor<HttpPost> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
+
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        doReturn(createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT)).when(mockedHttpClient).execute(any(HttpPost.class));
+
+        classUnderTest = new AlertNotificationClient(
+                mockedHttpClient,
+                TEST_RETRY_POLICY,
+                TEST_SERVICE_REGION,
+                null,
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.sendEvent(TEST_CUSTOMER_RESOURCE_EVENT);
+
+        verify(mockedHttpClient).execute(httpRequestArgumentCaptor.capture());
+
+        HttpPost sentRequest = httpRequestArgumentCaptor.getValue();
+
+        assertEquals("POST", sentRequest.getMethod());
+        assertEquals(buildProducerURI(TEST_SERVICE_REGION).toString(), sentRequest.getURI().toString());
+        assertEquals(ContentType.APPLICATION_JSON.toString(), sentRequest.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue());
+        assertEquals(JSON_OBJECT_MAPPER.writeValueAsString(TEST_CUSTOMER_RESOURCE_EVENT), IOUtils.toString(sentRequest.getEntity().getContent(), StandardCharsets.UTF_8));
+    }
+
+    @Test
     public void givenThatSendingRequestFails_whenSendEventIsCalled_thenRequestIsRetried() throws Exception {
         doReturn(createFailedResponse()).when(mockedHttpClient).execute(any(HttpPost.class));
 
@@ -189,6 +262,72 @@ public class AlertNotificationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication1_whenGetMatchedEventIsCalled_thenCorrectRequestIsSent() throws Exception {
+        ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
+        Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
+
+        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationClient(
+                mockedHttpClient,
+                TEST_RETRY_POLICY,
+                TEST_SERVICE_REGION,
+                null,
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.getMatchedEvent(TEST_EVENT_ID, testQueryFilters);
+
+        verify(mockedHttpClient).execute(httpRequestArgumentCaptor.capture());
+
+        HttpGet sentRequest = httpRequestArgumentCaptor.getValue();
+
+        assertEquals("GET", sentRequest.getMethod());
+        assertEquals(buildMatchedEventsURI(TEST_SERVICE_REGION, TEST_EVENT_ID, testQueryFilters).toString(), sentRequest.getURI().toString());
+    }
+
+    @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication2_whenGetMatchedEventIsCalled_thenCorrectRequestIsSent() throws Exception {
+        ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
+        Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
+
+        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+
+        classUnderTest = new AlertNotificationClient(
+                mockedHttpClient,
+                TEST_RETRY_POLICY,
+                TEST_SERVICE_REGION,
+                null,
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.getMatchedEvent(TEST_EVENT_ID, testQueryFilters);
+
+        verify(mockedHttpClient).execute(httpRequestArgumentCaptor.capture());
+
+        HttpGet sentRequest = httpRequestArgumentCaptor.getValue();
+
+        assertEquals("GET", sentRequest.getMethod());
+        assertEquals(buildMatchedEventsURI(TEST_SERVICE_REGION, TEST_EVENT_ID, testQueryFilters).toString(), sentRequest.getURI().toString());
+    }
+
+    @Test
     public void givenThatSendingRequestFails_whenGetMatchedEventIsCalled_thenRequestIsRetried() throws Exception {
         doReturn(createFailedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
@@ -214,6 +353,74 @@ public class AlertNotificationClientTest {
         assertEquals("GET", sentRequest.getMethod());
         assertEquals(buildUndeliveredEventsURI(TEST_SERVICE_REGION, testQueryFilters).toString(), sentRequest.getURI().toString());
         assertEquals(authorizationHeader.getValue(), sentRequest.getFirstHeader(HttpHeaders.AUTHORIZATION).getValue());
+    }
+
+    @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication1_whenGetUndeliveredEventsIsCalled_thenCorrectRequestIsSent() throws Exception {
+        ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
+        Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
+
+        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+
+        classUnderTest = new AlertNotificationClient(
+                mockedHttpClient,
+                TEST_RETRY_POLICY,
+                TEST_SERVICE_REGION,
+                null,
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.getUndeliveredEvents(testQueryFilters);
+
+        verify(mockedHttpClient).execute(httpRequestArgumentCaptor.capture());
+
+        HttpGet sentRequest = httpRequestArgumentCaptor.getValue();
+
+        assertEquals("GET", sentRequest.getMethod());
+        assertEquals(buildUndeliveredEventsURI(TEST_SERVICE_REGION, testQueryFilters).toString(), sentRequest.getURI().toString());
+        assertNull(sentRequest.getFirstHeader(HttpHeaders.AUTHORIZATION));
+    }
+
+    @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication2_whenGetUndeliveredEventsIsCalled_thenCorrectRequestIsSent() throws Exception {
+        ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
+        Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
+
+        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationClient(
+                mockedHttpClient,
+                TEST_RETRY_POLICY,
+                TEST_SERVICE_REGION,
+                null,
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.getUndeliveredEvents(testQueryFilters);
+
+        verify(mockedHttpClient).execute(httpRequestArgumentCaptor.capture());
+
+        HttpGet sentRequest = httpRequestArgumentCaptor.getValue();
+
+        assertEquals("GET", sentRequest.getMethod());
+        assertEquals(buildUndeliveredEventsURI(TEST_SERVICE_REGION, testQueryFilters).toString(), sentRequest.getURI().toString());
+        assertNull(sentRequest.getFirstHeader(HttpHeaders.AUTHORIZATION));
     }
 
     @Test
@@ -260,7 +467,7 @@ public class AlertNotificationClientTest {
 
     private HttpResponse createMockedSendEventResponse(CustomerResourceEvent event) throws Exception {
         StringEntity responseEntity = new StringEntity(JSON_OBJECT_MAPPER.writeValueAsString(event));
-        StatusLine statusline = new BasicStatusLine(TEST_PROTOCOL_VERSION, SC_OK, TEST_REASON_PHRASE);
+        StatusLine statusline = new BasicStatusLine(TEST_PROTOCOL_VERSION, SC_ACCEPTED, TEST_REASON_PHRASE);
         HttpResponse httpResponse = new BasicHttpResponse(statusline);
 
         httpResponse.setEntity(responseEntity);

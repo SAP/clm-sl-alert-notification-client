@@ -41,8 +41,7 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.*;
 import static org.apache.http.util.TextUtils.isBlank;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.platform.commons.util.StringUtils.isNotBlank;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,6 +54,8 @@ public class AlertNotificationConfigurationClientTest {
     private static final String TEST_STATUS_LINE = "TEST_STATUS_LINE";
     private static final String TEST_AUTHORIZATION_HEADER = "Basic TEST_AUTHORIZATION_HEADER";
     private static final ProtocolVersion PROTOCOL_VERSION = new ProtocolVersion("HTTP", 1, 1);
+    private static final KeyStoreDetails TEST_KEYSTORE_DETAILS_PEM = new KeyStoreDetails(KeyStoreType.PEM, TEST_KEYSTORE_PASSWORD, TEST_KEYSTORE_CONTENT_PEM);
+    private static final KeyStoreDetails TEST_KEYSTORE_DETAILS_P12 = new KeyStoreDetails(KeyStoreType.PKCS12, TEST_KEYSTORE_PASSWORD, TEST_KEYSTORE_CONTENT_P12);
 
     private static final Action TEST_ACTION = new Action(TEST_TYPE, TEST_NAME, TEST_STATE, TEST_DESCRIPTION, TEST_LABELS, TEST_DISCARD_AFTER, TEST_FALLBACK_TIME, TEST_FALLBACK_ACTION, TEST_PROPERTIES);
     private static final Subscription TEST_SUBSCRIPTION = new Subscription(TEST_NAME, TEST_STATE, TEST_TIMESTAMP, TEST_DESCRIPTION, TEST_LABELS, TEST_ACTIONS, TEST_CONDITIONS);
@@ -72,6 +73,8 @@ public class AlertNotificationConfigurationClientTest {
     private static final String SUBSCRIPTIONS_CONFIGURATION_PATH = format("/%s/configuration/v1/subscription", TEST_SERVICE_REGION.getPlatform().getKey());
     private static final String CONFIGURATION_MANAGEMENT_BASE_PATH = format("/%s/configuration/v1/configuration", TEST_SERVICE_REGION.getPlatform().getKey());
 
+    private DestinationCredentialsProvider mockedDestinationCredentialsProvider;
+    private HttpClientFactory mockedHttpClientFactory;
     private HttpClient mockedHttpClient;
     private AlertNotificationConfigurationClient classUnderTest;
     private ArgumentCaptor<HttpUriRequest> requestCaptor;
@@ -81,6 +84,8 @@ public class AlertNotificationConfigurationClientTest {
     @BeforeEach
     public void setUp() {
         mockedHttpClient = mock(HttpClient.class);
+        mockedHttpClientFactory = mock(HttpClientFactory.class);
+        mockedDestinationCredentialsProvider = mock(DestinationCredentialsProvider.class);
         mockedAuthorizationHeader = mock(IAuthorizationHeader.class);
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -112,6 +117,68 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication1_whenGetConditionsIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        ConfigurationResponse<Condition> conditions = classUnderTest.getConditions(requestParameters);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, CONDITIONS_CONFIGURATION_PATH, requestParameters)) //
+        );
+        assertEquals(CONDITION_CONFIGURATION_RESPONSE, conditions);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication2_whenGetConditionsIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        ConfigurationResponse<Condition> conditions = classUnderTest.getConditions(requestParameters);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, CONDITIONS_CONFIGURATION_PATH, requestParameters)) //
+        );
+        assertEquals(CONDITION_CONFIGURATION_RESPONSE, conditions);
+    }
+
+    @Test
     public void givenThatRequestFails_whenGetConditionsIsCalled_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
@@ -127,6 +194,68 @@ public class AlertNotificationConfigurationClientTest {
 
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
+                (HttpPost) requestCaptor.getValue(), //
+                buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, CONDITIONS_CONFIGURATION_PATH), TEST_CONDITION) //
+        );
+        assertEquals(TEST_CONDITION, condition);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication1_whenCreatingCondition_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPost.class);
+        doReturn(buildResponse(SC_CREATED, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Condition condition = classUnderTest.createCondition(TEST_CONDITION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpPost) requestCaptor.getValue(), //
+                buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, CONDITIONS_CONFIGURATION_PATH), TEST_CONDITION) //
+        );
+        assertEquals(TEST_CONDITION, condition);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication2_whenCreatingCondition_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPost.class);
+        doReturn(buildResponse(SC_CREATED, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Condition condition = classUnderTest.createCondition(TEST_CONDITION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
                 (HttpPost) requestCaptor.getValue(), //
                 buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, CONDITIONS_CONFIGURATION_PATH), TEST_CONDITION) //
         );
@@ -156,6 +285,68 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication1_whenGetConditionIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Condition condition = classUnderTest.getCondition(TEST_CONDITION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName())) //
+        );
+        assertEquals(TEST_CONDITION, condition);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication2_whenGetConditionIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Condition condition = classUnderTest.getCondition(TEST_CONDITION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName())) //
+        );
+        assertEquals(TEST_CONDITION, condition);
+    }
+
+    @Test
     public void givenThatRequestFails_whenGetConditionIsCalled_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
@@ -171,6 +362,68 @@ public class AlertNotificationConfigurationClientTest {
 
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
+                (HttpPut) requestCaptor.getValue(), //
+                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName()), TEST_CONDITION) //
+        );
+        assertEquals(TEST_CONDITION, condition);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication1_whenUpdatingCondition_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPut.class);
+        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_PEM,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Condition condition = classUnderTest.updateCondition(TEST_CONDITION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpPut) requestCaptor.getValue(), //
+                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName()), TEST_CONDITION) //
+        );
+        assertEquals(TEST_CONDITION, condition);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_andCertificateAuthentication2_whenUpdatingCondition_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPut.class);
+        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Condition condition = classUnderTest.updateCondition(TEST_CONDITION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
                 (HttpPut) requestCaptor.getValue(), //
                 buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, CONDITION_CONFIGURATION_PATH_TEMPLATE, TEST_CONDITION.getName()), TEST_CONDITION) //
         );
@@ -244,6 +497,37 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenCreatingAction_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPost.class);
+        doReturn(buildResponse(SC_CREATED, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Action action = classUnderTest.createAction(TEST_ACTION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpPost) requestCaptor.getValue(), //
+                buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, ACTIONS_CONFIGURATION_PATH), TEST_ACTION) //
+        );
+        assertEquals(TEST_ACTION, action);
+    }
+
+    @Test
     public void givenThatRequestFails_whenCreatingAction_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
 
@@ -259,6 +543,37 @@ public class AlertNotificationConfigurationClientTest {
 
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, ACTION_CONFIGURATION_PATH_TEMPLATE, TEST_ACTION.getName())) //
+        );
+        assertEquals(TEST_ACTION, action);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenGetActionIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Action action = classUnderTest.getAction(TEST_ACTION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
                 (HttpGet) requestCaptor.getValue(), //
                 buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, ACTION_CONFIGURATION_PATH_TEMPLATE, TEST_ACTION.getName())) //
         );
@@ -289,6 +604,38 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenUpdatingAction_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPut.class);
+        doReturn(buildResponse(SC_OK, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Action action = classUnderTest.updateAction(TEST_ACTION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpPut) requestCaptor.getValue(), //
+                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, ACTION_CONFIGURATION_PATH_TEMPLATE, TEST_ACTION.getName()), TEST_ACTION)
+                //
+        );
+        assertEquals(TEST_ACTION, action);
+    }
+
+    @Test
     public void givenThatRequestFails_whenUpdatingAction_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
 
@@ -310,6 +657,36 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenDeletingAction_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpDelete.class);
+        doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.deleteAction(TEST_ACTION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpDelete) requestCaptor.getValue(), //
+                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, ACTION_CONFIGURATION_PATH_TEMPLATE, TEST_ACTION.getName())) //
+        );
+    }
+
+    @Test
     public void givenThatRequestFails_whenDeletingAction_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
@@ -325,6 +702,38 @@ public class AlertNotificationConfigurationClientTest {
 
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTIONS_CONFIGURATION_PATH, requestParameters)) //
+        );
+        assertEquals(SUBSCRIPTION_CONFIGURATION_RESPONSE, subscriptions);
+
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenGetSubscriptionsIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, SUBSCRIPTION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        ConfigurationResponse<Subscription> subscriptions = classUnderTest.getSubscriptions(requestParameters);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
                 (HttpGet) requestCaptor.getValue(), //
                 buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTIONS_CONFIGURATION_PATH, requestParameters)) //
         );
@@ -355,6 +764,37 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenCreatingSubscription_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPost.class);
+        doReturn(buildResponse(SC_CREATED, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Subscription subscription = classUnderTest.createSubscription(TEST_SUBSCRIPTION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpPost) requestCaptor.getValue(), //
+                buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTIONS_CONFIGURATION_PATH), TEST_SUBSCRIPTION) //
+        );
+        assertEquals(TEST_SUBSCRIPTION, subscription);
+    }
+
+    @Test
     public void givenThatRequestFails_whenCreatingSubscription_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPost.class));
 
@@ -370,6 +810,37 @@ public class AlertNotificationConfigurationClientTest {
 
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName())) //
+        );
+        assertEquals(TEST_SUBSCRIPTION, subscription);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenGetSubscriptionIsCalled_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Subscription subscription = classUnderTest.getSubscription(TEST_SUBSCRIPTION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
                 (HttpGet) requestCaptor.getValue(), //
                 buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName())) //
         );
@@ -399,6 +870,37 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenUpdatingSubscription_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPut.class);
+        doReturn(buildResponse(SC_OK, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpPut.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Subscription subscription = classUnderTest.updateSubscription(TEST_SUBSCRIPTION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpPut) requestCaptor.getValue(), //
+                buildExpectedPutRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName()), TEST_SUBSCRIPTION) //
+        );
+        assertEquals(TEST_SUBSCRIPTION, subscription);
+    }
+
+    @Test
     public void givenThatRequestFails_whenUpdatingSubscription_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpPut.class));
 
@@ -421,6 +923,37 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenDeletingSubscription_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpDelete.class);
+        doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        classUnderTest.deleteSubscription(TEST_SUBSCRIPTION.getName());
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpDelete) requestCaptor.getValue(), //
+                buildExpectedDeleteRequest(toRequestURI(TEST_SERVICE_URI, SUBSCRIPTION_CONFIGURATION_PATH_TEMPLATE, TEST_SUBSCRIPTION.getName()))
+                //
+        );
+    }
+
+    @Test
     public void givenThatRequestFails_whenDeletingSubscription_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpDelete.class));
 
@@ -436,6 +969,37 @@ public class AlertNotificationConfigurationClientTest {
 
         verify(mockedHttpClient).execute(requestCaptor.capture());
         assertCorrectRequest( //
+                (HttpPost) requestCaptor.getValue(), //
+                buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, CONFIGURATION_MANAGEMENT_BASE_PATH), TEST_CONFIGURATION) //
+        );
+        assertEquals(TEST_CONFIGURATION, result);
+    }
+
+    @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenImportingAll_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpPost.class);
+        doReturn(buildResponse(SC_CREATED, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpPost.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Configuration result = classUnderTest.importConfiguration(TEST_CONFIGURATION);
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
                 (HttpPost) requestCaptor.getValue(), //
                 buildExpectedPostRequest(toRequestURI(TEST_SERVICE_URI, CONFIGURATION_MANAGEMENT_BASE_PATH), TEST_CONFIGURATION) //
         );
@@ -465,6 +1029,37 @@ public class AlertNotificationConfigurationClientTest {
     }
 
     @Test
+    public void givenFromDestinationBinding_withCertificateAuthentication_whenExportingAll_thenCorrectRequestIsSent() throws Exception {
+        requestCaptor = forClass(HttpGet.class);
+        doReturn(buildResponse(SC_OK, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpGet.class));
+        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+
+        classUnderTest = new AlertNotificationConfigurationClient( //
+                mockedHttpClient, //
+                TEST_RETRY_POLICY, //
+                TEST_SERVICE_REGION, //
+                null, //
+                null,
+                TEST_KEYSTORE_DETAILS_P12,
+                mockedDestinationCredentialsProvider,
+                mockedHttpClientFactory,
+                true
+        );
+
+        classUnderTest.certificateExpirationTime = Long.MAX_VALUE;
+
+        Configuration result = classUnderTest.exportConfiguration();
+
+        verify(mockedHttpClient).execute(requestCaptor.capture());
+        assertCorrectSSLRequest( //
+                (HttpGet) requestCaptor.getValue(), //
+                buildExpectedGetRequest(toRequestURI(TEST_SERVICE_URI, CONFIGURATION_MANAGEMENT_BASE_PATH)) //
+        );
+        assertEquals(TEST_CONFIGURATION, result);
+    }
+
+    @Test
     public void givenThatRequestFails_whenExportingAll_thenExceptionIsThrown() throws Exception {
         doReturn(buildResponse(SC_INTERNAL_SERVER_ERROR, ERROR_HTTP_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
 
@@ -475,8 +1070,18 @@ public class AlertNotificationConfigurationClientTest {
         assertCommonHttpRequestProperties(found, expected);
     }
 
+    private static void assertCorrectSSLRequest(HttpGet found, HttpGet expected) {
+        assertCommonSSLHttpRequestProperties(found, expected);
+    }
+
     private static void assertCorrectRequest(HttpPost found, HttpPost expected) throws IOException {
         assertCommonHttpRequestProperties(found, expected);
+        assertEquals(APPLICATION_JSON, found.getFirstHeader(CONTENT_TYPE).getValue());
+        assertEquals(EntityUtils.toString(expected.getEntity(), UTF_8.name()), EntityUtils.toString(found.getEntity(), UTF_8.name()));
+    }
+
+    private static void assertCorrectSSLRequest(HttpPost found, HttpPost expected) throws IOException {
+        assertCommonSSLHttpRequestProperties(found, expected);
         assertEquals(APPLICATION_JSON, found.getFirstHeader(CONTENT_TYPE).getValue());
         assertEquals(EntityUtils.toString(expected.getEntity(), UTF_8.name()), EntityUtils.toString(found.getEntity(), UTF_8.name()));
     }
@@ -487,14 +1092,30 @@ public class AlertNotificationConfigurationClientTest {
         assertEquals(EntityUtils.toString(expected.getEntity(), UTF_8.name()), EntityUtils.toString(found.getEntity(), UTF_8.name()));
     }
 
+    private static void assertCorrectSSLRequest(HttpPut found, HttpPut expected) throws IOException {
+        assertCommonSSLHttpRequestProperties(found, expected);
+        assertEquals(APPLICATION_JSON, found.getFirstHeader(CONTENT_TYPE).getValue());
+        assertEquals(EntityUtils.toString(expected.getEntity(), UTF_8.name()), EntityUtils.toString(found.getEntity(), UTF_8.name()));
+    }
+
     private static void assertCorrectRequest(HttpDelete found, HttpDelete expected) {
         assertCommonHttpRequestProperties(found, expected);
+    }
+
+    private static void assertCorrectSSLRequest(HttpDelete found, HttpDelete expected) {
+        assertCommonSSLHttpRequestProperties(found, expected);
     }
 
     private static void assertCommonHttpRequestProperties(HttpUriRequest found, HttpUriRequest expected) {
         assertURI(expected.getURI(), found.getURI());
         assertEquals(expected.getMethod(), found.getMethod());
         assertEquals(TEST_AUTHORIZATION_HEADER, found.getFirstHeader(AUTHORIZATION).getValue());
+    }
+
+    private static void assertCommonSSLHttpRequestProperties(HttpUriRequest found, HttpUriRequest expected) {
+        assertURI(expected.getURI(), found.getURI());
+        assertEquals(expected.getMethod(), found.getMethod());
+        assertNull(found.getFirstHeader(AUTHORIZATION));
     }
 
     private static void assertURI(URI found, URI expected) {

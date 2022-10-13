@@ -63,7 +63,7 @@ public class AlertNotificationClientBuilder {
     }
 
     public AlertNotificationClientBuilder withAuthentication(String certificate, String privateKey, URI oAuthServiceURI, String clientId) {
-        this.username = clientId;
+        this.clientId = clientId;
         this.certificate = certificate;
         this.privateKey = privateKey;
         this.oAuthServiceUri = oAuthServiceURI;
@@ -138,7 +138,7 @@ public class AlertNotificationClientBuilder {
         }
 
         if (nonNull(certificate) && nonNull(privateKey) && nonNull(oAuthServiceUri)) {
-            return new OAuthAuthorizationHeader(certificate, privateKey, oAuthServiceUri, username, new HttpClientFactory());
+            return new OAuthAuthorizationHeader(certificate, privateKey, oAuthServiceUri, clientId, new HttpClientFactory());
         }
         
         if (isNull(clientId) && isNull(clientSecret)) {

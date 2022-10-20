@@ -148,9 +148,9 @@ class AlertNotificationClientUtils {
     }
 
     static URI buildCertOAuthServiceUri(URI serviceUri, String clientId) {
-        return buildURI( //
+        return buildURI(
                 serviceUri,
-                XSUAA_OAUTH_URI_PATH, //
+                XSUAA_OAUTH_URI_PATH,
                 Arrays.asList(XSUUA_OAUTH_QUERY_PARAMETERS, new BasicNameValuePair(CLIENT_ID, clientId))
         );
     }

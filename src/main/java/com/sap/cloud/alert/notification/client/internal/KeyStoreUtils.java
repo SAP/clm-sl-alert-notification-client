@@ -42,7 +42,7 @@ public class KeyStoreUtils {
         return Base64.getDecoder().decode(keyStoreContent);
     }
 
-    public static String decodeCertificateContent(String certificateContent) {
+    protected static String decodeCertificateContent(String certificateContent) {
         return new String(Base64.getDecoder().decode(certificateContent.getBytes(UTF_8)), UTF_8);
     }
 }

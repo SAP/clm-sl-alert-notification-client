@@ -13,6 +13,8 @@ import static com.sap.cloud.alert.notification.client.internal.KeyStoreUtils.bui
 
 public class HttpClientFactory {
 
+    private static final String EMPTY_STRING = "";
+
     public HttpClientFactory() {
     }
 
@@ -43,7 +45,7 @@ public class HttpClientFactory {
     private SSLContext buildSSLContext(KeyStore keyStore) {
         try {
             return SSLContexts.custom() //
-                    .loadKeyMaterial(keyStore, "".toCharArray()) //
+                    .loadKeyMaterial(keyStore, EMPTY_STRING.toCharArray()) //
                     .build();
         } catch (Exception e) {
             throw new ClientRequestException("Failed to create ssl context", e);

@@ -16,7 +16,7 @@ public class KeyStoreUtils {
 
         try {
             if (keyStoreType == KeyStoreType.PEM) {
-                return PemCertificateUtils.generateKeyStore(decodeCertificateContent(keyStoreDetails.getKeyStoreContent()), keyStoreDetails.getKeyStorePassword());
+                return PemCertificateUtils.generateKeyStore(keyStoreDetails);
             }
 
             KeyStore keyStore = KeyStore.getInstance(keyStoreDetails.getKeyStoreType().getTechnicalName());
@@ -30,11 +30,19 @@ public class KeyStoreUtils {
         }
     }
 
+    public static KeyStore buildKeyStore(String certificate, String privateKey) {
+        try {
+            return PemCertificateUtils.generateKeyStore(certificate, privateKey);
+        } catch (Exception e) {
+            throw new ClientRequestException("Failed to generate keystore", e);
+        }
+    }
+
     private static byte[] decodeKeyStoreContent(String keyStoreContent) {
         return Base64.getDecoder().decode(keyStoreContent);
     }
 
-    private static String decodeCertificateContent(String certificateContent) {
+    protected static String decodeCertificateContent(String certificateContent) {
         return new String(Base64.getDecoder().decode(certificateContent.getBytes(UTF_8)), UTF_8);
     }
 }

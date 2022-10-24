@@ -43,7 +43,7 @@ public class AbstractClient {
 
     private final HttpClientFactory httpClientFactory;
     private final boolean isCertificateAuthentication;
-    private final DestinationCredentialsProvider destinationCredentialsProvider;
+    private DestinationCredentialsProvider destinationCredentialsProvider;
 
     public AbstractClient(
            HttpClient httpClient,
@@ -65,6 +65,19 @@ public class AbstractClient {
         if (isCertificateAuthentication) {
             this.httpClient = this.httpClientFactory.createHttpClient(keyStoreDetails);
         }
+    }
+
+    public AbstractClient(
+            HttpClient httpClient,
+            String certificateChain,
+            String privateKey,
+            HttpClientFactory httpClientFactory,
+            boolean isCertificateAuthentication
+    ) {
+        this.httpClient = httpClient;
+        this.isCertificateAuthentication = isCertificateAuthentication;
+        this.httpClientFactory = httpClientFactory;
+        this.httpClient = this.httpClientFactory.createHttpClient(certificateChain, privateKey);
     }
 
     protected String executeHttpPost(URI serviceUri, String payload) {
@@ -141,7 +154,7 @@ public class AbstractClient {
             return;
         }
 
-        if( shouldRefreshCredentials()) {
+        if (shouldRefreshCredentials()) {
             authorizationHeader = destinationCredentialsProvider.getAuthorizationHeader();
             credentialsLoadTime = currentTimeMillis();
         }
@@ -165,7 +178,7 @@ public class AbstractClient {
     }
 
     private void adjustHttpClient() {
-        if (isCertificateAuthentication && isTimeToReloadCertificate()) {
+        if (isCertificateAuthentication && isTimeToReloadCertificate() && nonNull(destinationCredentialsProvider)) {
             setSSLContext();
         }
     }

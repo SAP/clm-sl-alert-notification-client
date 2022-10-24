@@ -70,12 +70,24 @@ public class AlertNotificationClientBuilder {
         return this;
     }
 
+    public AlertNotificationClientBuilder withCertificate(String certificate, String privateKey) {
+        this.certificate = certificate;
+        this.privateKey = privateKey;
+        this.isCertificateAuthentication = Boolean.TRUE;
+        return this;
+    }
+
     public AlertNotificationClient buildFromServiceBinding() {
         return buildFromServiceBinding(new AlertNotificationServiceBinding());
     }
 
     public AlertNotificationClient buildFromServiceBinding(AlertNotificationServiceBinding serviceBinding) {
         AlertNotificationClientBuilder alertNotificationClientBuilder = withServiceRegion(new ServiceRegion(CF, serviceBinding.getServiceUri().toString()));
+
+        if (isNull(serviceBinding.getOauthUri()) && nonNull(serviceBinding.getCertificate()) && nonNull(serviceBinding.getPrivateKey())) {
+            return withCertificate(serviceBinding.getCertificate(), serviceBinding.getPrivateKey()) //
+                    .build();
+        }
 
         return isNull(serviceBinding.getOauthUri()) //
                 ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //
@@ -119,6 +131,18 @@ public class AlertNotificationClientBuilder {
     }
 
     public AlertNotificationClient build() {
+        if (isNull(destinationCredentialsProvider) && isCertificateAuthentication) {
+            return new AlertNotificationClient(
+                    httpClient,
+                    requireNonNull(retryPolicy),
+                    requireNonNull(serviceRegion),
+                    requireNonNull(certificate),
+                    requireNonNull(privateKey),
+                    new HttpClientFactory(),
+                    isCertificateAuthentication
+            );
+        }
+
         return new AlertNotificationClient(
                 requireNonNull(httpClient),
                 requireNonNull(retryPolicy),

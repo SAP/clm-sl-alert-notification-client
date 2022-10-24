@@ -93,7 +93,7 @@ public class AlertNotificationClientBuilderTest {
 
     @Test
     public void givenThatOAuthAuthenticationWithCertificateIsUsed_whenBuildFromServiceBindingIsCalled_thenCorrectClientIsCreated() {
-        AlertNotificationClient createdClient = classUnderTest.withAuthentication(TEST_CERTIFICATE, TEST_PRIVATE_KEY, TEST_OAUTH_SERVICE_URI, TEST_CLIENT_ID).withRetryPolicy(testRetryPolicy).buildFromServiceBinding(alertNotificationServiceBinding);
+        AlertNotificationClient createdClient = classUnderTest.withAuthentication(TEST_CERTIFICATE, TEST_PRIVATE_KEY).withRetryPolicy(testRetryPolicy).buildFromServiceBinding(alertNotificationServiceBinding);
 
         assertEquals(testHttpClient, createdClient.getHttpClient());
         assertEquals(testServiceRegion, createdClient.getServiceRegion());
@@ -110,6 +110,25 @@ public class AlertNotificationClientBuilderTest {
         assertEquals(testServiceRegion, createdClient.getServiceRegion());
         assertEquals(((SimpleRetryPolicy) testRetryPolicy).getMaxRetries(), ((SimpleRetryPolicy) createdClient.getRetryPolicy()).getMaxRetries());
         assertEquals(OAuthAuthorizationHeader.class, createdClient.getAuthorizationHeader().getClass());
+    }
+
+    @Test
+    public void givenThatAuthenticationWithCertificateIsUsed_whenBuildFromServiceBindingIsCalled_thenCorrectClientIsCreated() {
+        AlertNotificationClient createdClient = classUnderTest.withCertificate(TEST_CERTIFICATE, TEST_PRIVATE_KEY).withRetryPolicy(testRetryPolicy).buildFromServiceBinding(alertNotificationServiceBinding);
+
+        assertEquals(testHttpClient, createdClient.getHttpClient());
+        assertEquals(testServiceRegion, createdClient.getServiceRegion());
+        assertEquals(((SimpleRetryPolicy) testRetryPolicy).getMaxRetries(), ((SimpleRetryPolicy) createdClient.getRetryPolicy()).getMaxRetries());
+    }
+
+    @Test
+    public void givenThatAuthenticationWithCertificateIsUsed_whenBuildIsCalled_thenCorrectClientIsCreated() {
+        AlertNotificationClient createdClient = classUnderTest.withRetryPolicy(testRetryPolicy).withServiceRegion(testServiceRegion)
+                .withCertificate(TEST_CERTIFICATE, TEST_PRIVATE_KEY).build();
+
+        assertEquals(testHttpClient, createdClient.getHttpClient());
+        assertEquals(testServiceRegion, createdClient.getServiceRegion());
+        assertEquals(((SimpleRetryPolicy) testRetryPolicy).getMaxRetries(), ((SimpleRetryPolicy) createdClient.getRetryPolicy()).getMaxRetries());
     }
 
     @Test

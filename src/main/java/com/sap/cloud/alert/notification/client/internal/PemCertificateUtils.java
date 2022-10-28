@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static com.sap.cloud.alert.notification.client.internal.KeyStoreUtils.decodeCertificateContent;
 
 class PemCertificateUtils {
+
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
@@ -122,7 +123,7 @@ class PemCertificateUtils {
             InputDecryptorProvider decryptionProvider = builder.build(password.toCharArray());
 
             return jcaPEMKeyConverter.getPrivateKey(privateKeyInfo.decryptPrivateKeyInfo(decryptionProvider));
-        }else {
+        } else {
             throw new IllegalArgumentException("Unsupported private key format '" + privateKeyObject.getClass().getSimpleName() + '"');
         }
     }

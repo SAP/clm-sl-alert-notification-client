@@ -18,7 +18,7 @@ public class AlertNotificationClient extends AbstractClient implements IAlertNot
     private final HttpClient httpClient;
     private final IRetryPolicy retryPolicy;
     private final ServiceRegion serviceRegion;
-    private final IAuthorizationHeader authorizationHeader;
+    private IAuthorizationHeader authorizationHeader;
 
     public AlertNotificationClient(
             HttpClient httpClient,
@@ -51,6 +51,22 @@ public class AlertNotificationClient extends AbstractClient implements IAlertNot
         this.retryPolicy = requireNonNull(retryPolicy);
         this.serviceRegion = requireNonNull(serviceRegion);
         this.authorizationHeader = authorizationHeader;
+    }
+
+    public AlertNotificationClient(
+            HttpClient httpClient,
+            IRetryPolicy retryPolicy,
+            ServiceRegion serviceRegion,
+            String certificateChain,
+            String privateKey,
+            HttpClientFactory httpClientFactory,
+            boolean isCertificateAuthentication
+    ) {
+        super(httpClient, certificateChain, privateKey, httpClientFactory, isCertificateAuthentication);
+
+        this.httpClient = requireNonNull(httpClient);
+        this.retryPolicy = requireNonNull(retryPolicy);
+        this.serviceRegion = requireNonNull(serviceRegion);
     }
 
     public HttpClient getHttpClient() {

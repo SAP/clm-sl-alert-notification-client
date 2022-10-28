@@ -17,7 +17,6 @@ import static java.util.Objects.*;
 public final class AlertNotificationConfigurationClientBuilder {
 
     public static final IRetryPolicy DEFAULT_RETRY_POLICY = new SimpleRetryPolicy();
-
     private String clientId;
     private String clientSecret;
     private String certificate;
@@ -68,12 +67,24 @@ public final class AlertNotificationConfigurationClientBuilder {
         return this;
     }
 
+    public AlertNotificationConfigurationClientBuilder withCertificate(String certificate, String privateKey) {
+        this.certificate = certificate;
+        this.privateKey = privateKey;
+        this.isCertificateAuthentication = Boolean.TRUE;
+        return this;
+    }
+
     public IAlertNotificationConfigurationClient buildFromServiceBinding() {
         return buildFromServiceBinding(new AlertNotificationServiceBinding());
     }
 
     public IAlertNotificationConfigurationClient buildFromServiceBinding(AlertNotificationServiceBinding serviceBinding) {
         AlertNotificationConfigurationClientBuilder alertNotificationClientBuilder = withServiceRegion(new ServiceRegion(CF, serviceBinding.getServiceUri().toString()));
+
+        if (isNull(serviceBinding.getOauthUri()) && nonNull(serviceBinding.getCertificate()) && nonNull(serviceBinding.getPrivateKey())) {
+            return withCertificate(serviceBinding.getCertificate(), serviceBinding.getPrivateKey()) //
+                    .build();
+        }
 
         return isNull(serviceBinding.getOauthUri()) //
                 ? alertNotificationClientBuilder.withAuthentication(serviceBinding.getClientId(), serviceBinding.getClientSecret()).build() //
@@ -118,6 +129,18 @@ public final class AlertNotificationConfigurationClientBuilder {
     }
 
     public IAlertNotificationConfigurationClient build() {
+        if (isNull(destinationCredentialsProvider) && isCertificateAuthentication) {
+            return new AlertNotificationConfigurationClient(
+                    httpClient,
+                    requireNonNull(retryPolicy),
+                    requireNonNull(serviceRegion),
+                    requireNonNull(certificate),
+                    requireNonNull(privateKey),
+                    new HttpClientFactory(),
+                    isCertificateAuthentication
+            );
+        }
+
         return new AlertNotificationConfigurationClient(
                 requireNonNull(httpClient),
                 requireNonNull(retryPolicy),

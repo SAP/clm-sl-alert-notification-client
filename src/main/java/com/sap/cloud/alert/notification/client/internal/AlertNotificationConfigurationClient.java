@@ -16,10 +16,10 @@ import static java.util.Objects.requireNonNull;
 
 public final class AlertNotificationConfigurationClient extends AbstractClient implements IAlertNotificationConfigurationClient {
 
-    private final HttpClient httpClient;
+    private HttpClient httpClient;
     private final IRetryPolicy retryPolicy;
     private final ServiceRegion serviceRegion;
-    private final IAuthorizationHeader authorizationHeader;
+    private IAuthorizationHeader authorizationHeader;
     private final URI actionBaseUri;
     private final URI conditionBaseUri;
     private final URI subscriptionBaseUri;
@@ -58,6 +58,25 @@ public final class AlertNotificationConfigurationClient extends AbstractClient i
         this.retryPolicy = requireNonNull(retryPolicy);
         this.serviceRegion = requireNonNull(serviceRegion);
         this.authorizationHeader = authorizationHeader;
+        this.actionBaseUri = buildActionsUri(serviceRegion, emptyMap());
+        this.conditionBaseUri = buildConditionsUri(serviceRegion, emptyMap());
+        this.subscriptionBaseUri = buildSubscriptionsUri(serviceRegion, emptyMap());
+    }
+
+    public AlertNotificationConfigurationClient(
+            HttpClient httpClient,
+            IRetryPolicy retryPolicy,
+            ServiceRegion serviceRegion,
+            String certificateChain,
+            String privateKey,
+            HttpClientFactory httpClientFactory,
+            boolean isCertificateAuthentication
+    ) {
+        super(httpClient, certificateChain, privateKey, httpClientFactory, isCertificateAuthentication);
+
+        this.httpClient = httpClient;
+        this.retryPolicy = requireNonNull(retryPolicy);
+        this.serviceRegion = requireNonNull(serviceRegion);
         this.actionBaseUri = buildActionsUri(serviceRegion, emptyMap());
         this.conditionBaseUri = buildConditionsUri(serviceRegion, emptyMap());
         this.subscriptionBaseUri = buildSubscriptionsUri(serviceRegion, emptyMap());

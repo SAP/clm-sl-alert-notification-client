@@ -200,6 +200,33 @@ public class AlertNotificationConfigurationClientBuilderTest {
     }
 
     @Test
+    public void givenWithCertificateIsUsedForAuthentication_whenBuildIsCalled_thenCorrectClientIsBuilt() {
+        AlertNotificationConfigurationClient alertNotificationConfigurationClient = (AlertNotificationConfigurationClient) classUnderTest //
+                .withHttpClient(TEST_HTTP_CLIENT) //
+                .withRetryPolicy(TEST_RETRY_POLICY) //
+                .withServiceRegion(TEST_SERVICE_REGION)
+                .withCertificate(TEST_CERTIFICATE, TEST_PRIVATE_KEY) //
+                .build();
+
+        assertEquals(TEST_HTTP_CLIENT, alertNotificationConfigurationClient.getHttpClient());
+        assertEquals(TEST_SERVICE_REGION, alertNotificationConfigurationClient.getServiceRegion());
+        assertEquals(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries(),  ((SimpleRetryPolicy) alertNotificationConfigurationClient.getRetryPolicy()).getMaxRetries());
+    }
+
+    @Test
+    public void givenWithCertificateIsUsedForAuthentication_whenBuildFromServiceBindingIsCalled_thenCorrectClientIsBuilt() {
+        AlertNotificationConfigurationClient alertNotificationConfigurationClient = (AlertNotificationConfigurationClient) classUnderTest //
+                .withHttpClient(TEST_HTTP_CLIENT) //
+                .withRetryPolicy(TEST_RETRY_POLICY) //
+                .withAuthentication(TEST_CERTIFICATE, TEST_PRIVATE_KEY)
+                .buildFromServiceBinding(alertNotificationServiceBinding);
+
+        assertEquals(TEST_HTTP_CLIENT, alertNotificationConfigurationClient.getHttpClient());
+        assertEquals(TEST_SERVICE_REGION, alertNotificationConfigurationClient.getServiceRegion());
+        assertEquals(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries(),  ((SimpleRetryPolicy) alertNotificationConfigurationClient.getRetryPolicy()).getMaxRetries());
+    }
+
+    @Test
     public void givenThatNoCredentialsAreGiven_whenBuildIsCalled_thenCorrectClientIsBuilt() {
         AlertNotificationConfigurationClient alertNotificationConfigurationClient = (AlertNotificationConfigurationClient) classUnderTest //
                 .withHttpClient(TEST_HTTP_CLIENT) //

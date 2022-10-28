@@ -79,6 +79,39 @@ Now, we are ready to construct the AlertNotificationClient:
 IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
 ```
 
+### 3.1 Setting Up the Alert Notification service Client with OAuth authentication with generated certificate and private key
+
+```java
+  IAlertNotificationClient client = new AlertNotificationClientBuilder() //
+            .withServiceRegion(<< SAP_SERVICE_REGION >>) //
+            .withRetryPolicy(<< RETRY_POLICY >>) // 
+            .withAuthentication("<< CERTIFICATE >>", "<< PRIVATE_KEY >>", "<< CLIENT_ID >>", "<< OAUTH_SERVICE_URI >>") //
+            .build();
+```
+
+### 3.2 Setting Up the Alert Notification service Client with X509 authentication through Destination Service
+
+```java
+  IAlertNotificationClient alertNotificationClient = new AlertNotificationClientBuilder(<<HTTP_CLIENT>>)
+        .withRetryPolicy(<<RETRY_POLICY>>)
+        .buildFromDestinationBinding(new DestinationServiceBinding(
+        <<DESTINATION_SERVICE_SERVICE_URI>>,
+        <<OAUTH_URI>>,
+        <<CLIENT_ID>>,
+        <<CLIENT_SECRET>>
+        ), <<TEST_DESTINATION_NAME>>);
+```
+
+
+### 3.3 Setting Up the Alert Notification service Client with SAP Alert Notification service for SAP BTP generated certificate authentication
+```java
+  IAlertNotificationClient client = new AlertNotificationClientBuilder() //
+            .withServiceRegion(<< SAP_SERVICE_REGION >>) //
+            .withRetryPolicy(<< RETRY_POLICY >>) // 
+            .withCertificate("<< CERTIFICATE >>", "<< PRIVATE_KEY >>") //
+            .build();
+```
+
 ### 4. (Optional) Setting Up the Asynchronous Client
 The library provides means for async calls to Alert Notification service - AlertNotificationAsyncClient. A couple of additional parameters must be
 built before constructing it:

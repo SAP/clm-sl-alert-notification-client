@@ -241,6 +241,16 @@ public class AlertNotificationConfigurationClientBuilderTest {
     }
 
     @Test
+    public void givenThatHttpClientIsGiven_whenBuildIsCalled_thenUseProvidedHttpClient() {
+        assertEquals(new AlertNotificationClientBuilder(TEST_HTTP_CLIENT).withServiceRegion(TEST_SERVICE_REGION).build().getHttpClient(), TEST_HTTP_CLIENT);
+    }
+
+    @Test
+    public void givenNoHttpClientIsGiven_whenBuildIsCalled_thenUseProvidedHttpClient() {
+        assertNotNull(new AlertNotificationClientBuilder().withServiceRegion(TEST_SERVICE_REGION).build().getHttpClient());
+    }
+
+    @Test
     public void givenThatNoHttpClientIsGiven_whenBuildIsCalled_thenExceptionIsThrown() {
         assertThrows(NullPointerException.class, () -> classUnderTest //
                 .withRetryPolicy(TEST_RETRY_POLICY) //

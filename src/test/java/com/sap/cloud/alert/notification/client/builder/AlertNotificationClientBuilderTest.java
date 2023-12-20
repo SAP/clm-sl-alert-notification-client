@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 
 import static com.sap.cloud.alert.notification.client.TestUtils.*;
+import static org.apache.http.impl.client.HttpClients.createDefault;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -197,10 +198,20 @@ public class AlertNotificationClientBuilderTest {
     }
 
     @Test
-    public void givenThatNoHttpClientIsGiven_whenBuilderIsCreated_thenExceptionIsThrown() {
+    public void givenThatInvalidHttpClientIsGiven_whenBuilderIsCreated_thenExceptionIsThrown() {
         assertThrows(NullPointerException.class, () -> {
             new AlertNotificationClientBuilder(null);
         });
+    }
+
+    @Test
+    public void givenThatWithHttpClientIsUsed_whenBuilderIsCreated_thenCreateClientUsingProvidedHttpClient() {
+        assertEquals(new AlertNotificationClientBuilder().withServiceRegion(testServiceRegion).withHttpClient(testHttpClient).build().getHttpClient(), testHttpClient);
+    }
+
+    @Test
+    public void givenNoHttpClientIsGiven_whenBuilderIsCreated_thenCreateUsingDefaultHttpClient() {
+        assertNotNull(new AlertNotificationClientBuilder().withServiceRegion(testServiceRegion).build().getHttpClient());
     }
 
     @Test

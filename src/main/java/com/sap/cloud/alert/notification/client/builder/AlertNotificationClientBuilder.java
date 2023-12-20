@@ -13,6 +13,7 @@ import java.net.URI;
 
 import static com.sap.cloud.alert.notification.client.Platform.CF;
 import static java.util.Objects.*;
+import static org.apache.http.impl.client.HttpClients.createDefault;
 
 public class AlertNotificationClientBuilder {
 
@@ -30,11 +31,23 @@ public class AlertNotificationClientBuilder {
     private KeyStoreDetails keyStoreDetails;
     private Long invalidationTime;
 
+    public AlertNotificationClientBuilder() {
+        this.serviceRegion = null;
+        this.authorizationHeader = null;
+        this.httpClient = createDefault();
+        this.retryPolicy = new SimpleRetryPolicy();
+    }
+
     public AlertNotificationClientBuilder(HttpClient httpClient) {
         this.serviceRegion = null;
         this.authorizationHeader = null;
         this.httpClient = requireNonNull(httpClient);
         this.retryPolicy = new SimpleRetryPolicy();
+    }
+
+    public AlertNotificationClientBuilder withHttpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
     }
 
     public AlertNotificationClientBuilder withRetryPolicy(IRetryPolicy retryPolicy) {

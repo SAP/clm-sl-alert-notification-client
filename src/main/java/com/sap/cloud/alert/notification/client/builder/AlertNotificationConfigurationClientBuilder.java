@@ -32,7 +32,7 @@ public final class AlertNotificationConfigurationClientBuilder {
     private Long invalidationTime;
 
     public AlertNotificationConfigurationClientBuilder() {
-        this.httpClient = createDefault();
+        this(createDefault());
     }
 
     public AlertNotificationConfigurationClientBuilder(HttpClient httpClient) {

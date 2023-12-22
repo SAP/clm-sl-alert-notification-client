@@ -32,10 +32,7 @@ public class AlertNotificationClientBuilder {
     private Long invalidationTime;
 
     public AlertNotificationClientBuilder() {
-        this.serviceRegion = null;
-        this.authorizationHeader = null;
-        this.httpClient = createDefault();
-        this.retryPolicy = new SimpleRetryPolicy();
+        this(createDefault());
     }
 
     public AlertNotificationClientBuilder(HttpClient httpClient) {

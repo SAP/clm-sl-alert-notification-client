@@ -10,7 +10,7 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/clm-sl-alert-notification-client)](https://api.reuse.software/info/github.com/SAP/clm-sl-alert-notification-client)
 
 ### 1. Introduction
-Alert Notification service is part of the DevOps portfolio of the SAP Business Technology Platform The service is specialized in instant delivery of events coming straight from the core platform services, e.g.
+Alert Notification service is part of the DevOps portfolio of the SAP Business Technology Platform. The service is specialized in instant delivery of events coming straight from the core platform services, e.g.
 database or application monitoring tools. This way you're always the first one notified whenever an issue with your dependency occurs. Additionally, Alert Notification service provides means for posting real-time
 crucial events directly from your application. All those events altogether - either your custom events, or the platform ones, could be received on whatever channel is preferred - e-mail, Slack, custom webhook.
 Furthermore, events can be even stored in Alert Notification service storage and pulled from it later.
@@ -85,7 +85,7 @@ IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryP
   IAlertNotificationClient client = new AlertNotificationClientBuilder() //
             .withServiceRegion(<< SAP_SERVICE_REGION >>) //
             .withRetryPolicy(<< RETRY_POLICY >>) // 
-            .withAuthentication("<< CERTIFICATE >>", "<< PRIVATE_KEY >>", "<< CLIENT_ID >>", "<< OAUTH_SERVICE_URI >>") //
+            .withAuthentication("<< CERTIFICATE >>", "<< PRIVATE_KEY >>", "<< OAUTH_SERVICE_URI >>", "<< CLIENT_ID >>") //
             .build();
 ```
 
@@ -304,7 +304,7 @@ The required parameters to construct the configuration client are the same as th
 IAlertNotificationConfigurationClient configurationClient = new AlertNotificationConfigurationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
 ```
 Using the configuration client we can create the configuration programmatically:
-```json
+```java
 configurationClient.createCondition(
     new ConditionBuilder()
         .withName("type-TestEvent")

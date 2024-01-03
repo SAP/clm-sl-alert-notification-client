@@ -13,6 +13,7 @@ import java.net.URI;
 
 import static com.sap.cloud.alert.notification.client.Platform.CF;
 import static java.util.Objects.*;
+import static org.apache.http.impl.client.HttpClients.createDefault;
 
 public final class AlertNotificationConfigurationClientBuilder {
 
@@ -29,6 +30,14 @@ public final class AlertNotificationConfigurationClientBuilder {
     private boolean isCertificateAuthentication = false;
     private KeyStoreDetails keyStoreDetails;
     private Long invalidationTime;
+
+    public AlertNotificationConfigurationClientBuilder() {
+        this(createDefault());
+    }
+
+    public AlertNotificationConfigurationClientBuilder(HttpClient httpClient) {
+        this.httpClient = requireNonNull(httpClient);
+    }
 
     public AlertNotificationConfigurationClientBuilder withHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -101,7 +110,7 @@ public final class AlertNotificationConfigurationClientBuilder {
         this.serviceRegion = new ServiceRegion(CF, destinationContext.getServiceUri());
         this.isCertificateAuthentication = destinationContext.isCertificateAuthentication();
 
-        if(isCertificateAuthentication){
+        if (isCertificateAuthentication) {
             this.keyStoreDetails = destinationCredentialsProvider.getKeyStoreDetails();
         }
 
@@ -150,7 +159,7 @@ public final class AlertNotificationConfigurationClientBuilder {
                 keyStoreDetails,
                 destinationCredentialsProvider,
                 new HttpClientFactory(),
-                false
+                isCertificateAuthentication
         );
     }
 

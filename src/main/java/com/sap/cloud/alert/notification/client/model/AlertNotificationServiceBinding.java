@@ -15,7 +15,7 @@ public class AlertNotificationServiceBinding {
     private static final String CLIENT_ID = "client_id";
     private static final String CLIENT_SECRET = "client_secret";
     private static final String CERTIFICATE = "certificate";
-    private static final String PRIVATE_KEY = "privateKey";
+    private static final String PRIVATE_KEY = "key";
     private static final String ALERT_NOTIFICATION_SERVICE_LABEL = "alert-notification";
 
     private final URI serviceUri;

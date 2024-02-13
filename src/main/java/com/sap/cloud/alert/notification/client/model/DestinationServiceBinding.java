@@ -14,6 +14,7 @@ public class DestinationServiceBinding {
     private static final String CLIENT_ID = "clientid";
     private static final String CLIENT_SECRET = "clientsecret";
     private static final String DESTINATION_SERVICE_LABEL = "destination";
+    private static final String OAUTH_TOKEN_URL_SUFFIX = "/oauth/token?grant_type=client_credentials";
 
     private final URI serviceUri;
     private final URI oauthUri;
@@ -26,7 +27,7 @@ public class DestinationServiceBinding {
 
     protected DestinationServiceBinding(CfCredentials credentials) {
         this(create(credentials.getString(URL)), //
-                create(credentials.getString(OAUTH_URL)), //
+                create(credentials.getString(OAUTH_URL).endsWith(OAUTH_TOKEN_URL_SUFFIX) ? credentials.getString(OAUTH_URL) : credentials.getString(OAUTH_URL).concat(OAUTH_TOKEN_URL_SUFFIX)), //
                 credentials.getString(CLIENT_ID), //
                 credentials.getString(CLIENT_SECRET) //
         );

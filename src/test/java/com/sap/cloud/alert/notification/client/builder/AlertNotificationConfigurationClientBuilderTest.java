@@ -251,12 +251,11 @@ public class AlertNotificationConfigurationClientBuilderTest {
     }
 
     @Test
-    public void givenThatNoHttpClientIsGiven_whenBuildIsCalled_thenExceptionIsThrown() {
-        assertThrows(NullPointerException.class, () -> classUnderTest //
+    public void givenThatNoHttpClientIsGiven_whenBuildIsCalled_thenExceptionIsNotThrown() {
+        assertDoesNotThrow(() -> classUnderTest //
                 .withRetryPolicy(TEST_RETRY_POLICY) //
                 .withServiceRegion(TEST_SERVICE_REGION)
-                .build()
-        );
+                .build());
     }
 
     @Test

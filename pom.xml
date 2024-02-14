@@ -8,7 +8,7 @@
     <url>https://github.com/SAP/clm-sl-alert-notification-client</url>
     <groupId>com.sap.cloud.ans</groupId>
     <artifactId>clm-sl-alert-notification-client</artifactId>
-    <version>1.10.0</version>
+    <version>1.10.1</version>
     <packaging>jar</packaging>
 
     <properties>

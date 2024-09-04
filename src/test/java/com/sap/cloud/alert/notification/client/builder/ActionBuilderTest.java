@@ -29,6 +29,7 @@ public class ActionBuilderTest {
                 .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
+                .withEnableDeliveryStatus(TEST_ENABLE_DELIVERY_STATUS) //
                 .withProperties(TEST_PROPERTIES) //
                 .build();
 
@@ -41,6 +42,7 @@ public class ActionBuilderTest {
                 TEST_DISCARD_AFTER, //
                 TEST_FALLBACK_TIME, //
                 TEST_FALLBACK_ACTION, //
+                TEST_ENABLE_DELIVERY_STATUS, //
                 TEST_PROPERTIES //
         );
 
@@ -57,6 +59,7 @@ public class ActionBuilderTest {
                 .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
+                .withEnableDeliveryStatus(TEST_ENABLE_DELIVERY_STATUS) //
                 .withProperties(TEST_PROPERTIES) //
                 .build();
 
@@ -69,6 +72,7 @@ public class ActionBuilderTest {
                 TEST_DISCARD_AFTER, //
                 TEST_FALLBACK_TIME, //
                 TEST_FALLBACK_ACTION, //
+                TEST_ENABLE_DELIVERY_STATUS, //
                 TEST_PROPERTIES //
         );
 
@@ -86,6 +90,7 @@ public class ActionBuilderTest {
                 .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
+                .withEnableDeliveryStatus(TEST_ENABLE_DELIVERY_STATUS) //
                 .withProperties(TEST_PROPERTIES) //
                 .build()
         );
@@ -102,6 +107,7 @@ public class ActionBuilderTest {
                 .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
+                .withEnableDeliveryStatus(TEST_ENABLE_DELIVERY_STATUS) //
                 .withProperties(TEST_PROPERTIES) //
                 .build()
         );
@@ -118,6 +124,7 @@ public class ActionBuilderTest {
                 .withDiscardAfter(TEST_DISCARD_AFTER) //
                 .withFallbackTime(TEST_FALLBACK_TIME) //
                 .withFallbackAction(TEST_FALLBACK_ACTION) //
+                .withEnableDeliveryStatus(TEST_ENABLE_DELIVERY_STATUS) //
                 .withProperties(TEST_PROPERTIES) //
                 .build()
         );

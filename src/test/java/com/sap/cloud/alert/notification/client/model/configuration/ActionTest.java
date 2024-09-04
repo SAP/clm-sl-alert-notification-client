@@ -21,6 +21,7 @@ public class ActionTest {
             + format("\"discardAfter\":%d,", TEST_DISCARD_AFTER)
             + format("\"fallbackTime\":%d,", TEST_FALLBACK_TIME)
             + format("\"fallbackAction\":\"%s\",", TEST_FALLBACK_ACTION)
+            + format("\"enableDeliveryStatus\":%s,", TEST_ENABLE_DELIVERY_STATUS)
             + format("\"properties\":%s,", toJsonString(TEST_PROPERTIES)) 
             + format("\"timeCreated\":%d,", TEST_TIME_CREATED) 
             + format("\"lastModified\":%d", TEST_LAST_MODIFIED) 
@@ -39,7 +40,8 @@ public class ActionTest {
                 TEST_LABELS,
                 TEST_DISCARD_AFTER,
                 TEST_FALLBACK_TIME, 
-                TEST_FALLBACK_ACTION, 
+                TEST_FALLBACK_ACTION,
+                TEST_ENABLE_DELIVERY_STATUS,
                 TEST_PROPERTIES, 
                 TEST_TIME_CREATED, 
                 TEST_LAST_MODIFIED 
@@ -102,6 +104,11 @@ public class ActionTest {
     }
 
     @Test
+    public void whenGetEnableDeliveryStatusIsCalled_thenCorrectValueIsReturned() {
+        assertEquals(TEST_ENABLE_DELIVERY_STATUS, classUnderTest.getEnableDeliveryStatus());
+    }
+
+    @Test
     public void whenGetPropertiesIsCalled_thenCorrectValueIsReturned() {
         assertEquals(TEST_PROPERTIES, classUnderTest.getProperties());
     }
@@ -127,7 +134,8 @@ public class ActionTest {
                 null,
                 TEST_DISCARD_AFTER,
                 TEST_FALLBACK_TIME, 
-                TEST_FALLBACK_ACTION, 
+                TEST_FALLBACK_ACTION,
+                TEST_ENABLE_DELIVERY_STATUS,
                 TEST_PROPERTIES, 
                 TEST_TIME_CREATED, 
                 TEST_LAST_MODIFIED 
@@ -147,7 +155,8 @@ public class ActionTest {
                 TEST_LABELS,
                 TEST_DISCARD_AFTER,
                 TEST_FALLBACK_TIME,
-                TEST_FALLBACK_ACTION, 
+                TEST_FALLBACK_ACTION,
+                TEST_ENABLE_DELIVERY_STATUS,
                 null, 
                 TEST_TIME_CREATED, 
                 TEST_LAST_MODIFIED 

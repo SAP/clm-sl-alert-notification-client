@@ -26,6 +26,7 @@ public final class ActionBuilder {
     private Integer discardAfter;
     private Integer fallbackTime;
     private String fallbackAction;
+    private Boolean enableDeliveryStatus;
     private Map<String, String> properties = new HashMap<>();
 
     public ActionBuilder withType(String type) {
@@ -77,6 +78,11 @@ public final class ActionBuilder {
         return this;
     }
 
+    public ActionBuilder withEnableDeliveryStatus(Boolean enableDeliveryStatus) {
+        this.enableDeliveryStatus = enableDeliveryStatus;
+        return this;
+    }
+
     public ActionBuilder withProperty(String key, String value) {
         if (!isBlank(value)) {
             this.properties.put(key, value);
@@ -101,6 +107,7 @@ public final class ActionBuilder {
                 discardAfter,
                 fallbackTime,
                 fallbackAction,
+                enableDeliveryStatus,
                 properties
         );
     }

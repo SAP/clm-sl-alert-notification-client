@@ -238,9 +238,9 @@ We can also check the failure deliveries and their reasons for one particular ev
 client.getUndeliveredEvent("<<EVENT_ID>>", Collections.singletonMap(QueryParameter.INCLUDE, "FAILURE_REASON"));
 ```
 ### 8. Enable Delivery Status
-For every action you can opt to receive [delivery status event](https://help_portal). This event is triggered whenever an action has the "enableDeliveryStatus" property set to true during creation/update.
+For every action you can opt to receive [delivery status event](https://help.sap.com/docs/alert-notification/sap-alert-notification-for-sap-btp/delivery-status).
 
-⚠️ **NOTE: In order to receive this event you need to activate the feature as well as to have a matching subscription**
+⚠️ **NOTE: In order to receive this event you need to have a matching subscription**
 
 After you have set the Alert Notification service Client (as described in step 3), you can create the action configuration as usual setting the enableDeliveryStatus property to true:
 ```java
@@ -249,7 +249,7 @@ After you have set the Alert Notification service Client (as described in step 3
         .withEnableDeliveryStatus(true)
         .build();
 ```
-Once the processing of the event, matched for delivery through this action, completes, delivery status update will be generated with the corresponding results.
+Once the processing of the event, matched for delivery through the action, completes, the delivery status event will be triggered, containing the corresponding delivery results.
 
 ### 9. Setting Up a Test Environment
 Do you want to test yourself all of those examples? Get started by [importing](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/771da5b383ee4722afc4eb1f58aa4648.html)

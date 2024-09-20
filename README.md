@@ -237,21 +237,8 @@ We can also check the failure deliveries and their reasons for one particular ev
 ```java
 client.getUndeliveredEvent("<<EVENT_ID>>", Collections.singletonMap(QueryParameter.INCLUDE, "FAILURE_REASON"));
 ```
-### 8. Enable Delivery Status
-For every action you can opt to receive [delivery status event](https://help.sap.com/docs/alert-notification/sap-alert-notification-for-sap-btp/delivery-status).
 
-⚠️ **NOTE: In order to receive this event you need to have a matching subscription**
-
-After you have set the Alert Notification service Client (as described in step 3), you can create the action configuration as usual setting the enableDeliveryStatus property to true:
-```java
-  configurationClient.createAction(
-    new ActionBuilder()
-        .withEnableDeliveryStatus(true)
-        .build();
-```
-Once the processing of the event, matched for delivery through the action, completes, the delivery status event will be triggered, containing the corresponding delivery results.
-
-### 9. Setting Up a Test Environment
+### 8. Setting Up a Test Environment
 Do you want to test yourself all of those examples? Get started by [importing](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/771da5b383ee4722afc4eb1f58aa4648.html)
 the following configuration:
 
@@ -310,9 +297,9 @@ Once the event from step 5) is posted, there will be one stored event immediatel
 event will be stored as an undelivered event after the webhook [retry policy](https://help.sap.com/viewer/5967a369d4b74f7a9c2b91f5df8e6ab6/Cloud/en-US/086361cb02fb467993acd6f9515607d4.html)
 expires. Then it will be available on the Undelivered Events endpoint.
 
-### 10. Setting Up a Test Environment using the Alert Notification service Configuration Client
+### 9. Setting Up a Test Environment using the Alert Notification service Configuration Client
 The configuration can also be managed through the Alert Notification service Configuration client. It can be used to create, read, update and delete actions, conditions and subscriptions.
-The required parameters to construct the configuration client are the same as those described in step 3) for the Alert Notification service Client.
+The required parameters to construct the configuration client are the same as those described in step 3) for the Alert Notification service Client. Further details can be found in the [Configuration Management](https://help.sap.com/docs/alert-notification/sap-alert-notification-for-sap-btp/configuration-management) guide.
 ```java
 IAlertNotificationConfigurationClient configurationClient = new AlertNotificationConfigurationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
 ```
@@ -361,11 +348,11 @@ configurationClient.createSubscription(
 );
 ```
 
-### 11. Have an issue?
+### 10. Have an issue?
 Please, let us know by filing a [new issue](https://github.com/sap/clm-sl-alert-notification-client/issues/new).
 
-### 12. Contributing
+### 11. Contributing
 We're always open for improvements! If you think the library could be better, please, open an issue and propose your solution as a pull request. We will contact you for discussion as soon as possible.
 
-### 13. License
+### 12. License
 This project is run under the licensing terms of Apache License 2.0. The paper could be found in the [LICENSE](https://github.com/sap/clm-sl-alert-notification-client/blob/master/LICENSE) file in the top-level directory. Detailed information including third-party components and their licensing/copyright information is available via [the REUSE tool](https://api.reuse.software/info/github.com/SAP/clm-sl-alert-notification-client).

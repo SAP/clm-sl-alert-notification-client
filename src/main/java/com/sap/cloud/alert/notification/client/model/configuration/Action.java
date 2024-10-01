@@ -12,6 +12,7 @@ import java.util.*;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -30,6 +31,7 @@ public class Action implements Serializable {
     private final Integer discardAfter;
     private final Integer fallbackTime;
     private final String fallbackAction;
+    private final Boolean enableDeliveryStatus;
     private final Map<String, String> properties;
 
     private final Long timeCreated;
@@ -45,7 +47,8 @@ public class Action implements Serializable {
             @JsonProperty("labels") Collection<String> labels,
             @JsonProperty("discardAfter") Integer discardAfter,
             @JsonProperty("fallbackTime") Integer fallbackTime, 
-            @JsonProperty("fallbackAction") String fallbackAction, 
+            @JsonProperty("fallbackAction") String fallbackAction,
+            @JsonProperty("enableDeliveryStatus") Boolean enableDeliveryStatus,
             @JsonProperty("properties") Map<String, String> properties, 
             @JsonProperty("timeCreated") Long timeCreated, 
             @JsonProperty("lastModified") Long lastModified 
@@ -59,23 +62,10 @@ public class Action implements Serializable {
         this.discardAfter = discardAfter;
         this.fallbackTime = fallbackTime;
         this.fallbackAction = fallbackAction;
+        this.enableDeliveryStatus = nonNull(enableDeliveryStatus) && enableDeliveryStatus;
         this.properties = unmodifiableMap(new HashMap<>(emptyIfNull(properties)));
         this.timeCreated = timeCreated;
         this.lastModified = lastModified;
-    }
-
-    public Action( 
-            String type, 
-            String name, 
-            State state, 
-            String description, 
-            Collection<String> labels,
-            Integer discardAfter,
-            Integer fallbackTime, 
-            String fallbackAction, 
-            Map<String, String> properties 
-    ) {
-        this(null, type, name, state, description, labels, discardAfter, fallbackTime, fallbackAction, properties, null, null);
     }
 
     @JsonProperty("id")
@@ -126,6 +116,11 @@ public class Action implements Serializable {
     @JsonProperty("fallbackTime")
     public Integer getFallbackTime() {
         return fallbackTime;
+    }
+
+    @JsonProperty("enableDeliveryStatus")
+    public Boolean getEnableDeliveryStatus() {
+        return enableDeliveryStatus;
     }
 
     @JsonProperty("timeCreated")

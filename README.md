@@ -299,7 +299,7 @@ expires. Then it will be available on the Undelivered Events endpoint.
 
 ### 9. Setting Up a Test Environment using the Alert Notification service Configuration Client
 The configuration can also be managed through the Alert Notification service Configuration client. It can be used to create, read, update and delete actions, conditions and subscriptions.
-The required parameters to construct the configuration client are the same as those described in step 3) for the Alert Notification service Client.
+The required parameters to construct the configuration client are the same as those described in step 3) for the Alert Notification service Client. Further details can be found in the [Configuration Management](https://help.sap.com/docs/alert-notification/sap-alert-notification-for-sap-btp/configuration-management) guide.
 ```java
 IAlertNotificationConfigurationClient configurationClient = new AlertNotificationConfigurationClient(httpClient, retryPolicy, serviceRegion, authorizationHeader);
 ```

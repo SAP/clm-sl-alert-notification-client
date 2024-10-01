@@ -39,6 +39,7 @@ public class TestUtils {
     public static final Integer TEST_PAGE_SIZE = 131;
     public static final Integer TEST_DISCARD_AFTER = 4;
     public static final Integer TEST_FALLBACK_TIME = 2;
+    public static final Boolean TEST_ENABLE_DELIVERY_STATUS = FALSE;
     public static final String TEST_NAME = "TEST_NAME";
     public static final String TEST_ACTION_NAME = "TEST_ACTION_NAME";
     public static final String TEST_CONDITION_NAME = "TEST_CONDITION_NAME";

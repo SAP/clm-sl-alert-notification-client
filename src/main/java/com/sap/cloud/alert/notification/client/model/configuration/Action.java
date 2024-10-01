@@ -68,21 +68,6 @@ public class Action implements Serializable {
         this.lastModified = lastModified;
     }
 
-    public Action( 
-            String type, 
-            String name, 
-            State state, 
-            String description, 
-            Collection<String> labels,
-            Integer discardAfter,
-            Integer fallbackTime, 
-            String fallbackAction,
-            Boolean enableDeliveryStatus,
-            Map<String, String> properties 
-    ) {
-        this(null, type, name, state, description, labels, discardAfter, fallbackTime, fallbackAction, enableDeliveryStatus, properties, null, null);
-    }
-
     @JsonProperty("id")
     public String getId() {
         return id;

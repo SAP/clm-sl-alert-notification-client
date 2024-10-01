@@ -34,6 +34,7 @@ public class ActionBuilderTest {
                 .build();
 
         Action expectedAction = new Action( //
+                null, //
                 TEST_TYPE, //
                 TEST_NAME, //
                 TEST_STATE, //
@@ -43,7 +44,9 @@ public class ActionBuilderTest {
                 TEST_FALLBACK_TIME, //
                 TEST_FALLBACK_ACTION, //
                 TEST_ENABLE_DELIVERY_STATUS, //
-                TEST_PROPERTIES //
+                TEST_PROPERTIES, //
+                null, //
+                null //
         );
 
         assertEquals(expectedAction, testAction);
@@ -64,6 +67,7 @@ public class ActionBuilderTest {
                 .build();
 
         Action expectedAction = new Action( //
+                null, //
                 TEST_TYPE, //
                 TEST_NAME, //
                 ENABLED, //
@@ -73,7 +77,9 @@ public class ActionBuilderTest {
                 TEST_FALLBACK_TIME, //
                 TEST_FALLBACK_ACTION, //
                 TEST_ENABLE_DELIVERY_STATUS, //
-                TEST_PROPERTIES //
+                TEST_PROPERTIES, //
+                null, //
+                null //
         );
 
         assertEquals(expectedAction, testAction);

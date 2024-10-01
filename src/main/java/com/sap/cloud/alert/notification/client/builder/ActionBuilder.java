@@ -98,17 +98,20 @@ public final class ActionBuilder {
     }
 
     public Action build() {
-        return new Action(
-                requireNonNull(type),
-                requireNonNull(name),
-                requireNonNull(state),
-                description,
-                labels,
-                discardAfter,
-                fallbackTime,
-                fallbackAction,
-                enableDeliveryStatus,
-                properties
+        return new Action( //
+                null, //
+                requireNonNull(type), //
+                requireNonNull(name), //
+                requireNonNull(state), //
+                description, //
+                labels, //
+                discardAfter, //
+                fallbackTime, //
+                fallbackAction, //
+                enableDeliveryStatus, //
+                properties, //
+                null, //
+                null //
         );
     }
 }

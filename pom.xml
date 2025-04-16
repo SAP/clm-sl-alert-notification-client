@@ -138,8 +138,8 @@
                                     <gpgArguments>
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
-                                        <arg>--no-tty</arg>
                                     </gpgArguments>
+                                    <useAgent>true</useAgent>
                                 </configuration>
                             </execution>
                         </executions>

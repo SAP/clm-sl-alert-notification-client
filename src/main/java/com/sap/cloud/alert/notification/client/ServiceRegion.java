@@ -71,7 +71,7 @@ public class ServiceRegion {
     public static final ServiceRegion JP20_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.jp20.hana.ondemand.com/");
     public static final ServiceRegion JP30_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.jp20.hana.ondemand.com/");
     public static final ServiceRegion US10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us10.hana.ondemand.com/");
-    public static final ServiceRegion US11_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us11.hana.ondemand.com/");
+    public static final ServiceRegion US11_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us21.hana.ondemand.com/");
     public static final ServiceRegion JP10_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.jp10.hana.ondemand.com/");
     public static final ServiceRegion JP31_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.jp10.hana.ondemand.com/");
     public static final ServiceRegion US30_MTLS = new ServiceRegion(Platform.CF, "https://clm-sl-ans-live-ans-service-api.mesh.cf.us30.hana.ondemand.com/");

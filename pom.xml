@@ -196,13 +196,13 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk18on</artifactId>
-            <version>1.78</version>
+            <artifactId>bcpkix-fips</artifactId>
+            <version>2.1.9</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78</version>
+            <artifactId>bc-fips</artifactId>
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

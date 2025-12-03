@@ -8,7 +8,7 @@
     <url>https://github.com/SAP/clm-sl-alert-notification-client</url>
     <groupId>com.sap.cloud.ans</groupId>
     <artifactId>clm-sl-alert-notification-client</artifactId>
-    <version>1.12.0-SNAPSHOT</version>
+    <version>1.14.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -139,6 +139,7 @@
                                         <arg>--pinentry-mode</arg>
                                         <arg>loopback</arg>
                                     </gpgArguments>
+                                    <useAgent>true</useAgent>
                                 </configuration>
                             </execution>
                         </executions>
@@ -195,13 +196,13 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk18on</artifactId>
-            <version>1.78</version>
+            <artifactId>bcpkix-fips</artifactId>
+            <version>2.1.9</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78</version>
+            <artifactId>bc-fips</artifactId>
+            <version>2.1.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

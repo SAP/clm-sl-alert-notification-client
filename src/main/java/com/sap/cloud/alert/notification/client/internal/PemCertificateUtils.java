@@ -6,7 +6,7 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -34,7 +34,7 @@ import static com.sap.cloud.alert.notification.client.internal.KeyStoreUtils.dec
 class PemCertificateUtils {
 
     static {
-        Security.addProvider(new BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleFipsProvider());
     }
 
     private static final String BEGIN_CERTIFICATE_DELIMITER = "-----BEGIN CERTIFICATE-----";
@@ -119,7 +119,7 @@ class PemCertificateUtils {
         } else if (privateKeyObject instanceof PKCS8EncryptedPrivateKeyInfo) {
             PKCS8EncryptedPrivateKeyInfo privateKeyInfo = (PKCS8EncryptedPrivateKeyInfo) privateKeyObject;
 
-            JcePKCSPBEInputDecryptorProviderBuilder builder = new JcePKCSPBEInputDecryptorProviderBuilder().setProvider("BC");
+            JcePKCSPBEInputDecryptorProviderBuilder builder = new JcePKCSPBEInputDecryptorProviderBuilder().setProvider("BCFIPS");
             InputDecryptorProvider decryptionProvider = builder.build(password.toCharArray());
 
             return jcaPEMKeyConverter.getPrivateKey(privateKeyInfo.decryptPrivateKeyInfo(decryptionProvider));

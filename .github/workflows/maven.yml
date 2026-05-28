@@ -8,6 +8,9 @@ on:
     branches: [ master ]
     types: [opened, edited, synchronize, ready_for_review, reopened]
 
+permissions:
+  contents: read
+
 jobs:
   build:
 

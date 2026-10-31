@@ -134,10 +134,7 @@ public class AlertNotificationClientBuilderTest {
 
     @Test
     public void whenBuildFromDestinationServiceBindingIsCalled_withBasicCredentials_thenCorrectClientIsCreated() throws Exception {
-        when(testHttpClient.execute(any()))
-                .thenReturn(createOAuthHttpResponse())
-                .thenReturn(createBasicAuthenticationHeaderResponse())
-                .thenReturn(createBasicAuthenticationHeaderResponse());
+        setupHttpClientExecuteStubs();
 
         AlertNotificationClient createdClient = classUnderTest.withRetryPolicy(testRetryPolicy).buildFromDestinationBinding(destinationServiceBinding, TEST_DESTINATION_NAME);
 
@@ -179,10 +176,7 @@ public class AlertNotificationClientBuilderTest {
 
     @Test
     public void whenBuildFromDestinationServiceBindingIsCalled_withInvalidationTimeConfigured_thenCorrectClientIsCreated() throws Exception {
-        when(testHttpClient.execute(any()))
-                .thenReturn(createOAuthHttpResponse())
-                .thenReturn(createBasicAuthenticationHeaderResponse())
-                .thenReturn(createBasicAuthenticationHeaderResponse());
+        setupHttpClientExecuteStubs();
 
         AlertNotificationClient createdClient = classUnderTest.withRetryPolicy(testRetryPolicy).buildFromDestinationBinding(destinationServiceBinding, TEST_DESTINATION_NAME, TEST_INVALIDATION_TIME);
 
@@ -231,5 +225,9 @@ public class AlertNotificationClientBuilderTest {
     private void assertCorrectInvalidationTime(IAlertNotificationClient client, Long expectedInvalidationTime) {
         Long invalidationTime = extractSuperClassFieldValue(client, "invalidationTime");
         assertEquals(invalidationTime, expectedInvalidationTime);
+    }
+
+    private void setupHttpClientExecuteStubs() throws Exception {
+        when(testHttpClient.execute(any())).thenReturn(createOAuthHttpResponse()).thenReturn(createBasicAuthenticationHeaderResponse()).thenReturn(createBasicAuthenticationHeaderResponse());
     }
 }

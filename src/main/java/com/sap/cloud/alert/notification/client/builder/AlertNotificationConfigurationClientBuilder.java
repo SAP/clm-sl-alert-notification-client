@@ -13,7 +13,6 @@ import java.net.URI;
 
 import static com.sap.cloud.alert.notification.client.Platform.CF;
 import static java.util.Objects.*;
-import static org.apache.http.impl.client.HttpClients.createDefault;
 
 public final class AlertNotificationConfigurationClientBuilder {
 
@@ -30,9 +29,9 @@ public final class AlertNotificationConfigurationClientBuilder {
     private boolean isCertificateAuthentication = false;
     private KeyStoreDetails keyStoreDetails;
     private Long invalidationTime;
+    private HttpClientConfig httpClientConfig = HttpClientConfig.fromDefaultConfig().build();
 
     public AlertNotificationConfigurationClientBuilder() {
-        this(createDefault());
     }
 
     public AlertNotificationConfigurationClientBuilder(HttpClient httpClient) {
@@ -41,6 +40,11 @@ public final class AlertNotificationConfigurationClientBuilder {
 
     public AlertNotificationConfigurationClientBuilder withHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
+        return this;
+    }
+
+    public AlertNotificationConfigurationClientBuilder withHttpClientConfig(HttpClientConfig httpClientConfig) {
+        this.httpClientConfig = ObjectUtils.requireNonNull(httpClientConfig, "httpClientConfig cannot be null");
         return this;
     }
 
@@ -103,7 +107,8 @@ public final class AlertNotificationConfigurationClientBuilder {
     }
 
     public IAlertNotificationConfigurationClient buildFromDestinationBinding(DestinationServiceBinding destinationServiceBinding, String destinationName) {
-        this.destinationCredentialsProvider = buildDestinationCredentialsProvider(destinationName, httpClient, destinationServiceBinding);
+        HttpClient resolvedHttpClient = resolveHttpClient();
+        this.destinationCredentialsProvider = buildDestinationCredentialsProvider(destinationName, resolvedHttpClient, destinationServiceBinding);
 
         DestinationContext destinationContext = destinationCredentialsProvider.getDestinationContext();
 
@@ -114,7 +119,7 @@ public final class AlertNotificationConfigurationClientBuilder {
             this.keyStoreDetails = destinationCredentialsProvider.getKeyStoreDetails();
         }
 
-        return build();
+        return build(resolvedHttpClient);
     }
 
     public IAlertNotificationConfigurationClient buildFromDestinationBinding(DestinationServiceBinding destinationServiceBinding, String destinationName, Long invalidationTime) {
@@ -138,6 +143,10 @@ public final class AlertNotificationConfigurationClientBuilder {
     }
 
     public IAlertNotificationConfigurationClient build() {
+        return build(resolveHttpClient());
+    }
+
+    private IAlertNotificationConfigurationClient build(HttpClient httpClient) {
         if (isNull(destinationCredentialsProvider) && isCertificateAuthentication) {
             return new AlertNotificationConfigurationClient(
                     httpClient,
@@ -145,7 +154,7 @@ public final class AlertNotificationConfigurationClientBuilder {
                     requireNonNull(serviceRegion),
                     requireNonNull(certificate),
                     requireNonNull(privateKey),
-                    new HttpClientFactory(),
+                    new HttpClientFactory(httpClientConfig),
                     isCertificateAuthentication
             );
         }
@@ -154,22 +163,22 @@ public final class AlertNotificationConfigurationClientBuilder {
                 requireNonNull(httpClient),
                 requireNonNull(retryPolicy),
                 requireNonNull(serviceRegion),
-                buildAuthorizationHeader(),
+                buildAuthorizationHeader(httpClient),
                 invalidationTime,
                 keyStoreDetails,
                 destinationCredentialsProvider,
-                new HttpClientFactory(),
+                new HttpClientFactory(httpClientConfig),
                 isCertificateAuthentication
         );
     }
 
-    private IAuthorizationHeader buildAuthorizationHeader() {
+    private IAuthorizationHeader buildAuthorizationHeader(HttpClient httpClient) {
         if(nonNull(destinationCredentialsProvider) && !isCertificateAuthentication) {
             return destinationCredentialsProvider.getAuthorizationHeader();
         }
 
         if (nonNull(certificate) && nonNull(privateKey) && nonNull(oAuthServiceUri)) {
-            return new OAuthAuthorizationHeader(certificate, privateKey, oAuthServiceUri, clientId, new HttpClientFactory());
+            return new OAuthAuthorizationHeader(certificate, privateKey, oAuthServiceUri, clientId, new HttpClientFactory(httpClientConfig));
         }
 
 
@@ -186,5 +195,13 @@ public final class AlertNotificationConfigurationClientBuilder {
         if(nonNull(invalidationTime) && invalidationTime < 0) {
             throw new ClientRequestException("InvalidationTime cannot be a negative number");
         }
+    }
+
+    private HttpClient resolveHttpClient() {
+        if (httpClient != null) {
+            return httpClient;
+        }
+
+        return new HttpClientFactory(httpClientConfig).createHttpClient();
     }
 }

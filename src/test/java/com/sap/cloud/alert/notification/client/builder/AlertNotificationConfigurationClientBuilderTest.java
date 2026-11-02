@@ -9,6 +9,8 @@ import org.apache.http.client.HttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 import static com.sap.cloud.alert.notification.client.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -202,13 +204,13 @@ public class AlertNotificationConfigurationClientBuilderTest {
     @Test
     public void givenWithCertificateIsUsedForAuthentication_whenBuildIsCalled_thenCorrectClientIsBuilt() {
         AlertNotificationConfigurationClient alertNotificationConfigurationClient = (AlertNotificationConfigurationClient) classUnderTest //
-                .withHttpClient(TEST_HTTP_CLIENT) //
+                .withHttpClientConfig(HttpClientConfig.fromDefaultConfig().socketTimeout(Duration.ofSeconds(10)).build()) //
                 .withRetryPolicy(TEST_RETRY_POLICY) //
                 .withServiceRegion(TEST_SERVICE_REGION)
                 .withCertificate(TEST_CERTIFICATE, TEST_PRIVATE_KEY) //
                 .build();
 
-        assertEquals(TEST_HTTP_CLIENT, alertNotificationConfigurationClient.getHttpClient());
+        assertNotNull(alertNotificationConfigurationClient.getHttpClient());
         assertEquals(TEST_SERVICE_REGION, alertNotificationConfigurationClient.getServiceRegion());
         assertEquals(((SimpleRetryPolicy) TEST_RETRY_POLICY).getMaxRetries(),  ((SimpleRetryPolicy) alertNotificationConfigurationClient.getRetryPolicy()).getMaxRetries());
     }
@@ -268,13 +270,19 @@ public class AlertNotificationConfigurationClientBuilderTest {
     }
 
     @Test
-    public void givenThatNullHttpClientIsGiven_whenBuildIsCalled_thenExceptionIsThrown() {
-        assertThrows(NullPointerException.class, () -> classUnderTest //
+    public void givenNullHttpClient_whenConstructorIsCalled_thenExceptionIsThrown() {
+        assertThrows(NullPointerException.class, () -> new AlertNotificationConfigurationClientBuilder(null));
+    }
+
+    @Test
+    public void givenThatNullHttpClientIsGiven_whenBuildIsCalled_thenDefaultHttpClientIsUsed() {
+        AlertNotificationConfigurationClient alertNotificationConfigurationClient = (AlertNotificationConfigurationClient) classUnderTest //
                 .withHttpClient(null) //
                 .withRetryPolicy(TEST_RETRY_POLICY) //
-                .withServiceRegion(TEST_SERVICE_REGION)
-                .build()
-        );
+                .withServiceRegion(TEST_SERVICE_REGION) //
+                .build();
+
+        assertNotNull(alertNotificationConfigurationClient.getHttpClient());
     }
 
     @Test

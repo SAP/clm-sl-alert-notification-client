@@ -4,10 +4,7 @@ import com.sap.cloud.alert.notification.client.IAlertNotificationClient;
 import com.sap.cloud.alert.notification.client.IRetryPolicy;
 import com.sap.cloud.alert.notification.client.ServiceRegion;
 import com.sap.cloud.alert.notification.client.exceptions.ClientRequestException;
-import com.sap.cloud.alert.notification.client.internal.AlertNotificationClient;
-import com.sap.cloud.alert.notification.client.internal.BasicAuthorizationHeader;
-import com.sap.cloud.alert.notification.client.internal.OAuthAuthorizationHeader;
-import com.sap.cloud.alert.notification.client.internal.SimpleRetryPolicy;
+import com.sap.cloud.alert.notification.client.internal.*;
 import com.sap.cloud.alert.notification.client.model.AlertNotificationServiceBinding;
 import com.sap.cloud.alert.notification.client.model.DestinationServiceBinding;
 import org.apache.http.client.HttpClient;
@@ -15,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.time.Duration;
 
 import static com.sap.cloud.alert.notification.client.TestUtils.*;
 import static org.apache.http.impl.client.HttpClients.createDefault;
@@ -124,10 +122,14 @@ public class AlertNotificationClientBuilderTest {
 
     @Test
     public void givenThatAuthenticationWithCertificateIsUsed_whenBuildIsCalled_thenCorrectClientIsCreated() {
-        AlertNotificationClient createdClient = classUnderTest.withRetryPolicy(testRetryPolicy).withServiceRegion(testServiceRegion)
-                .withCertificate(TEST_CERTIFICATE, TEST_PRIVATE_KEY).build();
+        AlertNotificationClient createdClient = new AlertNotificationClientBuilder() //
+            .withHttpClientConfig(HttpClientConfig.fromDefaultConfig().socketTimeout(Duration.ofSeconds(10)).build()) //
+            .withRetryPolicy(testRetryPolicy) //
+            .withServiceRegion(testServiceRegion) //
+            .withCertificate(TEST_CERTIFICATE, TEST_PRIVATE_KEY) //
+            .build();
 
-        assertEquals(testHttpClient, createdClient.getHttpClient());
+        assertNotNull(createdClient.getHttpClient());
         assertEquals(testServiceRegion, createdClient.getServiceRegion());
         assertEquals(((SimpleRetryPolicy) testRetryPolicy).getMaxRetries(), ((SimpleRetryPolicy) createdClient.getRetryPolicy()).getMaxRetries());
     }
@@ -226,6 +228,22 @@ public class AlertNotificationClientBuilderTest {
         assertThrows(NullPointerException.class, () -> {
             classUnderTest.withRetryPolicy(null).withServiceRegion(testServiceRegion).withAuthentication(TEST_CLIENT_ID, TEST_CLIENT_SECRET).build();
         });
+    }
+
+    @Test
+    public void givenNullHttpClient_whenConstructorIsCalled_thenExceptionIsThrown() {
+        assertThrows(NullPointerException.class, () -> new AlertNotificationClientBuilder(null));
+    }
+
+    @Test
+    public void givenThatNullHttpClientIsGiven_whenBuildIsCalled_thenDefaultHttpClientIsUsed() {
+        AlertNotificationClient alertNotificationClient = new AlertNotificationClientBuilder() //
+                .withRetryPolicy(TEST_RETRY_POLICY) //
+                .withServiceRegion(TEST_SERVICE_REGION) //
+                .withHttpClient(null) //
+                .build();
+
+        assertNotNull(alertNotificationClient.getHttpClient());
     }
 
     private void assertCorrectInvalidationTime(IAlertNotificationClient client, Long expectedInvalidationTime) {

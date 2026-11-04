@@ -88,6 +88,7 @@ public class OAuthAuthorizationHeaderTest {
 
     @Test
     public void givenCertificateAuthentication_andTokenHasExpired_whenGetValueIsCalled_thenTokenIsRenewed() throws Exception {
+        doReturn(null).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
         classUnderTest = new OAuthAuthorizationHeader(TEST_CERTIFICATE, TEST_PRIVATE_KEY, TEST_UAA_URI, TEST_CLIENT_ID, mockedHttpClientFactory);
         when(mockedHttpClient.execute(any(HttpPost.class))) //
                 .thenReturn(createMockedUAATokenResponse(TEST_ACCESS_TOKEN_1, Duration.ofSeconds(1)));

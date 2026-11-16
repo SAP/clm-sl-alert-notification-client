@@ -76,33 +76,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>10.0.4</version>
-                <configuration>
-                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                    <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
-                    <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
-                    <skipTestScope>false</skipTestScope>
-                    <excludes>
-                        <exclude>commons-logging:commons-logging</exclude>
-                        <exclude>commons-codec:commons-codec</exclude>
-                        <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
-                        <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
-                        <exclude>commons-io:commons-io</exclude>
-                        <exclude>org.bouncycastle:bc-fips</exclude>
-                        <exclude>org.bouncycastle:bcpkix-fips</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 

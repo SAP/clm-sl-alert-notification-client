@@ -43,7 +43,7 @@ and then [Credential Management](https://help.sap.com/viewer/5967a369d4b74f7a9c2
 
 Let's start by constructing the needed parameters for the Alert Notification service client:
 
-* HttpClient - used for connection to Alert Notification service. In this tutorial, we'll use the Apache Http default one:
+* HttpClient - used for connection to Alert Notification service. If not provided default one is created based on the `HttpClientConfig`. This instance will only be used for requests using non-certificate authentication. Requests using certificate authentication use a separate internal HttpClient, which you can configure via `HttpClientConfig` 
 
 ```java
 HttpClient httpClient = HttpClients.createDefault();
@@ -70,6 +70,15 @@ In this tutorial, we'll use basic authorization mechanism:
 IAuthorizationHeader authorizationHeader = new BasicAuthorizationHeader("<<CLIEND_ID>>", "<<CLIENT_SECRET>>");
 ```
 
+* HttpClientConfig - configuration for the underlying HttpClient instances used. Applies only to HttpClient instances created internally by the notification client. If not provided the below default values apply
+
+```java
+HttpClientConfig httpClientConfig = HttpClientConfig.fromDefaultConfig() //
+        .connectionObtainTimeout(Duration.ofSeconds(30)) //
+        .connectionEstablishTimeout(Duration.ofSeconds(30)) //
+        .socketTimeout(Duration.ofSeconds(30)) //
+        .build();
+```
 ⚠️ **NOTE: <<CLIEND_ID>> and <<CLIENT_SECRET>> must be replaced by actual values received on credentials creation.**
 
 
@@ -85,6 +94,7 @@ IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryP
   IAlertNotificationClient client = new AlertNotificationClientBuilder() //
             .withServiceRegion(<< SAP_SERVICE_REGION >>) //
             .withRetryPolicy(<< RETRY_POLICY >>) // 
+            .withHttpClientConfig(<< HTTP_CLIENT_CONFIG >>) // optional
             .withAuthentication("<< CERTIFICATE >>", "<< PRIVATE_KEY >>", "<< OAUTH_SERVICE_URI >>", "<< CLIENT_ID >>") //
             .build();
 ```
@@ -93,7 +103,8 @@ IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryP
 
 ```java
   IAlertNotificationClient alertNotificationClient = new AlertNotificationClientBuilder(<<HTTP_CLIENT>>)
-        .withRetryPolicy(<<RETRY_POLICY>>)
+        .withRetryPolicy(<<RETRY_POLICY>>) //
+        .withHttpClientConfig(<< HTTP_CLIENT_CONFIG >>) // optional
         .buildFromDestinationBinding(new DestinationServiceBinding(
         <<DESTINATION_SERVICE_SERVICE_URI>>,
         <<OAUTH_URI>>,
@@ -107,6 +118,7 @@ IAlertNotificationClient client = new AlertNotificationClient(httpClient, retryP
 ```java
   IAlertNotificationClient client = new AlertNotificationClientBuilder() //
             .withServiceRegion(<< SAP_SERVICE_REGION >>) //
+            .withHttpClientConfig(<< HTTP_CLIENT_CONFIG >>) // optional
             .withRetryPolicy(<< RETRY_POLICY >>) // 
             .withCertificate("<< CERTIFICATE >>", "<< PRIVATE_KEY >>") //
             .build();

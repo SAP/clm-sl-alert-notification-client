@@ -122,8 +122,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenGetConditionsIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -148,9 +147,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication1_whenGetConditionsIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -179,9 +176,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication2_whenGetConditionsIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_PEM, buildResponse(SC_OK, CONDITION_CONFIGURATION_RESPONSE));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -233,8 +228,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenCreatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPost.class, buildResponse(SC_CREATED, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -259,9 +253,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication1_whenCreatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_PEM, buildResponse(SC_CREATED, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -290,9 +282,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication2_whenCreatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_CREATED, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -343,8 +333,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_andCertificateAuthentication_whenGetConditionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, buildResponse(SC_OK, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -369,9 +358,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_andCertificateAuthentication1_whenGetConditionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -400,9 +387,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_andCertificateAuthentication2_whenGetConditionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_PEM, buildResponse(SC_OK, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -453,8 +438,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_andCertificateAuthentication_whenUpdatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPut.class, buildResponse(SC_OK, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -479,9 +463,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_andCertificateAuthentication1_whenUpdatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPut.class, TEST_KEYSTORE_DETAILS_PEM, buildResponse(SC_OK, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -510,9 +492,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_andCertificateAuthentication2_whenUpdatingCondition_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_CONDITION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPut.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_CONDITION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -607,8 +587,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenCreatingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPost.class, buildResponse(SC_CREATED, TEST_ACTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -633,9 +612,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenCreatingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_CREATED, TEST_ACTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -686,8 +663,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenGetActionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, buildResponse(SC_OK, TEST_ACTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -712,9 +688,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenGetActionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_ACTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -766,9 +740,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenUpdatingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPut.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_ACTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -798,8 +770,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenUpdatingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_ACTION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPut.class, buildResponse(SC_OK, TEST_ACTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -846,8 +817,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenDeletingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpDelete.class);
-        doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpDelete.class, buildResponse(SC_NO_CONTENT, EMPTY));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -871,9 +841,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenDeletingAction_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpDelete.class);
-        doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpDelete.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_NO_CONTENT, EMPTY));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -924,8 +892,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenGetSubscriptionsIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, SUBSCRIPTION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, buildResponse(SC_OK, SUBSCRIPTION_CONFIGURATION_RESPONSE));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -951,9 +918,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenGetSubscriptionsIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, SUBSCRIPTION_CONFIGURATION_RESPONSE)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, SUBSCRIPTION_CONFIGURATION_RESPONSE));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1005,8 +970,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenCreatingSubscription_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPost.class, buildResponse(SC_CREATED, TEST_SUBSCRIPTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1031,9 +995,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenCreatingSubscription_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_CREATED, TEST_SUBSCRIPTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1084,8 +1046,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenGetSubscriptionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, buildResponse(SC_OK, TEST_SUBSCRIPTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1110,9 +1071,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenGetSubscriptionIsCalled_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_SUBSCRIPTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1163,8 +1122,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenUpdatingSubscription_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPut.class, buildResponse(SC_OK, TEST_SUBSCRIPTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1189,9 +1147,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenUpdatingSubscription_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPut.class);
-        doReturn(buildResponse(SC_OK, TEST_SUBSCRIPTION)).when(mockedHttpClient).execute(any(HttpPut.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPut.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_SUBSCRIPTION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1242,9 +1198,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenDeletingSubscription_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpDelete.class);
-        doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpDelete.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_NO_CONTENT, EMPTY));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1273,8 +1227,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenDeletingSubscription_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpDelete.class);
-        doReturn(buildResponse(SC_NO_CONTENT, EMPTY)).when(mockedHttpClient).execute(any(HttpDelete.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpDelete.class, buildResponse(SC_NO_CONTENT, EMPTY));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1321,9 +1274,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenImportingAll_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_CREATED, TEST_CONFIGURATION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1352,8 +1303,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenImportingAll_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpPost.class);
-        doReturn(buildResponse(SC_CREATED, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpPost.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPost.class, buildResponse(SC_CREATED, TEST_CONFIGURATION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1400,8 +1350,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromCertificateServiceBinding_withCertificateAuthentication_whenExportingAll_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, buildResponse(SC_OK, TEST_CONFIGURATION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1426,9 +1375,7 @@ public class AlertNotificationConfigurationClientTest {
     @Test
     public void givenFromDestinationBinding_withCertificateAuthentication_whenExportingAll_thenCorrectRequestIsSent() throws Exception {
         requestCaptor = forClass(HttpGet.class);
-        doReturn(buildResponse(SC_OK, TEST_CONFIGURATION)).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, buildResponse(SC_OK, TEST_CONFIGURATION));
 
         classUnderTest = new AlertNotificationConfigurationClient( //
                 mockedHttpClient, //
@@ -1588,5 +1535,16 @@ public class AlertNotificationConfigurationClientTest {
         URIBuilder builder = new URIBuilder().setScheme(uri.getScheme()).setHost(uri.getHost()).setPort(uri.getPort()).setPath(path);
 
         return isNull(parameters) ? builder.build() : builder.setParameters(parameters).build();
+    }
+
+    private void setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(Class<? extends HttpUriRequest> executeArgType1, KeyStoreDetails createHttpClientArg1, HttpResponse executeReturnValue) throws Exception {
+        doReturn(executeReturnValue).when(mockedHttpClient).execute(any(executeArgType1));
+        doReturn(createHttpClientArg1).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(createHttpClientArg1);
+    }
+
+    private void setupHttpClientExecuteAndCreateHttpClientStubs(Class<? extends HttpUriRequest> executeArgType1, HttpResponse executeReturnValue) throws Exception {
+        doReturn(executeReturnValue).when(mockedHttpClient).execute(any(executeArgType1));
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
     }
 }

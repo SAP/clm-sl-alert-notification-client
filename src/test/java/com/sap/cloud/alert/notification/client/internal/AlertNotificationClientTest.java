@@ -144,8 +144,7 @@ public class AlertNotificationClientTest {
     public void givenFromBinding_withCertificateAuthentication_whenSendEventIsCalled_thenCorrectRequestIsSent() throws Exception {
         ArgumentCaptor<HttpPost> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
         ;
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
-        doReturn(createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT)).when(mockedHttpClient).execute(any(HttpPost.class));
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpPost.class, createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT));
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -174,9 +173,7 @@ public class AlertNotificationClientTest {
     public void givenFromDestinationBinding_withCertificateAuthentication1_whenSendEventIsCalled_thenCorrectRequestIsSent() throws Exception {
         ArgumentCaptor<HttpPost> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
 
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
-        doReturn(createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT)).when(mockedHttpClient).execute(any(HttpPost.class));
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_PEM, createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT));
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -208,9 +205,7 @@ public class AlertNotificationClientTest {
     public void givenFromDestinationBinding_withCertificateAuthentication2_whenSendEventIsCalled_thenCorrectRequestIsSent() throws Exception {
         ArgumentCaptor<HttpPost> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpPost.class);
 
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
-        doReturn(createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT)).when(mockedHttpClient).execute(any(HttpPost.class));
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpPost.class, TEST_KEYSTORE_DETAILS_P12, createMockedSendEventResponse(TEST_CUSTOMER_RESOURCE_EVENT));
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -298,8 +293,7 @@ public class AlertNotificationClientTest {
         ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
 
-        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, createMockedPagedResponse());
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -327,9 +321,7 @@ public class AlertNotificationClientTest {
         ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
 
-        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, createMockedPagedResponse());
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -360,9 +352,7 @@ public class AlertNotificationClientTest {
         ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
 
-        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_PEM, createMockedPagedResponse());
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -421,8 +411,7 @@ public class AlertNotificationClientTest {
         ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
 
-        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
+        setupHttpClientExecuteAndCreateHttpClientStubs(HttpGet.class, createMockedPagedResponse());
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -450,9 +439,7 @@ public class AlertNotificationClientTest {
         ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
 
-        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_PEM).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_PEM);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_PEM, createMockedPagedResponse());
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -484,9 +471,7 @@ public class AlertNotificationClientTest {
         ArgumentCaptor<HttpGet> httpRequestArgumentCaptor = ArgumentCaptor.forClass(HttpGet.class);
         Map<QueryParameter, String> testQueryFilters = Collections.singletonMap(QueryParameter.EVENT_TYPE, "TEST_EVENT_TYPE");
 
-        doReturn(createMockedPagedResponse()).when(mockedHttpClient).execute(any(HttpGet.class));
-        doReturn(TEST_KEYSTORE_DETAILS_P12).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
-        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_KEYSTORE_DETAILS_P12);
+        setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(HttpGet.class, TEST_KEYSTORE_DETAILS_P12, createMockedPagedResponse());
 
         classUnderTest = new AlertNotificationClient(
                 mockedHttpClient,
@@ -575,5 +560,16 @@ public class AlertNotificationClientTest {
         httpResponse.setEntity(responseEntity);
 
         return httpResponse;
+    }
+
+    private void setupDestinationCredentialsProviderGetKeyStoreDetailsAnd2MoreStubs(Class<? extends org.apache.http.client.methods.HttpUriRequest> executeArgType1, KeyStoreDetails createHttpClientArg1, HttpResponse executeReturnValue) throws Exception {
+        doReturn(createHttpClientArg1).when(mockedDestinationCredentialsProvider).getKeyStoreDetails();
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(createHttpClientArg1);
+        doReturn(executeReturnValue).when(mockedHttpClient).execute(any(executeArgType1));
+    }
+
+    private void setupHttpClientExecuteAndCreateHttpClientStubs(Class<? extends org.apache.http.client.methods.HttpUriRequest> executeArgType1, HttpResponse executeReturnValue) throws Exception {
+        doReturn(executeReturnValue).when(mockedHttpClient).execute(any(executeArgType1));
+        doReturn(mockedHttpClient).when(mockedHttpClientFactory).createHttpClient(TEST_CERTIFICATE, TEST_PRIVATE_KEY);
     }
 }
